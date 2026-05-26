@@ -692,20 +692,33 @@ const InsightBlock = ({
 };
 
 // ─── 8. CustomTooltip ────────────────────────────────────────────────────────
-// Dutch's smart-rounding version (canonical). Annual-scale values ($100M+)
-// round to whole $M; monthly values round to 1 decimal place. Passed to
-// Recharts <Tooltip content={...}> in the client.
+// v1.12 fix: accept an explicit `unit` prop instead of inferring units from
+// value magnitude. Inference was failing on annual $M values (e.g. 31.6 was
+// being formatted as "31.6%" instead of "$31.6M"). Callers must pass:
+//   unit="M"  → format as $X.XM (default)
+//   unit="K"  → format as $X.XK
+//   unit="%"  → format as X.X%
+//   unit="raw"→ no unit suffix, just the number
+//   suffix="%"→ legacy shorthand, equivalent to unit="%"
 
 const CustomTooltip = ({
   active,
   payload,
-  label
+  label,
+  unit,
+  suffix
 }) => {
   const C = useTheme();
   if (!active || !payload?.length) return null;
-  const fmtDollar = v => {
-    const m = v / 1000;
-    return `$${Math.abs(m) >= 100 ? m.toFixed(0) : m.toFixed(1)}M`;
+  // Resolve format mode
+  const mode = unit || (suffix === '%' ? '%' : 'M');
+  const fmt = v => {
+    if (typeof v !== 'number') return v;
+    if (mode === '%') return `${v.toFixed(1)}%`;
+    if (mode === 'K') return `$${v.toFixed(1)}K`;
+    if (mode === 'raw') return v.toLocaleString();
+    // Default M: smart-round larger values to whole millions, small values to 1 decimal
+    return `$${Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(1)}M`;
   };
   return /*#__PURE__*/React.createElement("div", {
     style: {
@@ -717,8 +730,9 @@ const CustomTooltip = ({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      color: C.textMid,
-      marginBottom: 6
+      color: C.text,
+      marginBottom: 6,
+      fontWeight: 700
     }
   }, label), payload.map((p, i) => /*#__PURE__*/React.createElement("div", {
     key: i,
@@ -726,7 +740,11 @@ const CustomTooltip = ({
       color: p.color || C.text,
       marginBottom: 2
     }
-  }, p.name, ": ", typeof p.value === 'number' ? Math.abs(p.value) > 100 ? fmtDollar(p.value) : `${p.value.toFixed(1)}%` : p.value)));
+  }, p.name, ": ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: C.text
+    }
+  }, fmt(p.value)))));
 };
 
 // ─── 9. Stat ─────────────────────────────────────────────────────────────────
@@ -916,7 +934,7 @@ window.DynDeckLib = {
 
 })();
 
-// ─── DASHBOARD_Propeller (client) v1.11 ───
+// ─── DASHBOARD_Propeller (client) v1.12 ───
 (() => {
   var React = globalThis.React;
   var R = globalThis.React;
@@ -2044,11 +2062,11 @@ const LEADERSHIP = [{
   bio: 'Todd Rebner joined Propeller as Chief AI Officer in 2025 after founding and selling AdvancedEPM Consulting — a 126-person, $40M Oracle Platinum Partner technology firm — to Datavail in 2017, where he subsequently served as SVP. He spent the seven years following the exit as an independent technology consultant to Fortune 500 organizations including Mattel, IBM, HCA Healthcare, and Lifepoint Health, focused on Oracle Cloud and AWS implementations. He co-authored \u2018Absolute AI: The Evolution of the Human Experience Through Artificial Intelligence\u2019 (Lulu, 2019), an early work on enterprise AI adoption, and published on AI security, agent architectures, and fraud prevention through the Forbes Technology Council from 2018\u20132021. At Propeller he leads the firm\u2019s AI strategy across PropellerOS, the Propeller Data Lake, and the Transformation Services pillar.'
 }, {
   name: 'Amanda Morgenstern',
-  role: 'Chief Financial Officer',
+  role: 'VP of Client Services & Client CFO',
   tasPedigree: false,
   headshot: 'amanda_morgenstern',
   linkedin: 'https://www.linkedin.com/in/amanda-morgenstern-9877935/',
-  bio: 'Amanda Morgenstern serves as Propeller\u2019s Chief Financial Officer, a role she has held since July 2022 after joining as VP of Finance in August 2021. Before Propeller, she spent five years as CFO of Tough Mudder during its global expansion, followed by CFO roles at Kettlebell Kitchen and EWC Growth. She brings the operator-CFO perspective to Propeller\u2019s own finance function — the same posture Propeller\u2019s embedded teams bring to clients.'
+  bio: 'Amanda Morgenstern leads Propeller\u2019s Client Services function as VP of Client Services and serves as a Client CFO across the senior pod of partner-level CFOs who run client engagements as embedded finance leaders. She joined Propeller in August 2021 as VP of Finance and stepped into the Client CFO leadership role in July 2022. Before Propeller, she spent five years as CFO of Tough Mudder through its global expansion, followed by CFO roles at Kettlebell Kitchen and EWC Growth. She brings the operator-CFO posture &mdash; built inside operating companies, not advised from the outside &mdash; to the embedded model Propeller delivers to clients.'
 }, {
   name: 'Kevin Fish',
   role: 'Head of Corporate Finance & Digital Transformation Services',
@@ -2327,10 +2345,25 @@ const CohortHeatmap = () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const YearlyCohortCurves = () => {
-  // Build chart data: each row is a month offset, with one key per cohort year
+  // Build chart data: each row is a month offset, with one key per cohort year.
+  // v1.12: trim X-axis to actual max observed month + 1 so the curves fill the
+  // available width instead of crunching into the left 60% of the chart.
   const chartData = useMemo(() => {
+    // Find max observable month across all cohorts (excluding 2026 which isn't plotted)
+    let maxM = 0;
+    Object.keys(YEARLY_COHORT_CURVES).forEach(y => {
+      if (y === '2026') return;
+      const curve = YEARLY_COHORT_CURVES[y].curve;
+      for (let i = curve.length - 1; i >= 0; i--) {
+        if (curve[i] != null) {
+          if (i + 1 > maxM) maxM = i + 1;
+          break;
+        }
+      }
+    });
+    const xMax = Math.min(maxM + 1, 48); // cap at 48 as safety
     const rows = [];
-    for (let m = 1; m <= 48; m++) {
+    for (let m = 1; m <= xMax; m++) {
       const row = {
         month: `M${m}`
       };
@@ -3263,38 +3296,48 @@ const TRAJECTORY_LONG = [{
 }];
 
 // Era ribbons — four-band partition of the 18-year arc
-// Boundaries: 2008-2015 (partner-led), 2016-2021 (1st exec), 2022-Q1 2024 (2nd exec), Q2 2024+ (Ray CEO)
+// Each era carries a narrative that surfaces on tab click
 const TRAJECTORY_ERAS = [{
+  id: 'partner',
   label: 'Partner-led',
+  period: '2008 — 2015',
   x1: 'Q1 2008',
   x2: 'Q4 2015',
-  fill: '#6b7c8e'
+  fill: '#6b7c8e',
+  headline: 'A founder and four partners, scaling to $10M.',
+  body: 'Chris Fenster founded Propeller in March 2008. In each of the three subsequent years he recruited a partner to join the firm. The four-partner team scaled the business to nearly $10M in annual revenue before hiring the firm\u2019s first executive team. The conviction that finance should be delivered with the consistency of a production line shaped the operating model from the first client onward.'
 }, {
+  id: 'first',
   label: 'First exec team',
+  period: '2016 — 2021',
   x1: 'Q1 2016',
   x2: 'Q4 2021',
-  fill: '#4a90c2'
+  fill: '#4a90c2',
+  headline: 'Chris steps off billable work; the firm professionalizes.',
+  body: 'In 2016 Propeller hired a COO and a Chief People Officer, while Chris moved from billable CFO work into full-time company leadership. The institutional infrastructure that would carry the next decade of growth was put in place during this era. Revenue grew from roughly $9M to $31M by the end of 2021.'
 }, {
+  id: 'second',
   label: 'Second exec team',
+  period: '2022 — Q1 2024',
   x1: 'Q1 2022',
   x2: 'Q1 2024',
-  fill: '#c47878'
+  fill: '#c47878',
+  headline: 'A full executive turnover collides with the SVB collapse.',
+  body: 'Starting in 2022, Chris hired and replaced his entire executive team \u2014 SVP of Sales, CFO, COO, Chief People Officer, VP of Corporate Development, and Chief Information Officer. The cultural reset proved too much for the company right as the SVB collapse triggered a major pullback in the venture cohort. Chris recruited a President to help stabilize the business over the course of 2H 2023 and Q1 2024, and began a CEO search.'
 }, {
+  id: 'ray',
   label: 'Ray as CEO',
+  period: 'Q2 2024 — present',
   x1: 'Q2 2024',
   x2: 'Q4 2026',
-  fill: '#7ed29b'
+  fill: '#7ed29b',
+  headline: 'Back to basics: talent and culture, remodeled for the AI era.',
+  body: 'For the CEO search, Chris went back to basics \u2014 recruiting for talent and culture fit the way he had with his partner search fifteen years prior. Ray Nieuwenhuizen joined the team in April 2024 and has led the effort to remodel the business for the AI era. PropellerOS, the Growth segment, the brand refresh, and the Transformation Services pillar all formed inside this era.'
 }];
 
-// Event markers — 8 named events along the arc, clickable in chart UI
+// Event markers — 7 named moments inside or between eras
+// Pure hover-only dashed vertical lines (no buttons, no persistent state)
 const TRAJECTORY_EVENTS = [{
-  id: 'founding',
-  q: 'Q1 2008',
-  label: 'Founded',
-  dot: '#e8c468',
-  title: 'March 2008 · Propeller Industries founded',
-  body: 'Chris Fenster launches Propeller with a single client and the conviction that financial operations should be delivered with the consistency of a production line — not the improvisation of a consultancy. The word \"Industries\" was never an accident.'
-}, {
   id: 'newlight',
   q: 'Q3 2020',
   label: 'Newlight',
@@ -3307,28 +3350,28 @@ const TRAJECTORY_EVENTS = [{
   label: '$10M peak',
   dot: '#e8c468',
   title: 'Q1 2022 · Quarterly revenue peak',
-  body: 'Net revenue reaches $10.0M for the quarter — the high-water mark of the venture-funded expansion. 381 clients on the books, all Venture-segment. Annual revenue lands at $38.9M for the year.'
+  body: 'Net revenue reaches $10.0M for the quarter \u2014 the high-water mark of the venture-funded expansion. 381 clients on the books, all Venture-segment. Annual revenue lands at $38.9M for the year.'
 }, {
   id: 'svb',
   q: 'Q1 2023',
   label: 'SVB',
   dot: '#d36b6b',
   title: 'March 2023 · Silicon Valley Bank collapse',
-  body: 'SVB fails. The venture funding environment compresses sharply. Client count and revenue both decline through 2023 as the venture cohort shrinks — a market signal, not an execution miss.'
+  body: 'SVB fails. The venture funding environment compresses sharply. Client count and revenue both decline through 2023 as the venture cohort shrinks \u2014 a market signal, not an execution miss.'
 }, {
   id: 'ray',
   q: 'Q2 2024',
   label: 'Ray CEO',
   dot: '#5fb4d4',
   title: 'April 2024 · Ray Nieuwenhuizen joins as CEO',
-  body: 'Ray joins after a decade at Peloton Consulting Group, where he served as COO and built the firm to $100M+. Chris transitions to Founder & Executive Chairman. The two-in-a-box pairing across functions begins.'
+  body: 'Ray joins after more than a decade at Peloton Consulting Group, where he served as COO and built the firm to $100M+. Chris transitions to Founder & Executive Chairman. The two-in-a-box pairing across functions begins.'
 }, {
   id: 'growth',
   q: 'Q3 2024',
   label: 'Growth launch',
   dot: '#5fb4d4',
   title: 'September 2024 · Growth segment launches',
-  body: 'A second engine begins. Growth-stage clients pay roughly 2.5× the Venture rate per client per month, on fixed fee rather than T&M. By Q1 2026, Growth is contributing $2.0M/quarter at 28% of revenue.'
+  body: 'A second engine begins. Growth-stage clients pay roughly 2.5\u00d7 the Venture rate per client per month, on fixed fee rather than T&M. By Q1 2026, Growth is contributing $2.0M/quarter at 28% of revenue.'
 }, {
   id: 'pos',
   q: 'Q1 2026',
@@ -3346,12 +3389,14 @@ const TRAJECTORY_EVENTS = [{
 }];
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// LONG-ARC CHART — Q1 2008 → Q4 2026 (18 years, 76 quarters, 4 eras, 8 events)
-// Stacked bar (Venture + Growth), client-count overlay, era ribbons, event pins.
+// LONG-ARC CHART — Q1 2008 → Q4 2026 (18 years, 76 quarters, 4 eras, 7 events)
+// v1.12 redesign: eras as click-tabs with rich narratives, events as hover-only
+// dashed lines with tooltip cards. Clean resting state. 480px tall.
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const LongArcChart = () => {
-  const [selectedEvent, setSelectedEvent] = React.useState('peak');
+  const [activeEra, setActiveEra] = React.useState(null);
+  const [hoveredEvent, setHoveredEvent] = React.useState(null);
   const data = TRAJECTORY_LONG.map(r => ({
     p: r.p,
     venture: r.v,
@@ -3361,24 +3406,17 @@ const LongArcChart = () => {
     isForecast: r.f,
     yearLabel: r.q === 1 ? `'${String(r.y).slice(2)}` : ''
   }));
-  const evt = TRAJECTORY_EVENTS.find(e => e.id === selectedEvent) || TRAJECTORY_EVENTS[0];
 
-  // Pre-compute era ribbon overlays (positioned by category-axis indices)
-  const eraOverlay = TRAJECTORY_ERAS.map((e, i) => {
-    const i1 = data.findIndex(d => d.p === e.x1);
-    const i2 = data.findIndex(d => d.p === e.x2);
-    return {
-      ...e,
-      i1,
-      i2
-    };
-  });
+  // The active era object (or null)
+  const activeEraObj = activeEra ? TRAJECTORY_ERAS.find(e => e.id === activeEra) : null;
 
-  // Custom tooltip: stacked bar + client count line
-  const LongArcTooltip = ({
+  // The hovered event object (or null)
+  const hoveredEventObj = hoveredEvent ? TRAJECTORY_EVENTS.find(e => e.id === hoveredEvent) : null;
+
+  // Custom tooltip for bar/line hover — distinct from event tooltips
+  const ChartTooltip = ({
     active,
-    payload,
-    label
+    payload
   }) => {
     if (!active || !payload || payload.length === 0) return null;
     const row = payload[0]?.payload;
@@ -3390,7 +3428,7 @@ const LongArcChart = () => {
         padding: '10px 12px',
         borderRadius: 4,
         fontSize: 11,
-        minWidth: 160
+        minWidth: 170
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -3466,17 +3504,9 @@ const LongArcChart = () => {
   };
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
-      marginBottom: 14
+      marginBottom: 18
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'baseline',
-      justifyContent: 'space-between',
-      flexWrap: 'wrap',
-      gap: 8
-    }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+  }, /*#__PURE__*/React.createElement("h3", {
     style: {
       fontSize: 16,
       fontWeight: 700,
@@ -3484,128 +3514,72 @@ const LongArcChart = () => {
       margin: '0 0 4px',
       letterSpacing: -0.3
     }
-  }, "The 18-year arc \xB7 76 quarters, four eras, two segments"), /*#__PURE__*/React.createElement("div", {
+  }, "The 18-year arc \xB7 four eras, two segments, seven moments"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 12,
       color: C.textDim
     }
-  }, "Quarterly net revenue (stacked bars) and end-of-quarter client count (line). Q2\u2013Q4 2026 is locked budget."))), /*#__PURE__*/React.createElement("div", {
+  }, "Click an era for the leadership story. Hover a vertical line for the moment behind it. Q2\u2013Q4 2026 bars are locked budget.")), /*#__PURE__*/React.createElement("div", {
     style: {
-      display: 'flex',
-      gap: 18,
-      marginTop: 12,
-      flexWrap: 'wrap',
-      fontSize: 11,
-      alignItems: 'center'
+      display: 'grid',
+      gridTemplateColumns: 'repeat(4, 1fr)',
+      gap: 8,
+      marginBottom: 14
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 14,
-      height: 10,
-      background: C.blue
-    }
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: C.textMid
-    }
-  }, "Venture")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 14,
-      height: 10,
-      background: C.accent
-    }
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: C.textMid
-    }
-  }, "Growth")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 14,
-      height: 10,
-      background: 'transparent',
-      border: `1.5px solid ${C.blue}`,
-      opacity: 0.7,
-      backgroundImage: `repeating-linear-gradient(45deg, ${C.blue}66 0 2px, transparent 2px 4px)`
-    }
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: C.textMid
-    }
-  }, "Budget (Q2\u2013Q4 2026)")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 18,
-      height: 2,
-      background: C.green
-    }
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: C.textMid
-    }
-  }, "Clients (EOQ)"))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 14,
-      marginTop: 8,
-      flexWrap: 'wrap',
-      fontSize: 11
-    }
-  }, TRAJECTORY_ERAS.map((e, i) => /*#__PURE__*/React.createElement("div", {
-    key: i,
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 14,
-      height: 10,
-      background: e.fill,
-      opacity: 0.45,
-      border: `1px solid ${e.fill}`
-    }
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: C.textMid
-    }
-  }, e.label))))), /*#__PURE__*/React.createElement("div", {
+  }, TRAJECTORY_ERAS.map(e => {
+    const active = activeEra === e.id;
+    return /*#__PURE__*/React.createElement("button", {
+      key: e.id,
+      onClick: () => setActiveEra(active ? null : e.id),
+      style: {
+        padding: '12px 14px',
+        cursor: 'pointer',
+        background: active ? `${e.fill}33` : C.card,
+        border: `1px solid ${active ? e.fill : C.border}`,
+        borderLeft: `3px solid ${e.fill}`,
+        borderRadius: 4,
+        color: active ? C.text : C.textMid,
+        fontFamily: 'inherit',
+        textAlign: 'left',
+        transition: 'all 0.15s ease'
+      },
+      onMouseEnter: ev => {
+        if (!active) ev.currentTarget.style.background = C.cardHover;
+      },
+      onMouseLeave: ev => {
+        if (!active) ev.currentTarget.style.background = C.card;
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        fontWeight: 700,
+        color: e.fill,
+        letterSpacing: 1,
+        textTransform: 'uppercase',
+        marginBottom: 4
+      }
+    }, e.label), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: active ? C.text : C.textDim,
+        fontWeight: 500
+      }
+    }, e.period));
+  })), /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.card,
       padding: '16px 14px 8px',
       border: `1px solid ${C.border}`,
-      borderRadius: 6
+      borderRadius: 6,
+      position: 'relative'
     }
   }, /*#__PURE__*/React.createElement(ResponsiveContainer, {
     width: "100%",
-    height: 360
+    height: 480
   }, /*#__PURE__*/React.createElement(ComposedChart, {
     data: data,
     margin: {
-      top: 30,
+      top: 20,
       right: 60,
       left: 10,
       bottom: 20
@@ -3646,26 +3620,25 @@ const LongArcChart = () => {
     y2: "6",
     stroke: C.accent,
     strokeWidth: "2"
-  }))), eraOverlay.map((e, i) => /*#__PURE__*/React.createElement(ReferenceArea, {
-    key: i,
+  }))), activeEraObj && /*#__PURE__*/React.createElement(ReferenceArea, {
     yAxisId: "rev",
-    x1: e.x1,
-    x2: e.x2,
-    fill: e.fill,
-    fillOpacity: 0.35,
-    stroke: e.fill,
-    strokeOpacity: 0.5,
-    strokeDasharray: "2 2",
+    x1: activeEraObj.x1,
+    x2: activeEraObj.x2,
+    fill: activeEraObj.fill,
+    fillOpacity: 0.28,
+    stroke: activeEraObj.fill,
+    strokeOpacity: 0.6,
+    strokeDasharray: "3 3",
     ifOverflow: "visible",
     label: {
-      value: e.label,
+      value: activeEraObj.label,
       position: 'insideTop',
-      fill: e.fill,
-      fontSize: 10,
+      fill: activeEraObj.fill,
+      fontSize: 11,
       fontWeight: 700,
-      offset: 4
+      offset: 6
     }
-  })), /*#__PURE__*/React.createElement(CartesianGrid, {
+  }), /*#__PURE__*/React.createElement(CartesianGrid, {
     stroke: C.border,
     strokeDasharray: "3 3",
     vertical: false
@@ -3714,10 +3687,10 @@ const LongArcChart = () => {
       offset: 10
     }
   }), /*#__PURE__*/React.createElement(Tooltip, {
-    content: /*#__PURE__*/React.createElement(LongArcTooltip, null),
+    content: /*#__PURE__*/React.createElement(ChartTooltip, null),
     cursor: {
       fill: C.accent,
-      fillOpacity: 0.08
+      fillOpacity: 0.06
     }
   }), /*#__PURE__*/React.createElement(Bar, {
     yAxisId: "rev",
@@ -3744,89 +3717,138 @@ const LongArcChart = () => {
     dot: false,
     connectNulls: false,
     name: "Clients (EOQ)"
-  }), TRAJECTORY_EVENTS.map(e => /*#__PURE__*/React.createElement(ReferenceLine, {
-    key: e.id,
-    yAxisId: "rev",
-    x: e.q,
-    stroke: e.dot,
-    strokeDasharray: "2 3",
-    strokeOpacity: selectedEvent === e.id ? 0.95 : 0.45,
-    strokeWidth: selectedEvent === e.id ? 1.5 : 1
-  })))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: 6,
-      padding: '10px 4px 4px',
-      borderTop: `1px solid ${C.border}`,
-      marginTop: 6
-    }
-  }, TRAJECTORY_EVENTS.map(e => {
-    const active = selectedEvent === e.id;
-    return /*#__PURE__*/React.createElement("button", {
+  }), TRAJECTORY_EVENTS.map(e => {
+    const isHovered = hoveredEvent === e.id;
+    return /*#__PURE__*/React.createElement(ReferenceLine, {
       key: e.id,
-      onClick: () => setSelectedEvent(e.id),
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 6,
-        padding: '6px 12px',
-        cursor: 'pointer',
-        background: active ? C.accentBg : 'transparent',
-        border: `1px solid ${active ? e.dot : C.border}`,
-        borderRadius: 3,
-        fontSize: 11,
-        color: active ? C.text : C.textMid,
-        fontWeight: active ? 600 : 400,
-        letterSpacing: 0.2
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: 8,
-        height: 8,
-        borderRadius: '50%',
-        background: e.dot,
-        flexShrink: 0
-      }
-    }), /*#__PURE__*/React.createElement("span", null, e.q), /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: active ? C.text : C.textDim
-      }
-    }, "\xB7 ", e.label));
+      yAxisId: "rev",
+      x: e.q,
+      stroke: e.dot,
+      strokeDasharray: "2 3",
+      strokeOpacity: isHovered ? 1.0 : 0.55,
+      strokeWidth: isHovered ? 2 : 1.2
+    });
   }))), /*#__PURE__*/React.createElement("div", {
     style: {
-      marginTop: 14,
-      padding: '18px 22px',
+      position: 'absolute',
+      top: 16,
+      left: 14,
+      right: 60,
+      height: 480,
+      pointerEvents: 'none'
+    }
+  }, TRAJECTORY_EVENTS.map(e => {
+    // Compute the horizontal position as a percentage of chart width
+    const idx = data.findIndex(d => d.p === e.q);
+    const pct = (idx + 0.5) / data.length * 100;
+    return /*#__PURE__*/React.createElement("div", {
+      key: e.id,
+      onMouseEnter: () => setHoveredEvent(e.id),
+      onMouseLeave: () => setHoveredEvent(null),
+      style: {
+        position: 'absolute',
+        left: `calc(${pct}% + 24px)`,
+        // offset for Y-axis width
+        top: 0,
+        width: 24,
+        height: '90%',
+        transform: 'translateX(-12px)',
+        pointerEvents: 'auto',
+        cursor: 'help'
+      }
+    });
+  })), hoveredEventObj && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      bottom: -8,
+      left: '50%',
+      transform: 'translate(-50%, 100%)',
+      background: C.bg,
+      border: `1px solid ${hoveredEventObj.dot}`,
+      borderLeft: `3px solid ${hoveredEventObj.dot}`,
+      borderRadius: 4,
+      padding: '14px 18px',
+      maxWidth: 560,
+      minWidth: 380,
+      zIndex: 10,
+      boxShadow: '0 6px 24px rgba(0,0,0,0.6)',
+      pointerEvents: 'none'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      fontWeight: 700,
+      color: hoveredEventObj.dot,
+      letterSpacing: 1.5,
+      textTransform: 'uppercase',
+      marginBottom: 6
+    }
+  }, "Moment \xB7 ", hoveredEventObj.q), /*#__PURE__*/React.createElement("h4", {
+    style: {
+      fontSize: 14,
+      fontWeight: 700,
+      color: C.text,
+      margin: '0 0 6px',
+      letterSpacing: -0.2
+    }
+  }, hoveredEventObj.title), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 12.5,
+      color: C.textMid,
+      lineHeight: 1.55,
+      margin: 0
+    }
+  }, hoveredEventObj.body))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: activeEraObj ? 60 : 14,
+      minHeight: 100,
+      transition: 'margin-top 0.2s ease'
+    }
+  }, activeEraObj ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '20px 24px',
       background: C.card,
-      border: `1px solid ${evt.dot}66`,
-      borderLeft: `3px solid ${evt.dot}`,
+      border: `1px solid ${activeEraObj.fill}66`,
+      borderLeft: `3px solid ${activeEraObj.fill}`,
       borderRadius: 6
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 10,
       fontWeight: 700,
-      color: evt.dot,
+      color: activeEraObj.fill,
       letterSpacing: 1.5,
       textTransform: 'uppercase',
       marginBottom: 8
     }
-  }, "Event \xB7 ", evt.q), /*#__PURE__*/React.createElement("h4", {
+  }, "Era \xB7 ", activeEraObj.label, " \xB7 ", activeEraObj.period), /*#__PURE__*/React.createElement("h4", {
     style: {
-      fontSize: 16,
+      fontSize: 17,
       fontWeight: 700,
       color: C.text,
-      margin: '0 0 8px',
-      letterSpacing: -0.2
+      margin: '0 0 10px',
+      letterSpacing: -0.2,
+      lineHeight: 1.3
     }
-  }, evt.title), /*#__PURE__*/React.createElement("p", {
+  }, activeEraObj.headline), /*#__PURE__*/React.createElement("p", {
     style: {
-      fontSize: 13.5,
+      fontSize: 14,
       color: C.textMid,
       lineHeight: 1.65,
       margin: 0
     }
-  }, evt.body)));
+  }, activeEraObj.body)) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '16px 20px',
+      background: `${C.card}88`,
+      border: `1px dashed ${C.border}`,
+      borderRadius: 6,
+      fontSize: 12,
+      color: C.textDim,
+      fontStyle: 'italic',
+      textAlign: 'center'
+    }
+  }, "Click an era above to read the leadership story behind that period. Hover the dashed vertical lines for the moments inside each era.")));
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -4278,6 +4300,187 @@ const WhyNowPlatform = () => /*#__PURE__*/React.createElement("div", null, /*#__
   }
 }, "The category is unfolding now. Propeller has the relationships (1,400+ clients, 18 years), the platform (PropellerOS, built for ourselves first), and the team (Transformation Services leadership already in place) at the moment the market needs all three.")), /*#__PURE__*/React.createElement("div", {
   style: {
+    marginBottom: 30,
+    padding: '24px 24px 22px',
+    background: C.card,
+    border: `1px solid ${C.border}`,
+    borderRadius: 8
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 11,
+    fontWeight: 700,
+    color: C.accent,
+    letterSpacing: 1.5,
+    marginBottom: 6,
+    textTransform: 'uppercase'
+  }
+}, "The Category That Just Got Capitalized"), /*#__PURE__*/React.createElement("h3", {
+  style: {
+    fontSize: 18,
+    fontWeight: 700,
+    color: C.text,
+    margin: '0 0 4px',
+    letterSpacing: -0.2
+  }
+}, "Over $5.5B committed in May 2026 to embedded-services capacity outside the labs\u2019 own walls."), /*#__PURE__*/React.createElement("p", {
+  style: {
+    fontSize: 12.5,
+    color: C.textDim,
+    lineHeight: 1.5,
+    margin: '0 0 22px'
+  }
+}, "Both leading labs partnered with investor consortiums and Big Three consultancies to deploy AI inside operating companies. The deployment target is mid-market and Fortune 500."), /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: 14,
+    marginBottom: 16
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    padding: '16px 18px',
+    background: C.bg,
+    border: `1px solid ${C.accent}66`,
+    borderRadius: 6
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 11,
+    fontWeight: 700,
+    color: C.accent,
+    letterSpacing: 1.2,
+    marginBottom: 8,
+    textTransform: 'uppercase'
+  }
+}, "Anthropic"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 13,
+    color: C.text,
+    lineHeight: 1.6,
+    marginBottom: 4
+  }
+}, /*#__PURE__*/React.createElement("strong", null, "JV with Blackstone, H&F, Goldman, GIC, Sequoia"), " \xB7 ~$1.5B \xB7 May 4"), /*#__PURE__*/React.createElement("ul", {
+  style: {
+    margin: 0,
+    paddingLeft: 18,
+    fontSize: 12.5,
+    color: C.textMid,
+    lineHeight: 1.65
+  }
+}, /*#__PURE__*/React.createElement("li", null, "Fractional AI acquired May 21"), /*#__PURE__*/React.createElement("li", null, "Accenture partnership (Dec 2025)"), /*#__PURE__*/React.createElement("li", null, "KPMG via Google Cloud"), /*#__PURE__*/React.createElement("li", null, "Deloitte agentic practice on Google"))), /*#__PURE__*/React.createElement("div", {
+  style: {
+    padding: '16px 18px',
+    background: C.bg,
+    border: `1px solid ${C.accent}66`,
+    borderRadius: 6
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 11,
+    fontWeight: 700,
+    color: C.accent,
+    letterSpacing: 1.2,
+    marginBottom: 8,
+    textTransform: 'uppercase'
+  }
+}, "OpenAI"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 13,
+    color: C.text,
+    lineHeight: 1.6,
+    marginBottom: 4
+  }
+}, /*#__PURE__*/React.createElement("strong", null, "Deployment Company w/ TPG, Bain, Advent, Brookfield + 15 others"), " \xB7 ~$4B at $10B \xB7 May 4"), /*#__PURE__*/React.createElement("ul", {
+  style: {
+    margin: 0,
+    paddingLeft: 18,
+    fontSize: 12.5,
+    color: C.textMid,
+    lineHeight: 1.65
+  }
+}, /*#__PURE__*/React.createElement("li", null, "Tomoro acquired same day"), /*#__PURE__*/React.createElement("li", null, "PwC across 8 finance functions"), /*#__PURE__*/React.createElement("li", null, "McKinsey, Bain, Capgemini founding")))), /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: '2px 0 6px'
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    width: 0,
+    height: 0,
+    borderLeft: '12px solid transparent',
+    borderRight: '12px solid transparent',
+    borderTop: `12px solid ${C.textDim}`,
+    opacity: 0.6
+  }
+})), /*#__PURE__*/React.createElement("div", {
+  style: {
+    padding: '14px 18px',
+    background: `${C.textDim}11`,
+    border: `1px solid ${C.border}`,
+    borderRadius: 6,
+    textAlign: 'center',
+    marginBottom: 8
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 13,
+    color: C.text,
+    fontWeight: 600,
+    marginBottom: 3
+  }
+}, "Deploys into mid-cap and Fortune 500"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 12,
+    color: C.textMid
+  }
+}, "PE portfolios \xB7 large enterprise \xB7 regulated industries \xB7 ", /*#__PURE__*/React.createElement("strong", null, "$100M+ revenue and above"))), /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: '2px 0 6px'
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    width: 0,
+    height: 0,
+    borderLeft: '12px solid transparent',
+    borderRight: '12px solid transparent',
+    borderTop: `12px solid ${C.accent}`,
+    opacity: 0.7
+  }
+})), /*#__PURE__*/React.createElement("div", {
+  style: {
+    padding: '16px 20px',
+    background: `${C.accent}11`,
+    borderLeft: `3px solid ${C.accent}`,
+    borderRadius: 4
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 10,
+    fontWeight: 700,
+    color: C.accent,
+    letterSpacing: 1.5,
+    marginBottom: 6,
+    textTransform: 'uppercase'
+  }
+}, "The Segment Below"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 14,
+    color: C.text,
+    fontWeight: 600,
+    marginBottom: 4
+  }
+}, "Venture-stage and growth-stage. $0\u2013$100M."), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 12.5,
+    color: C.textMid,
+    lineHeight: 1.5
+  }
+}, "Where Propeller has been operating since 2008. The labs cannot economically reach it. The bottom of their addressable market is the top of ours."))), /*#__PURE__*/React.createElement("div", {
+  style: {
     marginTop: 14,
     marginBottom: 10
   }
@@ -4429,6 +4632,266 @@ const WhyNowPlatform = () => /*#__PURE__*/React.createElement("div", null, /*#__
     letterSpacing: 0.5
   }
 }, "Powered by PropellerOS"))), /*#__PURE__*/React.createElement("div", {
+  style: {
+    marginBottom: 24,
+    padding: '24px 24px 26px',
+    background: C.card,
+    border: `1px solid ${C.border}`,
+    borderRadius: 8
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 11,
+    fontWeight: 700,
+    color: C.accent,
+    letterSpacing: 1.5,
+    marginBottom: 6,
+    textTransform: 'uppercase'
+  }
+}, "Scale-as-a-Service"), /*#__PURE__*/React.createElement("h3", {
+  style: {
+    fontSize: 18,
+    fontWeight: 700,
+    color: C.text,
+    margin: '0 0 4px',
+    letterSpacing: -0.2
+  }
+}, "One CFO builds it once for one company. Propeller builds it once for 300+."), /*#__PURE__*/React.createElement("p", {
+  style: {
+    fontSize: 12.5,
+    color: C.textDim,
+    lineHeight: 1.5,
+    margin: '0 0 22px'
+  }
+}, "Why a sub-$100M company cannot economically build its own AI-enabled finance function \u2014 and why the platform leverage compounds the longer Propeller runs it."), /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: 16,
+    alignItems: 'stretch'
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    padding: '20px 22px',
+    background: C.bg,
+    border: `1px solid ${C.border}`,
+    borderRadius: 6,
+    display: 'flex',
+    flexDirection: 'column'
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 10,
+    fontWeight: 700,
+    color: C.textDim,
+    letterSpacing: 1.5,
+    marginBottom: 6,
+    textTransform: 'uppercase'
+  }
+}, "The Do-It-Yourself Path"), /*#__PURE__*/React.createElement("h4", {
+  style: {
+    fontSize: 16,
+    fontWeight: 700,
+    color: C.text,
+    margin: '0 0 14px',
+    letterSpacing: -0.2,
+    lineHeight: 1.3
+  }
+}, "One company.", /*#__PURE__*/React.createElement("br", null), "One closed loop."), /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '24px 0 18px',
+    flex: 1
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    width: 140,
+    height: 140,
+    borderRadius: '50%',
+    border: `1.5px dashed ${C.textDim}`,
+    background: `${C.textDim}11`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column'
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 13,
+    fontWeight: 700,
+    color: C.text,
+    marginBottom: 4
+  }
+}, "Client A"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 10,
+    color: C.textDim,
+    lineHeight: 1.4,
+    textAlign: 'center',
+    maxWidth: 110
+  }
+}, "builds AI", /*#__PURE__*/React.createElement("br", null), "finance stack", /*#__PURE__*/React.createElement("br", null), "for Client A"))), /*#__PURE__*/React.createElement("p", {
+  style: {
+    fontSize: 12,
+    color: C.textMid,
+    lineHeight: 1.6,
+    margin: '0 0 12px'
+  }
+}, "Data infrastructure, governance, cross-company learning, AI bench \u2014 all built from scratch, for this one company."), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 11.5,
+    color: C.textDim,
+    fontWeight: 600,
+    paddingTop: 12,
+    borderTop: `1px solid ${C.border}`,
+    lineHeight: 1.4
+  }
+}, "Months to years to build.", /*#__PURE__*/React.createElement("br", null), "Single-company benefit. Cannot compound.")), /*#__PURE__*/React.createElement("div", {
+  style: {
+    padding: '20px 22px',
+    background: `${C.accent}13`,
+    border: `1px solid ${C.accent}88`,
+    borderRadius: 6,
+    display: 'flex',
+    flexDirection: 'column'
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 10,
+    fontWeight: 700,
+    color: C.accent,
+    letterSpacing: 1.5,
+    marginBottom: 6,
+    textTransform: 'uppercase'
+  }
+}, "The Propeller Path"), /*#__PURE__*/React.createElement("h4", {
+  style: {
+    fontSize: 16,
+    fontWeight: 700,
+    color: C.text,
+    margin: '0 0 14px',
+    letterSpacing: -0.2,
+    lineHeight: 1.3
+  }
+}, "300+ companies.", /*#__PURE__*/React.createElement("br", null), "One compounding loop."), /*#__PURE__*/React.createElement("div", {
+  style: {
+    position: 'relative',
+    height: 188,
+    marginBottom: 6,
+    flex: 1
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    transform: 'translate(-50%, -50%)',
+    padding: '10px 18px',
+    background: C.accent,
+    color: '#0c0c0c',
+    borderRadius: 4,
+    fontSize: 13,
+    fontWeight: 800,
+    letterSpacing: 0.3,
+    boxShadow: `0 0 24px ${C.accent}55`,
+    zIndex: 2
+  }
+}, "PropellerOS"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 170,
+    height: 170,
+    borderRadius: '50%',
+    border: `1px dashed ${C.accent}44`,
+    zIndex: 1
+  }
+}), [{
+  angle: -90,
+  label: 'A'
+},
+// top
+{
+  angle: -45,
+  label: 'B'
+},
+// upper right
+{
+  angle: 0,
+  label: 'C'
+},
+// right
+{
+  angle: 45,
+  label: 'D'
+},
+// lower right
+{
+  angle: 90,
+  label: 'E'
+},
+// bottom
+{
+  angle: 135,
+  label: 'F'
+},
+// lower left
+{
+  angle: 180,
+  label: '…'
+},
+// left (... 300+)
+{
+  angle: -135,
+  label: 'G'
+} // upper left
+].map((c, i) => {
+  const rad = c.angle * Math.PI / 180;
+  const r = 85;
+  const x = 50 + r * Math.cos(rad) / 188 * 100;
+  const y = 50 + r * Math.sin(rad) / 188 * 100;
+  return /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      position: 'absolute',
+      left: `${x}%`,
+      top: `${y}%`,
+      transform: 'translate(-50%, -50%)',
+      width: 28,
+      height: 28,
+      borderRadius: '50%',
+      background: `${C.warm}22`,
+      border: `1.5px solid ${C.warm}`,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: 11,
+      color: C.warm,
+      fontWeight: 700,
+      zIndex: 2
+    }
+  }, c.label);
+})), /*#__PURE__*/React.createElement("p", {
+  style: {
+    fontSize: 12,
+    color: C.textMid,
+    lineHeight: 1.6,
+    margin: '0 0 12px'
+  }
+}, "Propeller builds once at the firm level. Every engagement deploys the same platform, contributes data back, and shares in the learnings."), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 11.5,
+    color: C.accent,
+    fontWeight: 600,
+    paddingTop: 12,
+    borderTop: `1px solid ${C.accent}44`,
+    lineHeight: 1.4
+  }
+}, "Built once. Improved daily.", /*#__PURE__*/React.createElement("br", null), "Every engagement compounds the platform.")))), /*#__PURE__*/React.createElement("div", {
   style: {
     padding: '26px 28px',
     background: C.bg,
@@ -4713,7 +5176,9 @@ const SegmentEconomics = () => {
       fontSize: 10
     }
   }), /*#__PURE__*/React.createElement(Tooltip, {
-    content: /*#__PURE__*/React.createElement(CustomTooltip, null)
+    content: /*#__PURE__*/React.createElement(CustomTooltip, {
+      unit: "raw"
+    })
   }), /*#__PURE__*/React.createElement(Legend, {
     wrapperStyle: {
       fontSize: 12,
@@ -4853,7 +5318,9 @@ const SegmentEconomics = () => {
       fontSize: 10
     }
   }), /*#__PURE__*/React.createElement(Tooltip, {
-    content: /*#__PURE__*/React.createElement(CustomTooltip, null)
+    content: /*#__PURE__*/React.createElement(CustomTooltip, {
+      unit: "raw"
+    })
   }), /*#__PURE__*/React.createElement(Legend, {
     wrapperStyle: {
       fontSize: 12,
@@ -5374,7 +5841,9 @@ const FinancialsCapital = () => {
       fontSize: 10
     }
   }), /*#__PURE__*/React.createElement(Tooltip, {
-    content: /*#__PURE__*/React.createElement(CustomTooltip, null)
+    content: /*#__PURE__*/React.createElement(CustomTooltip, {
+      unit: "M"
+    })
   }), /*#__PURE__*/React.createElement(Legend, {
     wrapperStyle: {
       fontSize: 12,
@@ -5730,7 +6199,9 @@ const DeliveryCapacity = () => {
       fontSize: 11
     }
   }), /*#__PURE__*/React.createElement(Tooltip, {
-    content: /*#__PURE__*/React.createElement(CustomTooltip, null)
+    content: /*#__PURE__*/React.createElement(CustomTooltip, {
+      unit: "raw"
+    })
   }), /*#__PURE__*/React.createElement(Bar, {
     dataKey: "headcount",
     name: "US W-2 Headcount",
@@ -5936,7 +6407,9 @@ const DeliveryCapacity = () => {
       fontSize: 11
     }
   }), /*#__PURE__*/React.createElement(Tooltip, {
-    content: /*#__PURE__*/React.createElement(CustomTooltip, null)
+    content: /*#__PURE__*/React.createElement(CustomTooltip, {
+      unit: "raw"
+    })
   }), /*#__PURE__*/React.createElement(Bar, {
     yAxisId: "right",
     dataKey: "terminations",
@@ -6048,6 +6521,347 @@ const TeamStructure = () => {
       margin: 0
     }
   }, "They are at Propeller for what they bring to operating the company today. Transformation Services revenue is the latent capability the team brings with them \u2014 already absorbed into the operating cost base.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 30,
+      padding: '24px 24px 28px',
+      background: C.card,
+      border: `1px solid ${C.border}`,
+      borderRadius: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 700,
+      color: C.accent,
+      letterSpacing: 1.5,
+      marginBottom: 6,
+      textTransform: 'uppercase'
+    }
+  }, "Structure"), /*#__PURE__*/React.createElement("h3", {
+    style: {
+      fontSize: 17,
+      fontWeight: 700,
+      color: C.text,
+      margin: '0 0 4px',
+      letterSpacing: -0.2
+    }
+  }, "Two-in-a-box at the top. Three pillars below. Sales reports to the CEO."), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 12.5,
+      color: C.textDim,
+      lineHeight: 1.5,
+      margin: '0 0 22px',
+      fontStyle: 'italic'
+    }
+  }, "From the April 2026 Pothos deck. The pairings are not redundancy \u2014 they are how the firm operates across functions."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 14,
+      marginBottom: 6
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '16px 18px',
+      background: `${C.accent}11`,
+      border: `1px solid ${C.accent}66`,
+      borderLeft: `3px solid ${C.accent}`,
+      borderRadius: 4
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      fontWeight: 700,
+      color: C.accent,
+      letterSpacing: 1.5,
+      textTransform: 'uppercase',
+      marginBottom: 6
+    }
+  }, "CEO \xB7 Reports to Board"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 15,
+      fontWeight: 700,
+      color: C.text,
+      marginBottom: 3,
+      letterSpacing: -0.2
+    }
+  }, "Ray Nieuwenhuizen"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: C.textMid,
+      lineHeight: 1.45
+    }
+  }, "Built Peloton Consulting Group from $6M to $120M. Digital transformation, GTM.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '16px 18px',
+      background: C.bg,
+      border: `1px solid ${C.border}`,
+      borderRadius: 4
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      fontWeight: 700,
+      color: C.teal,
+      letterSpacing: 1.5,
+      textTransform: 'uppercase',
+      marginBottom: 6
+    }
+  }, "Founder & Executive Chairman"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 15,
+      fontWeight: 700,
+      color: C.text,
+      marginBottom: 3,
+      letterSpacing: -0.2
+    }
+  }, "Chris Fenster"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: C.textMid,
+      lineHeight: 1.45
+    }
+  }, "18 years building Propeller. Vision, platform strategy, product innovation, investor relations, partnerships, thought leadership."))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      justifyContent: 'center',
+      padding: '4px 0 8px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 1,
+      height: 18,
+      background: C.border
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3, 1fr)',
+      gap: 12,
+      marginBottom: 6
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '14px 16px',
+      background: C.bg,
+      border: `1px solid ${C.border}`,
+      borderRadius: 4
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      fontWeight: 700,
+      color: C.accent,
+      letterSpacing: 1.5,
+      textTransform: 'uppercase',
+      marginBottom: 10,
+      paddingBottom: 6,
+      borderBottom: `1px solid ${C.accent}55`
+    }
+  }, "Service Delivery"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      fontWeight: 700,
+      color: C.text,
+      marginBottom: 2
+    }
+  }, "Vernise Knighton"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C.teal,
+      fontStyle: 'italic',
+      marginBottom: 0
+    }
+  }, "SVP, Service Delivery")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      fontWeight: 700,
+      color: C.text,
+      marginBottom: 2
+    }
+  }, "Amanda Morgenstern"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C.teal,
+      fontStyle: 'italic'
+    }
+  }, "VP of Client Services & Client CFO"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '14px 16px',
+      background: C.bg,
+      border: `1px solid ${C.border}`,
+      borderRadius: 4
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      fontWeight: 700,
+      color: C.accent,
+      letterSpacing: 1.5,
+      textTransform: 'uppercase',
+      marginBottom: 10,
+      paddingBottom: 6,
+      borderBottom: `1px solid ${C.accent}55`
+    }
+  }, "Platform & Intelligence"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      fontWeight: 700,
+      color: C.text,
+      marginBottom: 2
+    }
+  }, "Todd Rebner"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C.teal,
+      fontStyle: 'italic'
+    }
+  }, "Chief AI Officer")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      fontWeight: 700,
+      color: C.text,
+      marginBottom: 2
+    }
+  }, "Kevin Fish"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C.teal,
+      fontStyle: 'italic'
+    }
+  }, "Head of Corp Finance & Transformation Services"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '14px 16px',
+      background: C.bg,
+      border: `1px solid ${C.border}`,
+      borderRadius: 4
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      fontWeight: 700,
+      color: C.accent,
+      letterSpacing: 1.5,
+      textTransform: 'uppercase',
+      marginBottom: 10,
+      paddingBottom: 6,
+      borderBottom: `1px solid ${C.accent}55`
+    }
+  }, "People & Transformation"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      fontWeight: 700,
+      color: C.text,
+      marginBottom: 2
+    }
+  }, "Beth McCarthy"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C.teal,
+      fontStyle: 'italic'
+    }
+  }, "VP, Digital Transformation PMO")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      fontWeight: 700,
+      color: C.text,
+      marginBottom: 2
+    }
+  }, "Ev Bragdon"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C.teal,
+      fontStyle: 'italic'
+    }
+  }, "Head of People Services")))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      justifyContent: 'center',
+      padding: '4px 0 8px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 1,
+      height: 18,
+      background: C.border
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '14px 18px',
+      background: C.bg,
+      border: `1px solid ${C.border}`,
+      borderRadius: 4,
+      maxWidth: '66%',
+      margin: '0 auto'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      fontWeight: 700,
+      color: C.accent,
+      letterSpacing: 1.5,
+      textTransform: 'uppercase',
+      marginBottom: 10,
+      textAlign: 'center'
+    }
+  }, "Sales"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      fontWeight: 700,
+      color: C.text,
+      marginBottom: 2
+    }
+  }, "Ted Zeigler"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C.teal,
+      fontStyle: 'italic'
+    }
+  }, "SVP, Sales \xB7 Reports to Ray")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingTop: 10,
+      borderTop: `1px dashed ${C.border}`,
+      textAlign: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      fontWeight: 600,
+      color: C.textDim,
+      letterSpacing: 1,
+      marginBottom: 3,
+      textTransform: 'uppercase'
+    }
+  }, "Interim Support \xB7 Marketing"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: C.textMid
+    }
+  }, "Chris Fenster"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C.textDim,
+      fontStyle: 'italic',
+      marginTop: 2
+    }
+  }, "Interim Head of Marketing \u2014 bridging to Demand Gen hire")))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(3, 1fr)',
@@ -6975,6 +7789,68 @@ const VersionHistory = () => /*#__PURE__*/React.createElement("div", null, /*#__
     margin: 0
   }
 }, "Build & iteration log")), /*#__PURE__*/React.createElement("div", {
+  style: {
+    padding: '18px',
+    background: C.card,
+    border: `1px solid ${C.accent}55`,
+    borderRadius: 6,
+    marginBottom: 14
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 14
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 13,
+    fontWeight: 700,
+    color: C.accent
+  }
+}, "v1.12 \xB7 May 27, 2026"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 11,
+    color: C.textDim
+  }
+}, "Long-arc redesign \xB7 new visuals \xB7 tooltip fix \xB7 Amanda title")), /*#__PURE__*/React.createElement("ul", {
+  style: {
+    margin: 0,
+    paddingLeft: 18,
+    color: C.textMid,
+    fontSize: 13,
+    lineHeight: 1.7
+  }
+}, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Long-arc chart redesign."), " Reading the chart at rest is now clean: no era backgrounds, no event pin buttons underneath. Eras moved into a row of four clickable tabs above the chart, each carrying a rich leadership narrative that renders below on click (Partner-led: founder + four partners scaling to $10M / First exec team: COO + CPO hired, Chris steps off billable / Second exec team: full executive turnover collides with SVB / Ray era: back to basics, recruiting for culture fit). Events reduced from 8 to 7 (drop Founded since it\u2019s covered by the Partner-led narrative; Ray CEO stays as a hard visual anchor). Events render as plain dashed vertical lines with hover-only tooltip cards. Chart height bumped from 360px to 480px so the early years have room to breathe."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Tooltip rendering bug fixed across all charts."), " The CustomTooltip was inferring units from value magnitude \u2014 values under 100 were getting formatted as percentages even when they were $M figures (e.g. \u201C$31.6M revenue\u201D showing as \u201C31.6%\u201D in the Annual Revenue + EBITDA recovery-shape chart). Fixed by adding explicit ", /*#__PURE__*/React.createElement("code", null, "unit"), " prop to CustomTooltip; updated all seven callers across the deck with correct format hints (M for $M-scale, raw for mixed-unit dual-axis charts, % for cohort retention)."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Cohort retention chart x-axis trimmed."), " Was rendering M1\u2013M48 even though no cohort had data past M24. Now caps at observed max + 1 month, so the curves expand to fill the full horizontal width instead of crunching into the left 60% of the chart."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Amanda Morgenstern title corrected."), " She is VP of Client Services and serves as a Client CFO across the senior pod of partner-level CFOs running client engagements as embedded finance leaders \u2014 not Propeller\u2019s firm-level CFO. Bio updated to match. (Kevin Fish runs corporate finance for the firm.)"), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Two-in-a-Box org chart on Team & Structure."), " Visual hierarchy from Ray\u2019s April 2026 Pothos deck slide 17 rebuilt as a native DynDeck artifact, sitting above the ten leadership cards. Top row: Ray (CEO) + Chris (Founder & Exec Chairman). Three pillars below: Service Delivery (Vernise + Amanda), Platform & Intelligence (Todd + Kevin), People & Transformation (Beth + Ev). Sales (Ted) reports to Ray, with Chris as interim Marketing bridging to a Demand Gen hire."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Labs ecosystem map on Why Now & The Platform."), " The \u201C~$5.5B that just got committed in May 2026\u201D story made visual. Two columns \u2014 Anthropic (~$1.5B JV with Blackstone, H&F, Goldman, GIC, Sequoia + Accenture/KPMG/Deloitte) and OpenAI (~$4B Deployment Company with TPG, Bain, Advent, Brookfield + 15 others + PwC/McKinsey/Bain/Capgemini) \u2014 both funneling down into mid-cap and Fortune 500 deployment ($100M+). The segment below ($0\u2013$100M) is what Propeller has been doing since 2008 and what the labs cannot economically reach."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Scale-as-a-Service contrast on Why Now & The Platform."), " Side-by-side: a sub-$100M company building AI capability for itself (one closed loop, months to years) vs Propeller building once at the firm level and deploying across 300+ active engagements (one compounding loop). Anchors the platform-leverage argument visually rather than just in prose."))), /*#__PURE__*/React.createElement("div", {
   style: {
     padding: '18px',
     background: C.card,
