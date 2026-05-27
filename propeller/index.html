@@ -932,7 +932,7 @@ window.DynDeckLib = {
 };
 })();
 
-// ─── DASHBOARD_Propeller (client) v1.14-A ───
+// ─── DASHBOARD_Propeller (client) v1.14-B ───
 (() => {
   var React = globalThis.React;
   var R = globalThis.React;
@@ -942,7 +942,6 @@ window.DynDeckLib = {
 function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 const { useState, useMemo, useRef, useEffect } = React;
 const { LineChart, Line, BarChart, Bar, ComposedChart, Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, ReferenceLine, ReferenceArea, PieChart, Pie } = Recharts;
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // PROPELLER INDUSTRIES — INVESTOR INTELLIGENCE DASHBOARD · v1.0 · May 23, 2026
 // Source materials: Pothos data room (Apr 30, 2026 information request).
@@ -1778,7 +1777,7 @@ const TABS = ['Overview',
 'Segment Economics',
 // 3  — Venture / Growth / TAS P&Ls
 'Financials & Capital',
-// 4  — Consolidated P&L, BS, CF, EBITDA bridge (NO cap table)
+// 4  — Consolidated P&L, BS, CF, EBITDA bridge, cap table
 'Delivery & Capacity',
 // 5  — utilization × realization, attrition, demand planning
 'Team & Structure',
@@ -1788,17 +1787,27 @@ const TABS = ['Overview',
 'Trajectory & Discussion',
 // 8  — demand outpacing capacity, partnership shape
 'Information Request',
-// 9  — Kevin's pattern; status tracker with line-to-tab links
-'Data Room',
-// 10 — file-card grid; URLs stubbed for Todd's platform
+// 9  — single hub: status tracker + file actions (Open / batch ZIP) when Azure URLs land
 'Version History',
-// 11 — INTERNAL · hidden pre-ship
+// 10 — INTERNAL · hidden pre-ship
 'To-Do / Open Items',
-// 12 — INTERNAL · hidden pre-ship; discrepancy log lives here
-'Master Reconciliation' // 13 — INTERNAL · hidden pre-ship; data-room vs master file variance log for Kevin
+// 11 — INTERNAL · hidden pre-ship; discrepancy log lives here
+'Master Reconciliation',
+// 12 — INTERNAL · hidden pre-ship; data-room vs master file variance log for Kevin
+'Priority Backlog' // 13 — INTERNAL · hidden pre-ship; v1.14-B; P0/P1/P2/P3 card grid (SimplyProtein pattern)
 ];
-const INTERNAL_TAB_START = 11; // tabs 11+ are internal
-const IS_EXTERNAL = true; // v1.6: internal tabs filtered. v1.14-A: cap table render + retention chart restructure + retained-intent toggle + SVB caveat + Venture→Growth feeder + recovery margin-% redesign + global hover softening — Pothos-ready.
+const INTERNAL_TAB_START = 10; // tabs 10+ are internal (Data Room tab dropped in v1.14-B; Info Request is the single hub)
+const IS_EXTERNAL = true; // v1.6: internal tabs filtered. v1.14-A: cap table render + retention chart restructure + retained-intent toggle + SVB caveat + Venture→Growth feeder + recovery margin-% redesign + global hover softening. v1.14-B: Data Room tab dropped (Info Request is single hub), 2027 framing → collaborative TBD, Info Request file actions (front-end ready, Azure URLs pending), logo grid fixes — Pothos-ready.
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// AZURE DATA ROOM (Todd's platform, v1.14-B)
+// Set to '' when Azure URLs are pending — Open buttons + Download Selected render
+// in a disabled state with "Pending" copy. Set to the real base URL once Todd's
+// admin panel ships and the backend endpoint POST {AZURE_DATA_ROOM_BASE}/api/data-room/zip
+// is live (request body: { files: [item.code, ...] }, response: binary ZIP stream).
+// Per-file open URL pattern: `${AZURE_DATA_ROOM_BASE}/files/${item.code}`.
+// ═══════════════════════════════════════════════════════════════════════════════
+const AZURE_DATA_ROOM_BASE = ''; // '' = pending; e.g. 'https://propeller-dataroom.azurewebsites.net' when live
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // HEADLINE NUMBERS (Propeller marquee — confirmed by Chris May 23, 2026)
@@ -2021,12 +2030,15 @@ const MARQUEE_CLIENTS = {
     name: 'hims',
     tag: 'SPAC',
     unicorn: true
-  }, "The Farmer's Dog", {
+  }, {
+    name: "The Farmer's Dog",
+    unicorn: true
+  }, {
     name: 'Away',
     unicorn: true
   }, {
     name: 'Keeps',
-    unicorn: true
+    tag: 'Acquired'
   }, 'Sunday', 'Little Spoon', 'Caddis', 'Cuts', 'SNOW', {
     name: 'Casper',
     unicorn: true
@@ -5921,13 +5933,13 @@ const SegmentEconomics = () => {
       marginBottom: 4,
       textTransform: 'uppercase'
     }
-  }, "2027 plan \u2014 the work ahead"), /*#__PURE__*/React.createElement("div", {
+  }, "2027\u20132030 horizon \xB7 collaborative exercise \xB7 TBD"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 13,
       color: C.textMid,
       lineHeight: 1.55
     }
-  }, "We will model Transformation Services revenue formally in the 2027 plan. Given the strategic positioning is in place and the opportunity scale is established, the monetization plan is ideally developed with an aligned long-duration partner."))), /*#__PURE__*/React.createElement(InsightBlock, null, /*#__PURE__*/React.createElement("strong", {
+  }, "The Transformation Services revenue model is the work ahead, scoped to a 2027\u20132030 horizon. The strategic positioning is in place and the opportunity scale is established. The monetization plan is best developed as a joint exercise with an aligned long-duration partner rather than modeled unilaterally and presented as a fait accompli."))), /*#__PURE__*/React.createElement(InsightBlock, null, /*#__PURE__*/React.createElement("strong", {
     style: {
       color: C.accent
     }
@@ -5935,7 +5947,7 @@ const SegmentEconomics = () => {
     style: {
       color: C.warm
     }
-  }, "Transformation Services is the third engine \u2014 deliberately un-modeled, capability-complete, waiting on a revenue-switch decision that gets made in the 2027 plan."), " The sequencing \u2014 stabilize, prove, build leverage, then scale \u2014 is what\u2019s positioned Propeller for what comes next."));
+  }, "Transformation Services is the third engine \u2014 deliberately un-modeled, capability-complete, waiting on a revenue-switch decision sized to a 2027\u20132030 horizon and best made jointly with a long-duration partner."), " The sequencing \u2014 stabilize, prove, build leverage, then scale \u2014 is what\u2019s positioned Propeller for what comes next."));
 };
 const FinancialsCapital = () => {
   const years = ['2021', '2022', '2023', '2024', '2025', 'Q1 2026'];
@@ -7798,14 +7810,14 @@ const TeamStructure = () => {
       marginBottom: 6,
       textTransform: 'uppercase'
     }
-  }, "2027 plan \u2014 the work ahead"), /*#__PURE__*/React.createElement("p", {
+  }, "2027\u20132030 horizon \xB7 collaborative exercise \xB7 TBD"), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 13,
       color: C.textMid,
       lineHeight: 1.55,
       margin: 0
     }
-  }, "Transformation Services revenue will be modeled formally in the 2027 plan \u2014 ideally with an aligned long-duration partner. The strategic positioning is in place; the monetization plan is the work ahead.")))), /*#__PURE__*/React.createElement("div", {
+  }, "The Transformation Services revenue model sits over a 2027\u20132030 horizon and is best developed as a joint exercise with an aligned long-duration partner. The strategic positioning is in place; the monetization plan is the work ahead, scoped not modeled.")))), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '14px 16px',
       background: C.warmBg,
@@ -8889,7 +8901,7 @@ const TrajectoryDiscussion = () => /*#__PURE__*/React.createElement("div", null,
     margin: '0 0 10px',
     flex: 1
   }
-}, "NetSuite implementation (Kevin and Todd), AI-enablement (True Story Foods in scope), and operating-model transformation. The bench is in place and absorbed into today\u2019s operating cost base. The 2027 plan formalizes the revenue model, ideally as a collaboration with a long-duration partner."), /*#__PURE__*/React.createElement("div", {
+}, "NetSuite implementation (Kevin and Todd), AI-enablement (True Story Foods in scope), and operating-model transformation. The bench is in place and absorbed into today\u2019s operating cost base. The revenue model is scoped to a 2027\u20132030 horizon \u2014 collaborative exercise \xB7 TBD, best developed jointly with a long-duration partner rather than modeled in isolation."), /*#__PURE__*/React.createElement("div", {
   style: {
     fontSize: 11,
     color: C.accent,
@@ -9062,7 +9074,7 @@ const TrajectoryDiscussion = () => /*#__PURE__*/React.createElement("div", null,
   style: {
     color: C.text
   }
-}, "The Transformation Services revenue model."), " The 2027 plan formalizes this. We have views; we are open to refining them with a partner who has run services-platform consolidations before."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+}, "The Transformation Services revenue model."), " Scoped to a 2027\u20132030 horizon \u2014 a collaborative exercise \xB7 TBD. We have views; we are open to refining them with a partner who has run services-platform consolidations before."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
   style: {
     color: C.text
   }
@@ -9330,7 +9342,7 @@ const TrajectoryDiscussion = () => /*#__PURE__*/React.createElement("div", null,
     lineHeight: 1.6,
     margin: 0
   }
-}, "A 60\u201390 day exploration in which Propeller and Pothos co-develop the 2027 plan, including the Transformation Services revenue model and the productization roadmap for Financial Intelligence. At the end of that work, both sides know whether the partnership shape is right.")), /*#__PURE__*/React.createElement("div", {
+}, "A 60\u201390 day exploration in which Propeller and Pothos co-develop a 2027\u20132030 plan as a collaborative exercise \u2014 including the Transformation Services revenue model and the productization roadmap for Financial Intelligence. At the end of that work, both sides know whether the partnership shape is right.")), /*#__PURE__*/React.createElement("div", {
   style: {
     padding: '14px 16px',
     background: C.card,
@@ -9442,7 +9454,7 @@ const INFO_REQUEST_ITEMS = [
   code: 'Financial_07',
   desc: '3-year operating model (if available) with key assumptions',
   status: 'pending',
-  note: 'Not available — formalized in 2027 plan.'
+  note: 'Not available — 2027–2030 model to be developed jointly with an aligned long-duration partner.'
 },
 // Revenue & Customer (3 items)
 {
@@ -9594,6 +9606,92 @@ const InformationRequest = () => {
     acc[item.cat].push(item);
     return acc;
   }, {});
+
+  // ─── File-actions state (v1.14-B) ──────────────────────────────────────────
+  // Selection is by item.code. Only items whose status is one of the
+  // "deliverable" buckets can be selected — pending items have nothing to open.
+  const isDeliverable = item => item.status === 'available' || item.status === 'partial' || item.status === 'bundled';
+  const deliverableItems = INFO_REQUEST_ITEMS.filter(isDeliverable);
+  const deliverableCodes = deliverableItems.map(i => i.code);
+  const [selected, setSelected] = React.useState([]); // array of item.code strings
+  const urlsPending = !AZURE_DATA_ROOM_BASE;
+  const toggleOne = code => {
+    setSelected(prev => prev.includes(code) ? prev.filter(c => c !== code) : [...prev, code]);
+  };
+  const toggleAll = () => {
+    setSelected(prev => prev.length === deliverableCodes.length ? [] : deliverableCodes);
+  };
+  const allSelected = selected.length > 0 && selected.length === deliverableCodes.length;
+  const someSelected = selected.length > 0 && !allSelected;
+  const openOne = item => {
+    if (urlsPending || !isDeliverable(item)) return;
+    const url = `${AZURE_DATA_ROOM_BASE}/files/${item.code}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+  const downloadSelected = async () => {
+    if (urlsPending || selected.length === 0) return;
+    try {
+      const res = await fetch(`${AZURE_DATA_ROOM_BASE}/api/data-room/zip`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          files: selected
+        })
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `propeller-dataroom-${new Date().toISOString().slice(0, 10)}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+    } catch (e) {
+      console.error('Download Selected failed:', e);
+      alert('Download failed — please try again or contact your Propeller contact.');
+    }
+  };
+
+  // Tri-state checkbox glyph (unchecked / indeterminate / checked)
+  const CheckGlyph = ({
+    state
+  }) => /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 14,
+      height: 14,
+      borderRadius: 3,
+      border: `1.5px solid ${state === 'off' ? C_LOCAL.textDim : C_LOCAL.accent}`,
+      background: state === 'on' ? C_LOCAL.accent : state === 'mixed' ? `${C_LOCAL.accent}55` : 'transparent',
+      transition: 'all 120ms ease'
+    }
+  }, state === 'on' && /*#__PURE__*/React.createElement("svg", {
+    width: "9",
+    height: "9",
+    viewBox: "0 0 10 10",
+    fill: "none"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M1.5 5.2 L4 7.5 L8.5 2.5",
+    stroke: "#0c0c0c",
+    strokeWidth: "1.8",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  })), state === 'mixed' && /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'block',
+      width: 7,
+      height: 1.5,
+      background: C_LOCAL.accent
+    }
+  }));
+
+  // ─── Render ────────────────────────────────────────────────────────────────
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '8px 0 24px'
@@ -9607,7 +9705,7 @@ const InformationRequest = () => {
       marginBottom: 10,
       textTransform: 'uppercase'
     }
-  }, "Data Ask \xB7 Status"), /*#__PURE__*/React.createElement("h2", {
+  }, "Data Ask \xB7 Status & Files"), /*#__PURE__*/React.createElement("h2", {
     style: {
       fontSize: 24,
       fontWeight: 700,
@@ -9616,14 +9714,14 @@ const InformationRequest = () => {
       margin: '0 0 12px',
       color: C_LOCAL.text
     }
-  }, "Information Request \u2014 28 items, status-tracked."), /*#__PURE__*/React.createElement("p", {
+  }, "Information Request \u2014 28 items, status-tracked, files in one place."), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 14,
       color: C_LOCAL.textMid,
       lineHeight: 1.6,
       maxWidth: 840
     }
-  }, "The full data ask from Kevin\u2019s checklist of April 30. Each item carries the same code used as the source citation throughout the deck, so every line is traceable to its source. Live links to the data-room files will be added once Pothos confirms data-room access (Proton).")), /*#__PURE__*/React.createElement("div", {
+  }, "The full data ask from Kevin\u2019s checklist of April 30. Each item carries the same code used as the source citation throughout the deck, so every line is traceable to its source. Open files individually or select multiple and download as a ZIP.")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(5, 1fr)',
@@ -9691,7 +9789,84 @@ const InformationRequest = () => {
       color: C_LOCAL.textDim,
       marginTop: 2
     }
-  }, "materially delivered"))), Object.entries(byCat).map(([cat, items]) => /*#__PURE__*/React.createElement("div", {
+  }, "materially delivered"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 14,
+      padding: '12px 16px',
+      marginBottom: 16,
+      background: urlsPending ? `${C_LOCAL.textDim}11` : C_LOCAL.card,
+      border: `1px solid ${urlsPending ? C_LOCAL.textDim + '55' : C_LOCAL.accent + '66'}`,
+      borderRadius: 6
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: toggleAll,
+    disabled: urlsPending,
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 8,
+      background: 'transparent',
+      border: 'none',
+      color: C_LOCAL.text,
+      fontSize: 13,
+      fontWeight: 600,
+      cursor: urlsPending ? 'not-allowed' : 'pointer',
+      opacity: urlsPending ? 0.5 : 1,
+      padding: '4px 6px'
+    },
+    title: urlsPending ? 'Select-all is enabled once data-room URLs land.' : allSelected ? 'Deselect all' : 'Select all available files'
+  }, /*#__PURE__*/React.createElement(CheckGlyph, {
+    state: allSelected ? 'on' : someSelected ? 'mixed' : 'off'
+  }), /*#__PURE__*/React.createElement("span", null, allSelected ? 'Deselect All' : 'Select All Available'), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: C_LOCAL.textDim,
+      fontWeight: 400,
+      fontSize: 12
+    }
+  }, "(", deliverableCodes.length, " files)")), selected.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: C_LOCAL.accent,
+      fontWeight: 600
+    }
+  }, selected.length, " selected")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12
+    }
+  }, urlsPending && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C_LOCAL.textDim,
+      fontStyle: 'italic'
+    }
+  }, "Data-room URLs pending \xB7 front-end wired, awaiting Azure"), /*#__PURE__*/React.createElement("button", {
+    onClick: downloadSelected,
+    disabled: urlsPending || selected.length === 0,
+    style: {
+      padding: '8px 16px',
+      borderRadius: 4,
+      background: urlsPending || selected.length === 0 ? `${C_LOCAL.textDim}33` : C_LOCAL.accent,
+      color: urlsPending || selected.length === 0 ? C_LOCAL.textDim : '#0c0c0c',
+      border: 'none',
+      fontWeight: 700,
+      fontSize: 12,
+      letterSpacing: 0.5,
+      textTransform: 'uppercase',
+      cursor: urlsPending || selected.length === 0 ? 'not-allowed' : 'pointer',
+      transition: 'all 120ms ease'
+    }
+  }, urlsPending ? 'Download Selected · Pending' : `Download Selected${selected.length > 0 ? ` (${selected.length})` : ''}`))), Object.entries(byCat).map(([cat, items]) => /*#__PURE__*/React.createElement("div", {
     key: cat,
     style: {
       marginBottom: 20
@@ -9725,12 +9900,21 @@ const InformationRequest = () => {
     }
   }, /*#__PURE__*/React.createElement("th", {
     style: {
+      textAlign: 'center',
+      padding: '10px 8px',
+      color: C_LOCAL.textDim,
+      fontWeight: 600,
+      letterSpacing: 0.3,
+      width: 36
+    }
+  }), /*#__PURE__*/React.createElement("th", {
+    style: {
       textAlign: 'left',
       padding: '10px 14px',
       color: C_LOCAL.textDim,
       fontWeight: 600,
       letterSpacing: 0.3,
-      width: '14%'
+      width: '13%'
     }
   }, "Item"), /*#__PURE__*/React.createElement("th", {
     style: {
@@ -9747,7 +9931,7 @@ const InformationRequest = () => {
       color: C_LOCAL.textDim,
       fontWeight: 600,
       letterSpacing: 0.3,
-      width: '12%'
+      width: '11%'
     }
   }, "Status"), /*#__PURE__*/React.createElement("th", {
     style: {
@@ -9756,16 +9940,53 @@ const InformationRequest = () => {
       color: C_LOCAL.textDim,
       fontWeight: 600,
       letterSpacing: 0.3,
-      width: '28%'
+      width: '24%'
     }
-  }, "Notes"))), /*#__PURE__*/React.createElement("tbody", null, items.map((item, i) => {
+  }, "Notes"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: 'center',
+      padding: '10px 14px',
+      color: C_LOCAL.textDim,
+      fontWeight: 600,
+      letterSpacing: 0.3,
+      width: '9%'
+    }
+  }, "File"))), /*#__PURE__*/React.createElement("tbody", null, items.map((item, i) => {
     const meta = STATUS_META[item.status];
+    const deliverable = isDeliverable(item);
+    const isChecked = selected.includes(item.code);
     return /*#__PURE__*/React.createElement("tr", {
       key: i,
       style: {
         borderBottom: i < items.length - 1 ? `1px solid ${C_LOCAL.border}` : 'none'
       }
     }, /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: '10px 8px',
+        textAlign: 'center'
+      }
+    }, deliverable ? /*#__PURE__*/React.createElement("button", {
+      onClick: () => toggleOne(item.code),
+      disabled: urlsPending,
+      style: {
+        background: 'transparent',
+        border: 'none',
+        padding: 0,
+        cursor: urlsPending ? 'not-allowed' : 'pointer',
+        opacity: urlsPending ? 0.5 : 1,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
+      title: urlsPending ? 'Selection enabled once URLs land.' : isChecked ? 'Deselect' : 'Select for batch download'
+    }, /*#__PURE__*/React.createElement(CheckGlyph, {
+      state: isChecked ? 'on' : 'off'
+    })) : /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: C_LOCAL.textDim,
+        fontSize: 14
+      }
+    }, "\u2014")), /*#__PURE__*/React.createElement("td", {
       style: {
         padding: '10px 14px',
         fontFamily: 'monospace',
@@ -9804,7 +10025,34 @@ const InformationRequest = () => {
         lineHeight: 1.5,
         fontStyle: item.note ? 'italic' : 'normal'
       }
-    }, item.note || '\u2014'));
+    }, item.note || '\u2014'), /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: '10px 14px',
+        textAlign: 'center'
+      }
+    }, deliverable ? /*#__PURE__*/React.createElement("button", {
+      onClick: () => openOne(item),
+      disabled: urlsPending,
+      style: {
+        padding: '4px 10px',
+        borderRadius: 3,
+        background: urlsPending ? 'transparent' : `${C_LOCAL.accent}18`,
+        color: urlsPending ? C_LOCAL.textDim : C_LOCAL.accent,
+        border: `1px solid ${urlsPending ? C_LOCAL.textDim + '55' : C_LOCAL.accent + '66'}`,
+        fontWeight: 600,
+        fontSize: 10.5,
+        letterSpacing: 0.4,
+        textTransform: 'uppercase',
+        cursor: urlsPending ? 'not-allowed' : 'pointer',
+        transition: 'all 120ms ease'
+      },
+      title: urlsPending ? 'Open enabled once data-room URLs land.' : `Open ${item.code} in a new tab`
+    }, urlsPending ? 'Pending' : 'Open') : /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: C_LOCAL.textDim,
+        fontSize: 10.5
+      }
+    }, "\u2014")));
   })))))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 24,
@@ -9822,20 +10070,15 @@ const InformationRequest = () => {
       marginBottom: 8,
       textTransform: 'uppercase'
     }
-  }, "What this list does not show yet"), /*#__PURE__*/React.createElement("p", {
+  }, "How the file actions work"), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 13,
       color: C_LOCAL.textMid,
       lineHeight: 1.65,
       margin: 0
     }
-  }, "Once data-room access is provisioned (Proton), each Available / Partial / Bundled item will link directly to its file in the data room. The source citations throughout the deck use these exact item codes, so the linking is one-step.")));
+  }, "Each Available, Partial, or Bundled item exposes an Open button (single-file view in a new tab) and a row checkbox (batch ZIP download via the action bar above). Pending items have nothing to open. The front-end is wired and ready; Azure data-room URLs are operational on Todd\u2019s admin panel imminently \u2014 once the base URL lands, both actions become live without any further build work.")));
 };
-const DataRoom = () => /*#__PURE__*/React.createElement(TabStub, {
-  title: "Data Room",
-  source: "To be hosted on Todd's platform (URL pattern pending)",
-  planned: ['File-card grid by category (Financial · Revenue · Operations · Platform · Corporate · Other)', 'Per-card: icon, filename, one-line description, size, last modified, download button', 'Search/filter bar', 'All download URLs stubbed as href="#" with data-pending="true"', 'TODO block at top identifying what swaps in when Todd platform is confirmed', 'Split: F_Corporate, signed agreements, detailed XLSX models, raw statements → downloadable', 'Consolidated P&L, cohort retention, segment econ, utilization → rendered in deck (not duplicated)']
-});
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // INTERNAL TABS — hidden via IS_EXTERNAL filter before ship.
@@ -9866,6 +10109,64 @@ const VersionHistory = () => /*#__PURE__*/React.createElement("div", null, /*#__
     padding: '18px',
     background: C.card,
     border: `1px solid ${C.accent}88`,
+    borderRadius: 6,
+    marginBottom: 14
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 14
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 13,
+    fontWeight: 700,
+    color: C.accent
+  }
+}, "v1.14-B \xB7 May 27, 2026"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 11,
+    color: C.textDim
+  }
+}, "Data Room tab dropped \xB7 Priority Backlog tab \xB7 2027 framing \u2192 collaborative TBD \xB7 Info Request file actions \xB7 logo grid fixes")), /*#__PURE__*/React.createElement("ul", {
+  style: {
+    margin: 0,
+    paddingLeft: 18,
+    color: C.textMid,
+    fontSize: 13,
+    lineHeight: 1.7
+  }
+}, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Data Room tab dropped; Information Request is the single hub."), " Cap table now renders on Financials & Capital (v1.14-A), and the Information Request tab carries the file actions (Open, batch ZIP). Removing the Data Room tab eliminates the duplicate surface and gives the deck a cleaner external read. INTERNAL_TAB_START shifted 11 \u2192 10. Tab-render switch reindexed (no Data Room render line). DataRoom component stub removed."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Information Request file actions wired in."), " Each Available / Partial / Bundled item now exposes an Open button (opens the file in a new tab) and a row checkbox. The action bar at the top of the tab carries Select All (limited to deliverable items) and Download Selected, which POSTs ", /*#__PURE__*/React.createElement("code", null, `{files:[item.code,...]}`), " to ", /*#__PURE__*/React.createElement("code", null, `${AZURE_DATA_ROOM_BASE}/api/data-room/zip`), " and streams the response back as a ZIP. While Azure URLs are pending (the ", /*#__PURE__*/React.createElement("code", null, "AZURE_DATA_ROOM_BASE"), " constant is the empty string), all controls render in a disabled state with \u201CPending\u201D copy so the UX shape is reviewable now. When Todd\u2019s admin panel ships, set the constant to the live base URL \u2014 no other changes needed."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "New internal tab: Priority Backlog."), " Card grid of forward priorities, P0 / P1 / P2 / P3, color-coded. Pattern lifted from SimplyProtein\u2019s Version History \xB7 Priority Backlog tab. Tab inserted at position 13 (internal, hidden pre-ship via IS_EXTERNAL filter). 11 items at launch covering cap-table sign-off (P0), Azure URL wire-up (P0), NRR variance / Q1 EBITDA / Sep 2025 source-walk (P1), Adj-EBITDA bridge / heatmap retained-intent toggle / line-to-tab deep links (P2), stale doc patches / 2027\u20132030 plan numbers / multi-tenant horizon (P3). To be hand-updated at each version bump alongside Version History."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "2027 framing reworked across five external-visible locations."), " Old language treated \u201Cthe 2027 plan\u201D as a Propeller-unilateral deliverable. New framing: a 2027\u20132030 horizon developed as a collaborative exercise \xB7 TBD with an aligned long-duration partner. Per the Pothos email thread of Apr 30 / May 4 (Rohan Parikh to Ray), \u201Cwe\u2019ll work together on a forecast\u201D is the agreed approach. Updated: Segment Economics 2027 box (Transformation Services section), Segment Economics two-engine InsightBlock, Segment Economics third-engine card on the second row, Trajectory activate-the-bench card, Trajectory Path A 60\u201390 day exploration card, Information Request Financial_07 note. Historical-changelog references in Version History left intact since they describe what happened, not what is."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Logo grid fixes on Business Today."), " The Farmer\u2019s Dog gets the unicorn icon (it is a unicorn in Consumer Products & E-comm). Keeps loses the unicorn icon (Keeps was a brand inside Thirty Madison, never an independent unicorn) and picks up an Acquired pill (parent Thirty Madison acquired by Remedy Meds, Q4 2025, $500M all-stock)."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "v1.14-B completes the v1.14 queue."), " v1.14-A shipped the heavy/data-bound items; v1.14-B closes the smaller / localized items on the same review cycle. Deck is now Pothos-ready pending the two P0s in Priority Backlog (cap-table sign-off from Kevin + Todd, Azure URLs from Todd)."))), /*#__PURE__*/React.createElement("div", {
+  style: {
+    padding: '18px',
+    background: C.card,
+    border: `1px solid ${C.accent}55`,
     borderRadius: 6,
     marginBottom: 14
   }
@@ -11090,6 +11391,228 @@ const MasterReconciliation = () => {
     }
   }, /*#__PURE__*/React.createElement("li", null, "Sep 2025 Venture variance (+4.4%, +$78K) \u2014 largest single-month gap; worth source-walking"), /*#__PURE__*/React.createElement("li", null, "FY2025 Board Net Revenue \u2014 not yet populated in Master File Yearly Comparison; data-room shows $28.81M"), /*#__PURE__*/React.createElement("li", null, "Growth-segment monthly Sep 2024 \u2013 Dec 2024 \u2014 Master File has data; reconcile to data-room Financial_02.2"), /*#__PURE__*/React.createElement("li", null, "Adjusted EBITDA bridge \u2014 Master File may have one-time adjustments not yet in Financial_05; cross-walk pending"), /*#__PURE__*/React.createElement("li", null, "NRR methodology \u2014 Master File Read Me line 90 notes Kantata\u2192NetSuite restatement planned for PA v7.5; this will resolve the 79.4% vs 80.6% deck variance once published"))));
 };
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PRIORITY BACKLOG (Internal · v1.14-B)
+// Card grid of forward priorities, P0 → P3. SimplyProtein pattern: pill label,
+// short title, 2-3 line body. Source: v1.14-A handoff "Outstanding" section,
+// the v1.14-A and v1.14-B build logs, and known carry-forward items.
+// Updated by hand at each version bump.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const PRIORITY_META = {
+  P0: {
+    color: '#e8c468',
+    label: 'P0'
+  },
+  // accent gold — ship-blocker / immediate
+  P1: {
+    color: '#76b3d2',
+    label: 'P1'
+  },
+  // cool blue — current sprint
+  P2: {
+    color: '#a8aab0',
+    label: 'P2'
+  },
+  // neutral — backlog, soon
+  P3: {
+    color: '#6b6e75',
+    label: 'P3'
+  } // dim — parked / nice-to-have
+};
+const PRIORITY_ITEMS = [
+// ─── P0 · immediate, ship-blockers or close-to-blocker ────────────────────
+{
+  pri: 'P0',
+  title: 'Cap-table footnotes + additions',
+  body: 'Route the v1.14-A cap-table render to Kevin and Todd for any additions to footnotes or sub-rows (e.g., MIU vesting schedules) before the external Pothos ship. The "pending route to Kevin and Todd" marker stays on the render until they sign off.'
+}, {
+  pri: 'P0',
+  title: 'Azure data-room URLs from Todd',
+  body: 'Front-end is wired in v1.14-B (Open buttons, checkboxes, batch ZIP). Set AZURE_DATA_ROOM_BASE to the live URL once Todd\u2019s admin panel ships and POST /api/data-room/zip is operational. Five-minute wire-up, no further build.'
+},
+// ─── P1 · current sprint, next 1\u20132 weeks ───────────────────────────────
+{
+  pri: 'P1',
+  title: 'NRR variance resolution',
+  body: 'DynDeck shows 79.4% rebuilt from C_Revenue_01 (NetSuite GL); April 24 deck shows 80.6% from PA v7.1.1 (Kantata gross billings, now restated). 1.2-pt variance. Master File Read Me confirms NetSuite as authoritative going forward; PA v7.5 restatement planned. Reconcile then choose one number.'
+}, {
+  pri: 'P1',
+  title: 'Q1 2026 EBITDA reconciliation',
+  body: '$44K (data room) vs $69K (April 24 deck). Late adjustment between deck draft and data room. Currently using the data-room figure. Chris to confirm which is authoritative before external ship.'
+}, {
+  pri: 'P1',
+  title: 'Master Reconciliation \u2014 Sep 2025 source walk',
+  body: 'Annual consolidated Net Revenue ties exactly for FY2021\u20132024. Monthly Venture 2025 shows small variances; max is +$78K Sep 2025 (+4.4%). Kevin to source-walk that single month and confirm the variance is benign before the reconciliation log gets released externally.'
+},
+// ─── P2 · soon, next 2\u20136 weeks ─────────────────────────────────────────
+{
+  pri: 'P2',
+  title: 'Adjusted EBITDA bridge on Financials',
+  body: 'Financials & Capital tab currently shows the recovery chart with margin-% lines and the reconciliation bridge table. A more detailed Adjusted-EBITDA bridge from B_Financial_05 (one-time adjustments) could be added as a third element on the tab. Defer until Chris confirms appetite \u2014 not urgent for Ray review.'
+}, {
+  pri: 'P2',
+  title: 'Cohort heatmap retained-intent toggle',
+  body: 'v1.14-A applied the toggle to the curves chart only; heatmap rebuild was deferred because recomputing 53 cohort rows at a different methodology won\u2019t reconcile with the v1.8 rebuild that produced the canonical numbers. Reopen only if Chris or a reviewer specifically asks.'
+}, {
+  pri: 'P2',
+  title: 'Information Request \u2014 line-to-tab deep links',
+  body: 'Each Available item could carry a "show me where this is used in the deck" link that scrolls/anchors to the citing chart card. Item codes already tagged on the chart cards; just needs the click-handler + anchor IDs. Cosmetic, not blocking.'
+},
+// ─── P3 · parked / nice-to-have ────────────────────────────────────────────
+{
+  pri: 'P3',
+  title: 'Stale doc patches across the project',
+  body: 'README_Chris_Fenster v1.1 \u2192 v1.2 with current canonical numbers ($100B+ / 24 unicorns / 18 years / 1,400+ clients / 250+ team). BRAND v2.3 can be archived; v3.05 is canonical. Chris\u2019s LinkedIn About + Ted Zeigler\u2019s + Todd Rebner\u2019s descriptions to align with brand-doc Financial Operating Platform framing.'
+}, {
+  pri: 'P3',
+  title: '2027\u20132030 plan numbers',
+  body: 'Per the v1.14-B copy fix and the Pothos email thread (Apr 30 / May 4), the 2027\u20132030 plan is now framed as a joint exercise with an aligned long-duration partner, not a Propeller-unilateral deliverable. No separate numbers needed for this deck; the math gets built collaboratively if and when Path A starts.'
+}, {
+  pri: 'P3',
+  title: 'Multi-tenant DynDeck horizon',
+  body: 'SKILL §10 multi-tenant horizon: the DynDeck product itself eventually becomes a multi-tenant platform that Propeller offers to its 1,400+ client base. Propeller\u2019s own DynDeck is, recursively, a demonstration of what the product becomes. Pothos is partly investing in that horizon. Not in scope for any current build, but worth carrying.'
+}];
+const PriorityBacklog = () => {
+  // Group by priority for ordered render
+  const byPri = PRIORITY_ITEMS.reduce((acc, item) => {
+    if (!acc[item.pri]) acc[item.pri] = [];
+    acc[item.pri].push(item);
+    return acc;
+  }, {});
+  const priOrder = ['P0', 'P1', 'P2', 'P3'];
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '8px 0 24px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C.red,
+      letterSpacing: 2,
+      fontWeight: 700,
+      marginBottom: 10,
+      textTransform: 'uppercase'
+    }
+  }, "Internal \xB7 Priority Backlog"), /*#__PURE__*/React.createElement("h2", {
+    style: {
+      fontSize: 22,
+      fontWeight: 700,
+      color: C.text,
+      margin: '0 0 12px'
+    }
+  }, "What\u2019s next, ranked."), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: C.textDim,
+      lineHeight: 1.55,
+      maxWidth: 760
+    }
+  }, "Forward priorities carried across versions. P0 are ship-blockers or close-to-blockers; P1 is current sprint; P2 is the near-term backlog; P3 is parked. Updated at each version bump alongside the Version History build log. Filtered out of TABS_VISIBLE before external share.")), priOrder.filter(p => byPri[p] && byPri[p].length).map(p => {
+    const meta = PRIORITY_META[p];
+    const items = byPri[p];
+    return /*#__PURE__*/React.createElement("div", {
+      key: p,
+      style: {
+        marginBottom: 24
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'baseline',
+        gap: 10,
+        marginBottom: 12
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'inline-block',
+        padding: '3px 10px',
+        borderRadius: 3,
+        background: `${meta.color}22`,
+        border: `1px solid ${meta.color}77`,
+        fontSize: 11,
+        fontWeight: 700,
+        color: meta.color,
+        letterSpacing: 1.5,
+        textTransform: 'uppercase'
+      }
+    }, meta.label), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: C.textDim,
+        letterSpacing: 0.4
+      }
+    }, items.length, " ", items.length === 1 ? 'item' : 'items')), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+        gap: 12
+      }
+    }, items.map((item, i) => /*#__PURE__*/React.createElement("div", {
+      key: i,
+      style: {
+        padding: '14px 16px',
+        background: C.card,
+        border: `1px solid ${C.border}`,
+        borderLeft: `3px solid ${meta.color}`,
+        borderRadius: 4
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'inline-block',
+        padding: '2px 7px',
+        marginBottom: 8,
+        background: `${meta.color}18`,
+        border: `1px solid ${meta.color}55`,
+        borderRadius: 3,
+        fontSize: 10,
+        fontWeight: 700,
+        color: meta.color,
+        letterSpacing: 0.8,
+        textTransform: 'uppercase'
+      }
+    }, meta.label), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 13,
+        fontWeight: 700,
+        color: C.text,
+        margin: '0 0 6px',
+        lineHeight: 1.35
+      }
+    }, item.title), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: C.textMid,
+        lineHeight: 1.55
+      }
+    }, item.body)))));
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 24,
+      padding: '14px 18px',
+      background: `${C.accent}11`,
+      borderLeft: `3px solid ${C.accent}`,
+      borderRadius: 4
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 700,
+      color: C.accent,
+      letterSpacing: 1.5,
+      marginBottom: 6,
+      textTransform: 'uppercase'
+    }
+  }, "How to use this tab"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 12.5,
+      color: C.textMid,
+      lineHeight: 1.6,
+      margin: 0
+    }
+  }, "Update by hand at each version bump. When a P0/P1 item ships, move it into the Version History build log and remove the card. When something new surfaces, add it at the right priority. Keep cards short \u2014 the tab is a scannable index, not a spec.")));
+};
 const TABS_VISIBLE = TABS.map((t, i) => ({
   label: t,
   index: i,
@@ -11277,7 +11800,7 @@ function PropellerInvestorDashboard() {
       fontSize: 11,
       color: C.textDim
     }
-  }, "Propeller team only \u2014 hide before sharing with investors (flip IS_EXTERNAL = true)")), tab === 0 && /*#__PURE__*/React.createElement(Overview, null), tab === 1 && /*#__PURE__*/React.createElement(BusinessToday, null), tab === 2 && /*#__PURE__*/React.createElement(WhyNowPlatform, null), tab === 3 && /*#__PURE__*/React.createElement(SegmentEconomics, null), tab === 4 && /*#__PURE__*/React.createElement(FinancialsCapital, null), tab === 5 && /*#__PURE__*/React.createElement(DeliveryCapacity, null), tab === 6 && /*#__PURE__*/React.createElement(TeamStructure, null), tab === 7 && /*#__PURE__*/React.createElement(TeamCapacity, null), tab === 8 && /*#__PURE__*/React.createElement(TrajectoryDiscussion, null), tab === 9 && /*#__PURE__*/React.createElement(InformationRequest, null), tab === 10 && /*#__PURE__*/React.createElement(DataRoom, null), tab === 11 && /*#__PURE__*/React.createElement(VersionHistory, null), tab === 12 && /*#__PURE__*/React.createElement(TodoOpenItems, null), tab === 13 && /*#__PURE__*/React.createElement(MasterReconciliation, null)), /*#__PURE__*/React.createElement("div", {
+  }, "Propeller team only \u2014 hide before sharing with investors (flip IS_EXTERNAL = true)")), tab === 0 && /*#__PURE__*/React.createElement(Overview, null), tab === 1 && /*#__PURE__*/React.createElement(BusinessToday, null), tab === 2 && /*#__PURE__*/React.createElement(WhyNowPlatform, null), tab === 3 && /*#__PURE__*/React.createElement(SegmentEconomics, null), tab === 4 && /*#__PURE__*/React.createElement(FinancialsCapital, null), tab === 5 && /*#__PURE__*/React.createElement(DeliveryCapacity, null), tab === 6 && /*#__PURE__*/React.createElement(TeamStructure, null), tab === 7 && /*#__PURE__*/React.createElement(TeamCapacity, null), tab === 8 && /*#__PURE__*/React.createElement(TrajectoryDiscussion, null), tab === 9 && /*#__PURE__*/React.createElement(InformationRequest, null), tab === 10 && /*#__PURE__*/React.createElement(VersionHistory, null), tab === 11 && /*#__PURE__*/React.createElement(TodoOpenItems, null), tab === 12 && /*#__PURE__*/React.createElement(MasterReconciliation, null), tab === 13 && /*#__PURE__*/React.createElement(PriorityBacklog, null)), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '20px 32px',
       borderTop: `1px solid ${C.border}`,
