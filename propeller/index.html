@@ -934,7 +934,7 @@ window.DynDeckLib = {
 
 })();
 
-// ─── DASHBOARD_Propeller (client) v1.12 ───
+// ─── DASHBOARD_Propeller (client) v1.13 ───
 (() => {
   var React = globalThis.React;
   var R = globalThis.React;
@@ -948,15 +948,15 @@ const { LineChart, Line, BarChart, Bar, ComposedChart, Area, AreaChart, XAxis, Y
 // ═══════════════════════════════════════════════════════════════════════════════
 // PROPELLER INDUSTRIES — INVESTOR INTELLIGENCE DASHBOARD · v1.0 · May 23, 2026
 // Source materials: Pothos data room (Apr 30, 2026 information request).
-//   - C_Revenue_01 - Client Revenue by Month.xlsx (982 clients × 63 months, NetSuite-sourced)
+//   - Revenue_01 - Client Revenue by Month.xlsx (982 clients × 63 months, NetSuite-sourced)
 //   - B_Financial_01.1 - Monthly P&L - Consolidated.xlsx
 //   - B_Financial_02.1/.2/.3 - Monthly P&L by segment (Venture / Growth / TAS)
-//   - B_Financial_05 - One Time Adjustments.xlsx (Reported→Adjusted EBITDA bridge)
-//   - B_Financial_06 - 2026 Budget.xlsx
-//   - C_Revenue_02 - ACV Build.xlsx · C_Revenue_03 - Pipeline.xlsx
-//   - D_Operations_01/03/04 - Headcount / Attrition / Demand Planning
-//   - E_Technology_01/03/04 - PropellerOS Roadmap / Engineering capitalization
-//   - F_Corporate_01.1/.2 - Newlight closing docs · F_Corporate_03 - Org Chart
+//   - Financial_05 - One Time Adjustments.xlsx (Reported→Adjusted EBITDA bridge)
+//   - Financial_06 - 2026 Budget.xlsx
+//   - Revenue_02 - ACV Build.xlsx · Revenue_03 - Pipeline.xlsx
+//   - Operations_01/03/04 - Headcount / Attrition / Demand Planning
+//   - Technology_01/03/04 - PropellerOS Roadmap / Engineering capitalization
+//   - F_Corporate_01.1/.2 - Newlight closing docs · Corporate_03 - Org Chart
 //   - April 24 Pothos investor deck (Chicago meeting)
 //
 // Engagement: Pothos (long-duration capital via Cooper Management, Rohan Parikh VP).
@@ -968,7 +968,7 @@ const { LineChart, Line, BarChart, Bar, ComposedChart, Area, AreaChart, XAxis, Y
 //   "Delivery & Capacity" (utilization × realization). Patterns to be codified
 //   in SKILL v1.6.
 //
-// v1.0 (May 23, 2026): cold start. Cohort engine rebuilt from C_Revenue_01.
+// v1.0 (May 23, 2026): cold start. Cohort engine rebuilt from Revenue_01.
 //   Tab shell with 10 external + 2 internal tabs. Overview + Business Today
 //   data layer landed. Other tabs stubbed. NRR/Logo discrepancy vs deck flagged
 //   on To-Do internal tab.
@@ -1024,7 +1024,7 @@ const fmt = (v, type = '$') => {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════════════════════════
-// COHORT DATA — rebuilt from C_Revenue_01 (NetSuite GL via Pothos data room)
+// COHORT DATA — rebuilt from Revenue_01 (NetSuite GL via Pothos data room)
 // As of Mar 2026. 920 clients with revenue activity Nov 2021 – Mar 2026.
 // Cohort = client's first calendar month with revenue > 0.
 // Cell = % of cohort still active (revenue > 0) at month-offset N.
@@ -1034,14 +1034,14 @@ const fmt = (v, type = '$') => {
 //   Aug 2020–Oct 2021 monthly billings are a known ERP-migration gap
 //   (per master file Read Me v6.10, line 26).
 // - v1.8 rebuild: COHORT_MATRIX and YEARLY_COHORT_CURVES recomputed against
-//   C_Revenue_01 directly. Prior v1.7 numbers were systematically understated
+//   Revenue_01 directly. Prior v1.7 numbers were systematically understated
 //   for newer cohorts (largest variance was 2025: -21pts at M9). Firm-wide
 //   NRR_2025 reconciles cleanly: rebuilt = 79.5%, data room cites 79.4%.
 // - 2022 NRR (97%) and GRR (18%) are cube-start artifacts where the prior-year
 //   denominator was only 2 months of revenue. Suppressed in headline chart.
 // - 2025 NRR (79.4%) differs from April 24 deck (80.6%) by 1.2 pts. Deck cited
 //   PA v7.1.1 (Kantata-gross-billings, since restated). DynDeck uses
-//   C_Revenue_01 (NetSuite-net-revenue, current authoritative source per master
+//   Revenue_01 (NetSuite-net-revenue, current authoritative source per master
 //   file v6.10 line 90). Variance under review — flagged on To-Do tab.
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1366,7 +1366,7 @@ const RETENTION_YEARLY = {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SEGMENT QUARTERLY — Venture + Growth client count, revenue, avg billings/client
-// Derived from C_Revenue_01 cross-classified with master file Client Stage.
+// Derived from Revenue_01 cross-classified with master file Client Stage.
 // Pre-Sep-2024: all clients are Venture (Growth segment didn't exist).
 // Sep-2024+: Client Stage classification from Master v6.10.5 Client Registry.
 // Unclassified clients defaulted to Venture (flagged in reconciliation tab).
@@ -1481,7 +1481,7 @@ const SEGMENT_QUARTERLY = [{
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONSOLIDATED FINANCIALS — annual + Q1 2026
-// Source: B_Financial_01.1 Monthly P&L — Consolidated (data room).
+// Source: Financial_01.1 Monthly P&L — Consolidated (data room).
 // All figures NetSuite-sourced. Margins recomputed from $ values.
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1707,7 +1707,7 @@ const DISCREPANCIES = [{
   gap: '−1.2 pts',
   status: 'TBA — UNDER REVIEW',
   statusColor: C.warm,
-  resolution: 'April 24 deck cited DATA_Portfolio_Analytics v7.1.1 (Kantata gross billings, since restated per Master Financial File v6.10 Read Me line 90). DynDeck rebuilds from C_Revenue_01 (NetSuite Net Revenue — current authoritative source). Likely DynDeck number is correct; awaiting Chris confirmation of methodology.',
+  resolution: 'April 24 deck cited DATA_Portfolio_Analytics v7.1.1 (Kantata gross billings, since restated per Master Financial File v6.10 Read Me line 90). DynDeck rebuilds from Revenue_01 (NetSuite Net Revenue — current authoritative source). Likely DynDeck number is correct; awaiting Chris confirmation of methodology.',
   owner: 'Chris'
 }, {
   id: 2,
@@ -1750,20 +1750,22 @@ const TABS = ['Overview',
 // 5  — utilization × realization, attrition, demand planning
 'Team & Structure',
 // 6  — leadership, org chart (NO Newlight context)
+'Team & Capacity',
+// 7  — headcount trajectory: US/Intl mix, US detail, partner composition
 'Trajectory & Discussion',
-// 7  — demand outpacing capacity, partnership shape
+// 8  — demand outpacing capacity, partnership shape
 'Information Request',
-// 8  — Kevin's pattern; status tracker with line-to-tab links
+// 9  — Kevin's pattern; status tracker with line-to-tab links
 'Data Room',
-// 9  — file-card grid; URLs stubbed for Todd's platform
+// 10 — file-card grid; URLs stubbed for Todd's platform
 'Version History',
-// 10 — INTERNAL · hidden pre-ship
+// 11 — INTERNAL · hidden pre-ship
 'To-Do / Open Items',
-// 11 — INTERNAL · hidden pre-ship; discrepancy log lives here
-'Master Reconciliation' // 12 — INTERNAL · hidden pre-ship; data-room vs master file variance log for Kevin
+// 12 — INTERNAL · hidden pre-ship; discrepancy log lives here
+'Master Reconciliation' // 13 — INTERNAL · hidden pre-ship; data-room vs master file variance log for Kevin
 ];
-const INTERNAL_TAB_START = 10; // tabs 10+ are internal
-const IS_EXTERNAL = true; // v1.6: internal tabs filtered. v1.7: De-AI scrub + headshots + Adjusted EBITDA bridge — this is the Ray-share build.
+const INTERNAL_TAB_START = 11; // tabs 11+ are internal
+const IS_EXTERNAL = true; // v1.6: internal tabs filtered. v1.13: Team & Capacity tab + Adjusted/Reported toggle + logo grid + event labels + ARPC fix + Info Request — Pothos-ready.
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // HEADLINE NUMBERS (Propeller marquee — confirmed by Chris May 23, 2026)
@@ -1784,9 +1786,9 @@ const MARQUEE = {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // DELIVERY & CAPACITY DATA — extracted from four operations files in the data room:
-// D_Operations_01 (Active+Term roster, 230 rows), D_Operations_03 (133 termed,
+// Operations_01 (Active+Term roster, 230 rows), Operations_03 (133 termed,
 // historical), Operations_02 (utilization report, single-month Mar 2026 snapshot
-// from 60 users), D_Operations_04 (forward-12-month resourcing demand model).
+// from 60 users), Operations_04 (forward-12-month resourcing demand model).
 // Important scoping note: the 97 active count is the US W-2 roster from the HR
 // file. Propeller's full team (250+ per the brand-doc boilerplate) includes
 // international and contractor staff not in this file. The Delivery tab is
@@ -1925,41 +1927,76 @@ const DELIVERY_DATA = {
 // 5 categories × 39 named clients. Acquired/IPO/SPAC annotations preserved.
 // To be verified against source slide during build. Per scope-locked handoff §4.
 // ═══════════════════════════════════════════════════════════════════════════════
+const UNICORN_ICON = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAOCAYAAAD0f5bSAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAB5ElEQVR42l2SzUsVcRSGn3N+M3Pn6tVCiyLULAzBggqCu6ptK3f9BRX9AQkVtKhFEa1ctTCwdVAr+0CIDFpVO0ujCCN1IakoFqTXOzNvi8lED5zFgfPB+54HQFHkaq/FAuTmgiBAgMzK3KoBBXdumxlXL9boOggzs+LuUJXVX7Cn3VhaARBmbEe5xXSgM9LXV20avtmmxlQsfY9VfEv0/FGLOvbGuy+iEEyAjh+ravFDi7Ivpua0Kf8cpGXTi5FURpB72YcZckPuQWMjqTRnak6hzSnX5FhNjY9IC65LF9JST0DuBoWce0MJg4ObNNdElEBchaXVgAdD6+L6FaOSOEUBnhdQPxVx7UYOmYiTmN+NiNdvq+zv2CRKhTZEX0/G0W5HAgeYXyiYGI95MJrSf94YvByTuzgx0CDfAHMjy40/69sW/nPEBa76yVTz71JpDmXTqPkJaRZNv6zp9ECrwOQAbuBe0NbqPB6Grq4G6ysQYohqxuRkhWbunD0jAKLyWVAU0H/E6e3OyddEdZ+zuJAw8yMhqohDnRnPJjLMtobKBaysQZEbJIFb9yuMPsnp68noPZwz/qbg53L2n4ySOS91PbzTovdPazv4AxPYTiK2wMRMcRTpXL1VSWJyR8FRFHZC+xe73PDPTxOnggAAAABJRU5ErkJggg==';
+
+// MARQUEE CLIENTS — reconciled against investor PDF logo slide (April 24 deck).
+// Pills: 'Acquired' | 'IPO' | 'SPAC'. Unicorn flag marks unicorn-status alumni.
+// Reconciliation review by Chris Fenster (May 26, 2026): YT → YTP (Youth to the People, L'Oréal);
+// ZICO removed from Acquired (client bought it back from Coke); Soylent removed (status ambiguous);
+// 10 CPG companies, 1 Consumer/E-comm, and several Tech & Media unicorn marks added.
 const MARQUEE_CLIENTS = {
   'CPG': [{
     name: 'Liquid Death',
     unicorn: true
   }, {
     name: 'Poppi',
-    tag: 'Acquired'
-  },
-  // PepsiCo, March 2025
-  {
+    tag: 'Acquired',
+    unicorn: true
+  }, {
     name: 'Siete',
-    tag: 'Acquired'
-  },
-  // PepsiCo / Frito-Lay, 2024
-  {
+    tag: 'Acquired',
+    unicorn: true
+  }, {
     name: 'Olipop',
     unicorn: true
-  },
-  // unicorn status, Feb 2025 raise
-  'YT', 'Welly', 'Chameleon Cold-Brew', 'Grüns', 'Flying Embers', 'Good Culture', 'Hippeas', 'Hu', 'Momofuku', 'Krave', 'Kettle & Fire', 'Pathwater', "Nick's", 'Rustic Bakery', 'Simple Mills', "Sir Kensington's", {
-    name: 'Soylent',
+  }, {
+    name: 'YTP (Youth to the People)',
     tag: 'Acquired'
-  },
-  // Starco Brands, 2023
-  'Super Coffee', 'Goodles', {
-    name: 'ZICO',
+  }, {
+    name: 'Welly',
     tag: 'Acquired'
-  } // Coca-Cola (later discontinued, but acquired)
-  ],
-  'Consumer Products & E-Comm': [{
+  }, {
+    name: 'Chameleon Cold-Brew',
+    tag: 'Acquired'
+  }, {
+    name: 'Grüns',
+    tag: 'Acquired',
+    unicorn: true
+  }, {
+    name: 'Flying Embers',
+    tag: 'Acquired'
+  }, {
+    name: 'Good Culture',
+    tag: 'Acquired'
+  }, 'Hippeas', {
+    name: 'Hu',
+    tag: 'Acquired'
+  }, 'Momofuku', {
+    name: 'Krave',
+    tag: 'Acquired'
+  }, 'Kettle & Fire', 'Pathwater', "Nick's", {
+    name: 'Rustic Bakery',
+    tag: 'Acquired'
+  }, {
+    name: 'Simple Mills',
+    tag: 'Acquired'
+  }, {
+    name: "Sir Kensington's",
+    tag: 'Acquired'
+  }, 'Soylent', 'Super Coffee', 'Goodles', 'ZICO'],
+  'Consumer Products & E-comm': [{
     name: 'hims',
-    tag: 'SPAC'
-  }, "The Farmer's Dog", 'Away', 'Keeps', 'Sunday', 'Little Spoon', 'Caddis', 'Cuts', 'SNOW', {
+    tag: 'SPAC',
+    unicorn: true
+  }, "The Farmer's Dog", {
+    name: 'Away',
+    unicorn: true
+  }, {
+    name: 'Keeps',
+    unicorn: true
+  }, 'Sunday', 'Little Spoon', 'Caddis', 'Cuts', 'SNOW', {
     name: 'Casper',
-    tag: 'IPO'
+    unicorn: true
   }, 'Fellow', {
     name: 'care/of',
     tag: 'Acquired'
@@ -1967,7 +2004,10 @@ const MARQUEE_CLIENTS = {
     name: 'Myxfitness',
     tag: 'SPAC'
   }, 'Hubble', 'Lemme'],
-  'Tech & Media': ['BetterUp', {
+  'Tech & Media': [{
+    name: 'BetterUp',
+    unicorn: true
+  }, {
     name: 'Codecademy',
     tag: 'Acquired'
   }, {
@@ -1975,10 +2015,12 @@ const MARQUEE_CLIENTS = {
     tag: 'Acquired'
   }, {
     name: 'braze',
-    tag: 'IPO'
+    tag: 'IPO',
+    unicorn: true
   }, {
     name: 'planet',
-    tag: 'IPO'
+    tag: 'IPO',
+    unicorn: true
   }, {
     name: 'cheddar',
     tag: 'Acquired'
@@ -1987,13 +2029,21 @@ const MARQUEE_CLIENTS = {
     tag: 'Acquired'
   }, {
     name: 'triplelift',
-    tag: 'Acquired'
-  }, 'loadsmart', 'dialpad', {
+    tag: 'Acquired',
+    unicorn: true
+  }, {
+    name: 'loadsmart',
+    unicorn: true
+  }, {
+    name: 'dialpad',
+    unicorn: true
+  }, {
     name: 'bitly',
     tag: 'Acquired'
   }, {
     name: 'newsela',
-    tag: 'Acquired'
+    tag: 'Acquired',
+    unicorn: true
   }],
   'Professional Services': ['Known', 'Athena', {
     name: 'obviously',
@@ -2007,8 +2057,12 @@ const MARQUEE_CLIENTS = {
     unicorn: true
   }, 'Messari', {
     name: 'Candy',
-    tag: 'Acquired'
-  }, 'Gitcoin', 'VeeFriends', 'Optimism']
+    tag: 'Acquired',
+    unicorn: true
+  }, 'Gitcoin', 'VeeFriends', {
+    name: 'Optimism',
+    unicorn: true
+  }]
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -2187,7 +2241,7 @@ const CohortHeatmap = () => {
   const cols = rangeMode === 'M12' ? 12 : 24;
   return /*#__PURE__*/React.createElement(ChartCard, {
     title: "Cohort retention heatmap \xB7 monthly cohorts \xD7 M1\u2013M24",
-    sub: "% of clients in each cohort still billing at month-offset N. Darker teal = higher retention. M12 column outlined in gold. Empty cells unobserved (recent cohorts have less history). Rebuilt from C_Revenue_01 (NetSuite GL).",
+    sub: "% of clients in each cohort still billing at month-offset N. Darker teal = higher retention. M12 column outlined in gold. Empty cells unobserved (recent cohorts have less history). Rebuilt from Revenue_01 (NetSuite GL).",
     wide: true
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2543,8 +2597,8 @@ const EXEC_KPIS = [{
   color: C.accent,
   info: {
     def: '2025 full-year net revenue, NetSuite-sourced.',
-    calc: 'Sum of monthly net revenue Jan 2025 – Dec 2025 from B_Financial_01.1.',
-    src: 'B_Financial_01.1 Monthly P&L — Consolidated; ties to FRP 2025 ($28,821K) within $14K.',
+    calc: 'Sum of monthly net revenue Jan 2025 – Dec 2025 from Financial_01.1.',
+    src: 'Financial_01.1 Monthly P&L — Consolidated; ties to FRP 2025 ($28,821K) within $14K.',
     note: 'NetSuite Net Revenue is the authoritative source for all Propeller analytics going forward (per Master File v6.10). Kantata gross billings 1.05× higher; used historically, since restated.'
   }
 }, {
@@ -2554,7 +2608,7 @@ const EXEC_KPIS = [{
   info: {
     def: 'Net revenue growth, 2025 vs 2024.',
     calc: '$28.81M / $27.84M − 1 = +3.5%',
-    src: 'B_Financial_01.1 Monthly P&L — Consolidated.',
+    src: 'Financial_01.1 Monthly P&L — Consolidated.',
     note: 'First year of net revenue growth since 2022 peak ($38.9M). Growth segment launched Sep 2024 contributes incremental revenue not present in 2024 base.'
   }
 }, {
@@ -2564,7 +2618,7 @@ const EXEC_KPIS = [{
   info: {
     def: 'Q1 2026 net revenue, January through March.',
     calc: '$2.50M (Jan) + $2.42M (Feb) + $2.39M (Mar) = $7.31M',
-    src: 'B_Financial_01.1 Monthly P&L — Consolidated; Q1 2026 Summary tab in Master File v6.10.',
+    src: 'Financial_01.1 Monthly P&L — Consolidated; Q1 2026 Summary tab in Master File v6.10.',
     note: '+2.9% QoQ vs Q4 2025 ($7.11M). First sequential improvement in Venture segment after 4 quarters of decline. Growth segment 27.9% of Q1 2026 mix.'
   }
 }, {
@@ -2574,7 +2628,7 @@ const EXEC_KPIS = [{
   info: {
     def: '2025 net revenue gross margin.',
     calc: '($28.81M revenue − $18.95M direct delivery cost) / $28.81M = 34.2%',
-    src: 'B_Financial_01.1 Monthly P&L — Consolidated.',
+    src: 'Financial_01.1 Monthly P&L — Consolidated.',
     note: 'Services-firm GM. Utilization × realization × bill rate is the underlying equation (see Delivery & Capacity tab).'
   }
 }, {
@@ -2584,7 +2638,7 @@ const EXEC_KPIS = [{
   info: {
     def: 'Net Revenue Retention — % of 2024 client base revenue retained in 2025, including expansion.',
     calc: 'Σ(2025 revenue from clients active in 2024) / Σ(2024 revenue from those clients) = 79.4%',
-    src: 'C_Revenue_01 - Client Revenue by Month (NetSuite GL via Pothos data room).',
+    src: 'Revenue_01 - Client Revenue by Month (NetSuite GL via Pothos data room).',
     note: 'Rebuilt NRR is 79.4%. April 24 Pothos deck cites 80.6% from PA v7.1.1 (Kantata-sourced, since restated). 1.2-pt variance under review — see To-Do tab.'
   }
 }, {
@@ -2594,7 +2648,7 @@ const EXEC_KPIS = [{
   info: {
     def: 'Q1 2026 Adjusted EBITDA — Ordinary EBITDA plus the one-time severance add-back (Feb 2026, 100% recorded in COGS).',
     calc: '+$44K Ordinary EBITDA + $99.6K severance (all COGS) = +$145K Adjusted. Q1 2025 Adjusted EBITDA was -$855K (annualized run-rate -$3.4M). Q1 2026 Adjusted prints +$145K (annualized run-rate +$580K). Implied annualized swing: roughly +$4M, or +$1M against trailing-quarter Q4 2025. The COGS-only nature of the severance also lifts Q1 Adjusted Gross Margin to 35.2% (from 33.9% reported) — a 1.4-pt structural improvement.',
-    src: 'B_Financial_01.1 (Ordinary EBITDA) + B_Financial_05 (one-time adjustments, account 53170 — COGS Severance). Bridge detail on Financials & Capital tab.',
+    src: 'Financial_01.1 (Ordinary EBITDA) + Financial_05 (one-time adjustments, account 53170 — COGS Severance). Bridge detail on Financials & Capital tab.',
     note: 'First positive Adjusted EBITDA quarter since 2022, and the first quarter where Adjusted GM clears 35%. April 24 deck cited $69K — a late draft adjustment; the data-room reconciliation is the canonical figure.'
   }
 }];
@@ -3336,12 +3390,15 @@ const TRAJECTORY_ERAS = [{
 }];
 
 // Event markers — 7 named moments inside or between eras
-// Pure hover-only dashed vertical lines (no buttons, no persistent state)
+// Render as labeled dashed vertical lines with hover-only tooltip cards.
+// topOffset = vertical stagger for the label (0=row1 closest to chart top, 1=row2)
+// Used to avoid collisions when events are <2 quarters apart.
 const TRAJECTORY_EVENTS = [{
   id: 'newlight',
   q: 'Q3 2020',
   label: 'Newlight',
   dot: '#e8c468',
+  topOffset: 0,
   title: 'July 2020 · Newlight Partners transaction',
   body: 'Newlight Partners closes a recapitalization. The firm enters its first institutional-capital chapter with a clear runway to scale the embedded finance model nationally.'
 }, {
@@ -3349,6 +3406,7 @@ const TRAJECTORY_EVENTS = [{
   q: 'Q1 2022',
   label: '$10M peak',
   dot: '#e8c468',
+  topOffset: 0,
   title: 'Q1 2022 · Quarterly revenue peak',
   body: 'Net revenue reaches $10.0M for the quarter \u2014 the high-water mark of the venture-funded expansion. 381 clients on the books, all Venture-segment. Annual revenue lands at $38.9M for the year.'
 }, {
@@ -3356,6 +3414,7 @@ const TRAJECTORY_EVENTS = [{
   q: 'Q1 2023',
   label: 'SVB',
   dot: '#d36b6b',
+  topOffset: 0,
   title: 'March 2023 · Silicon Valley Bank collapse',
   body: 'SVB fails. The venture funding environment compresses sharply. Client count and revenue both decline through 2023 as the venture cohort shrinks \u2014 a market signal, not an execution miss.'
 }, {
@@ -3363,6 +3422,7 @@ const TRAJECTORY_EVENTS = [{
   q: 'Q2 2024',
   label: 'Ray CEO',
   dot: '#5fb4d4',
+  topOffset: 0,
   title: 'April 2024 · Ray Nieuwenhuizen joins as CEO',
   body: 'Ray joins after more than a decade at Peloton Consulting Group, where he served as COO and built the firm to $100M+. Chris transitions to Founder & Executive Chairman. The two-in-a-box pairing across functions begins.'
 }, {
@@ -3370,13 +3430,15 @@ const TRAJECTORY_EVENTS = [{
   q: 'Q3 2024',
   label: 'Growth launch',
   dot: '#5fb4d4',
+  topOffset: 1,
   title: 'September 2024 · Growth segment launches',
-  body: 'A second engine begins. Growth-stage clients pay roughly 2.5\u00d7 the Venture rate per client per month, on fixed fee rather than T&M. By Q1 2026, Growth is contributing $2.0M/quarter at 28% of revenue.'
+  body: 'A second engine begins. Growth-stage clients pay roughly 2.5\u00d7 the Venture rate per client per year, on fixed fee rather than T&M. By Q1 2026, Growth is contributing $2.0M/quarter at 28% of revenue.'
 }, {
   id: 'pos',
   q: 'Q1 2026',
   label: 'PropellerOS',
   dot: '#7ed29b',
+  topOffset: 0,
   title: 'March 2026 · PropellerOS launch',
   body: 'The Financial Operating Platform formally launches. Embedded teams + finance-grade AI + 18 years of cross-portfolio data, delivered as outcomes-as-a-service. Q1 2026 also marks the first sequential revenue growth since 2022 and a return to positive EBITDA.'
 }, {
@@ -3384,6 +3446,7 @@ const TRAJECTORY_EVENTS = [{
   q: 'Q2 2026',
   label: 'Brand refresh',
   dot: '#7ed29b',
+  topOffset: 1,
   title: 'June 2026 · Brand refresh',
   body: 'Series Eight partnership delivers the brand evolution from finance services firm to Financial Operating Platform for Intelligent Growth. New positioning, identity, and digital presence aligned to where the firm is heading, not where it came from.'
 }];
@@ -3519,7 +3582,7 @@ const LongArcChart = () => {
       fontSize: 12,
       color: C.textDim
     }
-  }, "Click an era for the leadership story. Hover a vertical line for the moment behind it. Q2\u2013Q4 2026 bars are locked budget.")), /*#__PURE__*/React.createElement("div", {
+  }, "Click an era for the leadership story. Hover an event label for the moment behind it. Q2\u2013Q4 2026 bars are locked budget.")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(4, 1fr)',
@@ -3573,7 +3636,47 @@ const LongArcChart = () => {
       borderRadius: 6,
       position: 'relative'
     }
-  }, /*#__PURE__*/React.createElement(ResponsiveContainer, {
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'relative',
+      height: 42,
+      marginBottom: 4,
+      marginLeft: 60,
+      marginRight: 60
+    }
+  }, TRAJECTORY_EVENTS.map(e => {
+    const idx = data.findIndex(d => d.p === e.q);
+    const pct = (idx + 0.5) / data.length * 100;
+    const isHovered = hoveredEvent === e.id;
+    // Stagger close pairs vertically
+    const topPx = e.topOffset === 1 ? 22 : 2;
+    return /*#__PURE__*/React.createElement("div", {
+      key: e.id,
+      onMouseEnter: () => setHoveredEvent(e.id),
+      onMouseLeave: () => setHoveredEvent(null),
+      style: {
+        position: 'absolute',
+        left: `${pct}%`,
+        top: topPx,
+        transform: 'translateX(-50%)',
+        padding: '2px 6px',
+        border: `1px solid ${isHovered ? e.dot : C.border}`,
+        background: isHovered ? `${e.dot}22` : C.bg,
+        borderRadius: 3,
+        whiteSpace: 'nowrap',
+        cursor: 'help',
+        transition: 'all 0.15s ease',
+        zIndex: isHovered ? 5 : 2
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 9.5,
+        fontWeight: 600,
+        color: isHovered ? C.text : e.dot,
+        letterSpacing: 0.2
+      }
+    }, e.label));
+  })), /*#__PURE__*/React.createElement(ResponsiveContainer, {
     width: "100%",
     height: 480
   }, /*#__PURE__*/React.createElement(ComposedChart, {
@@ -3731,14 +3834,13 @@ const LongArcChart = () => {
   }))), /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'absolute',
-      top: 16,
+      top: 62,
       left: 14,
       right: 60,
       height: 480,
       pointerEvents: 'none'
     }
   }, TRAJECTORY_EVENTS.map(e => {
-    // Compute the horizontal position as a percentage of chart width
     const idx = data.findIndex(d => d.p === e.q);
     const pct = (idx + 0.5) / data.length * 100;
     return /*#__PURE__*/React.createElement("div", {
@@ -3748,57 +3850,62 @@ const LongArcChart = () => {
       style: {
         position: 'absolute',
         left: `calc(${pct}% + 24px)`,
-        // offset for Y-axis width
         top: 0,
-        width: 24,
+        width: 36,
         height: '90%',
-        transform: 'translateX(-12px)',
+        transform: 'translateX(-18px)',
         pointerEvents: 'auto',
         cursor: 'help'
       }
     });
-  })), hoveredEventObj && /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      bottom: -8,
-      left: '50%',
-      transform: 'translate(-50%, 100%)',
-      background: C.bg,
-      border: `1px solid ${hoveredEventObj.dot}`,
-      borderLeft: `3px solid ${hoveredEventObj.dot}`,
-      borderRadius: 4,
-      padding: '14px 18px',
-      maxWidth: 560,
-      minWidth: 380,
-      zIndex: 10,
-      boxShadow: '0 6px 24px rgba(0,0,0,0.6)',
-      pointerEvents: 'none'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10,
-      fontWeight: 700,
-      color: hoveredEventObj.dot,
-      letterSpacing: 1.5,
-      textTransform: 'uppercase',
-      marginBottom: 6
-    }
-  }, "Moment \xB7 ", hoveredEventObj.q), /*#__PURE__*/React.createElement("h4", {
-    style: {
-      fontSize: 14,
-      fontWeight: 700,
-      color: C.text,
-      margin: '0 0 6px',
-      letterSpacing: -0.2
-    }
-  }, hoveredEventObj.title), /*#__PURE__*/React.createElement("p", {
-    style: {
-      fontSize: 12.5,
-      color: C.textMid,
-      lineHeight: 1.55,
-      margin: 0
-    }
-  }, hoveredEventObj.body))), /*#__PURE__*/React.createElement("div", {
+  })), hoveredEventObj && (() => {
+    const idx = data.findIndex(d => d.p === hoveredEventObj.q);
+    const pct = (idx + 0.5) / data.length * 100;
+    // Clamp horizontal position so the card stays within view
+    const clampedPct = Math.min(75, Math.max(25, pct));
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: 'absolute',
+        bottom: -8,
+        left: `${clampedPct}%`,
+        transform: 'translate(-50%, 100%)',
+        background: C.bg,
+        border: `1px solid ${hoveredEventObj.dot}`,
+        borderLeft: `3px solid ${hoveredEventObj.dot}`,
+        borderRadius: 4,
+        padding: '14px 18px',
+        maxWidth: 520,
+        minWidth: 360,
+        zIndex: 10,
+        boxShadow: '0 6px 24px rgba(0,0,0,0.6)',
+        pointerEvents: 'none'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        fontWeight: 700,
+        color: hoveredEventObj.dot,
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
+        marginBottom: 6
+      }
+    }, "Moment \xB7 ", hoveredEventObj.q), /*#__PURE__*/React.createElement("h4", {
+      style: {
+        fontSize: 14,
+        fontWeight: 700,
+        color: C.text,
+        margin: '0 0 6px',
+        letterSpacing: -0.2
+      }
+    }, hoveredEventObj.title), /*#__PURE__*/React.createElement("p", {
+      style: {
+        fontSize: 12.5,
+        color: C.textMid,
+        lineHeight: 1.55,
+        margin: 0
+      }
+    }, hoveredEventObj.body));
+  })()), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: activeEraObj ? 60 : 14,
       minHeight: 100,
@@ -3988,25 +4095,33 @@ const Overview = () => {
       fontWeight: 700,
       color: C.accent,
       letterSpacing: 1.5,
-      marginBottom: 10,
+      marginBottom: 14,
       textTransform: 'uppercase'
     }
   }, "The Value Reframe"), /*#__PURE__*/React.createElement("p", {
     style: {
-      fontSize: 14,
+      fontSize: 15,
       color: C.text,
-      lineHeight: 1.7,
-      margin: '0 0 8px'
-    }
-  }, "Hire a CFO + Add a controller = Scale. That worked when finance meant compliance and reporting. What is needed now is an operating system, one that learns continuously, validates AI against audit standards, and won\u2019t break when someone leaves."), /*#__PURE__*/React.createElement("p", {
-    style: {
-      fontSize: 14,
-      color: C.text,
-      lineHeight: 1.7,
-      margin: '0 0 8px',
+      lineHeight: 1.6,
+      margin: '0 0 14px',
       fontWeight: 600
     }
-  }, "Propeller is that foundation."), /*#__PURE__*/React.createElement("p", {
+  }, "Hire a CFO. Add a controller. That used to equal scale."), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 14,
+      color: C.textMid,
+      lineHeight: 1.7,
+      margin: '0 0 14px'
+    }
+  }, "That formula worked when finance meant compliance and reporting. What\u2019s needed now is an operating system \u2014 one that learns continuously, validates AI against audit standards, and doesn\u2019t break when someone leaves."), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 15,
+      color: C.text,
+      lineHeight: 1.6,
+      margin: '0 0 14px',
+      fontWeight: 700
+    }
+  }, "Propeller is that operating system."), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 13.5,
       color: C.textMid,
@@ -4070,8 +4185,8 @@ const BusinessToday = () => /*#__PURE__*/React.createElement("div", null, /*#__P
   color: C.accent,
   info: {
     def: 'Net Revenue Retention, 2024 base → 2025 (with expansion).',
-    calc: 'See Overview KPI. Rebuilt from C_Revenue_01 (NetSuite GL).',
-    src: 'C_Revenue_01 - Client Revenue by Month.',
+    calc: 'See Overview KPI. Rebuilt from Revenue_01 (NetSuite GL).',
+    src: 'Revenue_01 - Client Revenue by Month.',
     note: 'Deck cites 80.6% (Kantata-sourced, restated). Variance flagged on To-Do tab.'
   }
 }), /*#__PURE__*/React.createElement(KPI, {
@@ -4081,7 +4196,7 @@ const BusinessToday = () => /*#__PURE__*/React.createElement("div", null, /*#__P
   info: {
     def: '% of 2024 active clients who were also active in 2025.',
     calc: '(2024 clients also active in 2025) / 2024 active clients ≈ 311 / 455 = 68.6% (~68.2% in v1.7).',
-    src: 'C_Revenue_01 - Client Revenue by Month.',
+    src: 'Revenue_01 - Client Revenue by Month.',
     note: 'Up ~2 pts from 2024 trough (66.4%). First annual logo-retention improvement since 2022.'
   }
 }), /*#__PURE__*/React.createElement(KPI, {
@@ -4091,7 +4206,7 @@ const BusinessToday = () => /*#__PURE__*/React.createElement("div", null, /*#__P
   info: {
     def: '% of clients in the 2025 cohort year still active at month 12.',
     calc: 'Aggregated across Jan 2025 – Mar 2025 monthly cohorts (only the cohorts with M12 observation).',
-    src: 'C_Revenue_01 - Client Revenue by Month.',
+    src: 'Revenue_01 - Client Revenue by Month.',
     note: '2025 is currently the strongest vintage at M12 — outperforming 2024 (63%) and 2023 (58%) at the same observed offset. The 2024 cohort still anchors at 44.6% M24 as the senior fully-observed vintage.'
   }
 })), /*#__PURE__*/React.createElement(RetentionTriple, null), /*#__PURE__*/React.createElement("div", {
@@ -4122,7 +4237,7 @@ const BusinessToday = () => /*#__PURE__*/React.createElement("div", null, /*#__P
     maxWidth: 760,
     marginBottom: 18
   }
-}, "A representative slice of the ", MARQUEE.clients.toLocaleString(), "+ companies Propeller has served. Acquired / IPO / SPAC outcomes annotated where applicable; gold triangle marks unicorn-status alumni."), Object.entries(MARQUEE_CLIENTS).map(([category, clients]) => /*#__PURE__*/React.createElement("div", {
+}, "A representative slice of the ", MARQUEE.clients.toLocaleString(), "+ companies Propeller has served. Acquired / IPO / SPAC outcomes annotated where applicable; unicorn icon marks unicorn-status alumni."), Object.entries(MARQUEE_CLIENTS).map(([category, clients]) => /*#__PURE__*/React.createElement("div", {
   key: category,
   style: {
     marginBottom: 18
@@ -4160,20 +4275,17 @@ const BusinessToday = () => /*#__PURE__*/React.createElement("div", null, /*#__P
       alignItems: 'center',
       gap: 6
     }
-  }, unicorn && /*#__PURE__*/React.createElement("svg", {
-    width: "11",
-    height: "11",
-    viewBox: "0 0 24 24",
-    "aria-label": "Unicorn",
+  }, unicorn && /*#__PURE__*/React.createElement("img", {
+    src: UNICORN_ICON,
+    alt: "Unicorn",
+    title: "Unicorn ($1B+ valuation)",
+    width: "13",
+    height: "14",
     style: {
-      flexShrink: 0
+      flexShrink: 0,
+      display: 'block'
     }
-  }, /*#__PURE__*/React.createElement("title", null, "Unicorn ($1B+ valuation)"), /*#__PURE__*/React.createElement("path", {
-    d: "M12 2 L14 8 L10 8 Z",
-    fill: C.warm,
-    stroke: C.warm,
-    strokeWidth: "0.5"
-  })), /*#__PURE__*/React.createElement("span", null, name), tag && /*#__PURE__*/React.createElement("span", {
+  }), /*#__PURE__*/React.createElement("span", null, name), tag && /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 9,
       fontWeight: 700,
@@ -4940,20 +5052,28 @@ const WhyNowPlatform = () => /*#__PURE__*/React.createElement("div", null, /*#__
   }
 }, /*#__PURE__*/React.createElement("p", {
   style: {
-    fontSize: 14,
+    fontSize: 16,
     color: C.text,
-    lineHeight: 1.75,
-    margin: '0 0 14px'
-  }
-}, "Hire a CFO + Add a controller = Scale. That worked when finance meant compliance and reporting. What is needed now is an operating system, one that learns continuously, validates AI against audit standards, and won\u2019t break when someone leaves."), /*#__PURE__*/React.createElement("p", {
-  style: {
-    fontSize: 14,
-    color: C.text,
-    lineHeight: 1.75,
+    lineHeight: 1.6,
     margin: '0 0 14px',
     fontWeight: 600
   }
-}, "Propeller is that foundation."), /*#__PURE__*/React.createElement("p", {
+}, "Hire a CFO. Add a controller. That used to equal scale."), /*#__PURE__*/React.createElement("p", {
+  style: {
+    fontSize: 14,
+    color: C.textMid,
+    lineHeight: 1.75,
+    margin: '0 0 16px'
+  }
+}, "That formula worked when finance meant compliance and reporting. What\u2019s needed now is an operating system \u2014 one that learns continuously, validates AI against audit standards, and doesn\u2019t break when someone leaves."), /*#__PURE__*/React.createElement("p", {
+  style: {
+    fontSize: 16,
+    color: C.text,
+    lineHeight: 1.6,
+    margin: '0 0 14px',
+    fontWeight: 700
+  }
+}, "Propeller is that operating system."), /*#__PURE__*/React.createElement("p", {
   style: {
     fontSize: 14,
     color: C.text,
@@ -5013,16 +5133,18 @@ const SegmentEconomics = () => {
   const vClientsQoQ = cur.vc - prev.vc;
   const vApcStable = Math.abs(cur.vapc - prev.vapc) / prev.vapc < 0.02; // within 2%
 
-  // Chart data — formatted for Recharts
+  // Chart data — formatted for Recharts. ARPC values annualized (×4) so
+  // chart labels read $/client/yr — matches how investors think about ARR.
   const chartData = SEGMENT_QUARTERLY.map(r => ({
     q: r.q.replace('20', "'").replace('Q', 'Q'),
     vClients: r.vc,
     vRev: r.vr / 1000,
     // $K
-    vApc: r.vapc,
+    vApc: r.vapc * 4,
+    // annualized $/client/yr
     gClients: r.gc,
     gRev: r.gr / 1000,
-    gApc: r.gapc
+    gApc: r.gapc * 4 // annualized $/client/yr
   }));
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -5088,19 +5210,19 @@ const SegmentEconomics = () => {
     color: C.accent,
     info: {
       def: 'Unique clients with Venture-segment revenue in Q1 2026.',
-      calc: 'Distinct count from C_Revenue_01, classified against Master v6.10.5 Client Stage. Pre-Sep 2024 all clients counted as Venture.',
-      src: 'C_Revenue_01 × Master File Client Registry.',
+      calc: 'Distinct count from Revenue_01, classified against Master v6.10.5 Client Stage. Pre-Sep 2024 all clients counted as Venture.',
+      src: 'Revenue_01 × Master File Client Registry.',
       note: `+${vClientsQoQ} QoQ vs Q4 2025 (${prev.vc}). First QoQ logo growth since 2023.`
     }
   }), /*#__PURE__*/React.createElement(KPI, {
-    value: `$${(cur.vapc / 1000).toFixed(1)}K`,
-    label: "Q1 2026 Avg Billings / Client",
+    value: `$${(cur.vapc * 4 / 1000).toFixed(0)}K`,
+    label: "Q1 2026 Avg Annual Billings / Client",
     color: C.accent,
     info: {
-      def: 'Average monthly billings per Venture client in Q1 2026.',
-      calc: `Q1 2026 Venture revenue ($${(cur.vr / 1e6).toFixed(2)}M) / ${cur.vc} clients / 3 months — quarterly average normalized to monthly.`,
-      src: 'C_Revenue_01.',
-      note: 'Has held at ~$19-20K/client/month for 8+ quarters through the venture-funding correction. Pricing/penetration stability — "decline" was nearly all logo count, not pricing.'
+      def: 'Annualized average billings per Venture client in Q1 2026.',
+      calc: `Q1 2026 Venture revenue ($${(cur.vr / 1e6).toFixed(2)}M) / ${cur.vc} clients × 4 quarters = ~$${(cur.vapc * 4 / 1000).toFixed(0)}K/client/year.`,
+      src: 'Revenue_01.',
+      note: 'Has held at ~$75-80K/client/year for 8+ quarters through the venture-funding correction. Pricing/penetration stability — "decline" was nearly all logo count, not pricing.'
     }
   }), /*#__PURE__*/React.createElement(KPI, {
     value: `$${(cur.vr / 1e6).toFixed(2)}M`,
@@ -5109,7 +5231,7 @@ const SegmentEconomics = () => {
     info: {
       def: 'Total Venture-segment net revenue in Q1 2026.',
       calc: `Sum of monthly Venture revenue Jan-Mar 2026 = $${(cur.vr / 1e6).toFixed(2)}M.`,
-      src: 'C_Revenue_01, segment-classified.',
+      src: 'Revenue_01, segment-classified.',
       note: `${vRevQoQ > 0 ? '+' : ''}${vRevQoQ.toFixed(1)}% QoQ vs Q4 2025 ($${(prev.vr / 1e6).toFixed(2)}M). First sequential growth since 2023.`
     }
   }), /*#__PURE__*/React.createElement(KPI, {
@@ -5118,13 +5240,13 @@ const SegmentEconomics = () => {
     color: C.green,
     info: {
       def: 'Approximate share of Venture revenue from clients also active the prior month.',
-      calc: 'Estimated from monthly logo persistence in C_Revenue_01.',
-      src: 'C_Revenue_01.',
+      calc: 'Estimated from monthly logo persistence in Revenue_01.',
+      src: 'Revenue_01.',
       note: 'High recurring share is why we focus on MoM/QoQ rather than YoY — the underlying engine moves slowly, and YoY reflects long-tail cohort attrition rather than current business health.'
     }
   })), /*#__PURE__*/React.createElement(ChartCard, {
     title: "Venture trajectory \xB7 clients \xD7 $/client \xD7 revenue, by quarter (2023Q1 \u2013 2026Q1)",
-    sub: "Client count (left axis) and avg billings per client (right axis), with quarterly revenue as bars. The recurring engine: pricing held stable, logo count compressed and is now turning.",
+    sub: "Client count (left axis) and annualized billings per client (right axis), with quarterly revenue as bars. The recurring engine: pricing held stable, logo count compressed and is now turning.",
     wide: true
   }, /*#__PURE__*/React.createElement(ResponsiveContainer, {
     width: "100%",
@@ -5169,7 +5291,7 @@ const SegmentEconomics = () => {
     },
     tickFormatter: v => `$${(v / 1000).toFixed(0)}K`,
     label: {
-      value: '$/client (mo)',
+      value: '$/client/yr',
       angle: 90,
       position: 'insideRight',
       fill: C.textDim,
@@ -5195,7 +5317,7 @@ const SegmentEconomics = () => {
     yAxisId: "right",
     type: "monotone",
     dataKey: "vApc",
-    name: "Avg Billings / Client ($/mo)",
+    name: "Avg Billings / Client ($/yr)",
     stroke: C.green,
     strokeWidth: 2.5,
     dot: false
@@ -5203,7 +5325,7 @@ const SegmentEconomics = () => {
     style: {
       color: C.accent
     }
-  }, "Q1 2026 inflection visible on both drivers:"), " Venture client count ", prev.vc, " \u2192 ", cur.vc, " (+", vClientsQoQ, " QoQ \u2014 first sequential logo growth since 2023). Avg billings per client held at $", (cur.vapc / 1000).toFixed(1), "K/month \u2014 pricing has been remarkably stable through the venture-funding correction. The \"compression\" was nearly all logo count, not pricing/penetration. As acquisition motion re-engages and the macro normalizes, both drivers have room to expand off this base.")), /*#__PURE__*/React.createElement("div", {
+  }, "Q1 2026 inflection visible on both drivers:"), " Venture client count ", prev.vc, " \u2192 ", cur.vc, " (+", vClientsQoQ, " QoQ \u2014 first sequential logo growth since 2023). Average annual billings per client held at ~$", (cur.vapc * 4 / 1000).toFixed(0), "K/year \u2014 pricing has been remarkably stable through the venture-funding correction. The \"compression\" was nearly all logo count, not pricing/penetration. As acquisition motion re-engages and the macro normalizes, both drivers have room to expand off this base.")), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 36,
       marginBottom: 14
@@ -5231,18 +5353,18 @@ const SegmentEconomics = () => {
     info: {
       def: 'Unique clients with Growth-segment revenue in Q1 2026.',
       calc: `${cur.gc} clients, classified via Client Stage in Master v6.10.5.`,
-      src: 'C_Revenue_01 × Master File Client Registry.',
+      src: 'Revenue_01 × Master File Client Registry.',
       note: 'Held at ~30-34 clients across Q2 2025 – Q1 2026 while the GTM engine for the segment is being assembled. CEO + founder-led commercial work proved the segment economics; attention then sequenced into product (PropellerOS), brand refresh, and Transformation Services leadership before formalizing the segment-specific GTM motion.'
     }
   }), /*#__PURE__*/React.createElement(KPI, {
-    value: `$${(cur.gapc / 1000).toFixed(1)}K`,
-    label: "Q1 2026 Avg Billings / Client",
+    value: `$${(cur.gapc * 4 / 1000).toFixed(0)}K`,
+    label: "Q1 2026 Avg Annual Billings / Client",
     color: C.green,
     info: {
-      def: 'Average monthly billings per Growth client in Q1 2026.',
-      calc: `Q1 2026 Growth revenue ($${(cur.gr / 1e6).toFixed(2)}M) / ${cur.gc} clients / 3 months.`,
-      src: 'C_Revenue_01.',
-      note: `Growth clients pay ~${(cur.gapc / cur.vapc).toFixed(1)}× the Venture rate per client ($${(cur.gapc / 1000).toFixed(1)}K vs $${(cur.vapc / 1000).toFixed(1)}K). Every Growth-segment win is worth ~${(cur.gapc / cur.vapc).toFixed(1)} Venture wins on revenue, with comparable or better margin.`
+      def: 'Annualized average billings per Growth client in Q1 2026.',
+      calc: `Q1 2026 Growth revenue ($${(cur.gr / 1e6).toFixed(2)}M) / ${cur.gc} clients × 4 quarters = ~$${(cur.gapc * 4 / 1000).toFixed(0)}K/client/year.`,
+      src: 'Revenue_01.',
+      note: `Growth clients pay ~${(cur.gapc / cur.vapc).toFixed(1)}× the Venture rate per client ($${(cur.gapc * 4 / 1000).toFixed(0)}K/yr vs $${(cur.vapc * 4 / 1000).toFixed(0)}K/yr). Every Growth-segment win is worth ~${(cur.gapc / cur.vapc).toFixed(1)} Venture wins on revenue, with comparable or better margin.`
     }
   }), /*#__PURE__*/React.createElement(KPI, {
     value: `$${(cur.gr / 1e6).toFixed(2)}M`,
@@ -5251,7 +5373,7 @@ const SegmentEconomics = () => {
     info: {
       def: 'Total Growth-segment net revenue in Q1 2026.',
       calc: `Sum of monthly Growth revenue Jan-Mar 2026.`,
-      src: 'C_Revenue_01, segment-classified.',
+      src: 'Revenue_01, segment-classified.',
       note: 'Scaled from $0 to ~$1.5-1.8M/quarter in 5 quarters post-launch (Sep 2024). Stable at this level since Q2 2025 while the GTM engine for the Growth segment is being built out around a fixed-fee, sales-led motion.'
     }
   }), /*#__PURE__*/React.createElement(KPI, {
@@ -5261,7 +5383,7 @@ const SegmentEconomics = () => {
     info: {
       def: 'Growth segment as % of combined Venture + Growth revenue.',
       calc: `$${(cur.gr / 1e6).toFixed(2)}M / ($${((cur.vr + cur.gr) / 1e6).toFixed(2)}M) = ${(cur.gr / (cur.vr + cur.gr) * 100).toFixed(1)}%`,
-      src: 'Computed from C_Revenue_01.',
+      src: 'Computed from Revenue_01.',
       note: 'Growth was 0% of revenue in Aug 2024. In ~18 months Growth has scaled to ~20% of combined Venture+Growth revenue. Strategic mix-up is the move.'
     }
   })), /*#__PURE__*/React.createElement(ChartCard, {
@@ -5311,7 +5433,7 @@ const SegmentEconomics = () => {
     },
     tickFormatter: v => `$${(v / 1000).toFixed(0)}K`,
     label: {
-      value: '$/client (mo)',
+      value: '$/client/yr',
       angle: 90,
       position: 'insideRight',
       fill: C.textDim,
@@ -5337,7 +5459,7 @@ const SegmentEconomics = () => {
     yAxisId: "right",
     type: "monotone",
     dataKey: "gApc",
-    name: "Avg Billings / Client ($/mo)",
+    name: "Avg Billings / Client ($/yr)",
     stroke: C.accent,
     strokeWidth: 2.5,
     dot: false,
@@ -5346,7 +5468,7 @@ const SegmentEconomics = () => {
     style: {
       color: C.green
     }
-  }, "Growth proved its economics in 12 months while the GTM engine for the segment was being built."), " Logo count scaled $0 \u2192 34 clients (Q3 2025), and avg billings/client locked in at ", /*#__PURE__*/React.createElement("strong", null, "~$48-52K/month"), " \u2014 2.5\xD7 the Venture rate. With the segment economics validated, CEO + founder-led commercial attention shifted to the higher-leverage moves: PropellerOS, the brand refresh, the Transformation Services leadership build-out, and Venture restabilization. Growth\u2019s GTM engine is being assembled against a different motion than Venture has used historically \u2014 fixed-fee, sales-led, longer sales cycles, larger deal sizes. The hold was sequencing, not stalling.")), /*#__PURE__*/React.createElement("div", {
+  }, "Growth proved its economics in 12 months while the GTM engine for the segment was being built."), " Logo count scaled $0 \u2192 34 clients (Q3 2025), and average annual billings/client locked in at ", /*#__PURE__*/React.createElement("strong", null, "~$190-210K/year"), " \u2014 2.5\xD7 the Venture rate. With the segment economics validated, CEO + founder-led commercial attention shifted to the higher-leverage moves: PropellerOS, the brand refresh, the Transformation Services leadership build-out, and Venture restabilization. Growth\u2019s GTM engine is being assembled against a different motion than Venture has used historically \u2014 fixed-fee, sales-led, longer sales cycles, larger deal sizes. The hold was sequencing, not stalling.")), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 36,
       marginBottom: 14
@@ -5502,7 +5624,7 @@ const SegmentEconomics = () => {
     style: {
       color: C.accent
     }
-  }, "The two-engine model with a third engine waiting."), " Venture is stable and turning. Growth is proven and held. Together they produce a recurring base of ~$", ((cur.vr + cur.gr) / 1e6).toFixed(1), "M/quarter at ~$", ((cur.gr * cur.gapc + cur.vr * cur.vapc) / (cur.gr + cur.vr) / 1000).toFixed(1), "K blended avg billings per client. ", /*#__PURE__*/React.createElement("strong", {
+  }, "The two-engine model with a third engine waiting."), " Venture is stable and turning. Growth is proven and held. Together they produce a recurring base of ~$", ((cur.vr + cur.gr) / 1e6).toFixed(1), "M/quarter at a blended ~$", ((cur.gr * cur.gapc + cur.vr * cur.vapc) / (cur.gr + cur.vr) / 1000 * 4).toFixed(0), "K average annual billings per client. ", /*#__PURE__*/React.createElement("strong", {
     style: {
       color: C.warm
     }
@@ -5519,12 +5641,60 @@ const FinancialsCapital = () => {
   const fmtPct = (n, d) => d ? `${(n / d * 100).toFixed(1)}%` : '—';
 
   // Chart data — annuals as bars for visual P&L
-  const chartData = years.map(y => ({
+  // v1.13: Compute BOTH reported and adjusted datasets so the chart can toggle
+  // between views. Severance amounts sourced from Financial_05 (One-Time
+  // Adjustments) — same numbers used by the bridge table below.
+  // 2021/2022 have no severance, so Adjusted == Reported for those years.
+  const SEVERANCE_BY_YEAR = {
+    '2021': {
+      cogs: 0,
+      opex: 0
+    },
+    '2022': {
+      cogs: 0,
+      opex: 0
+    },
+    '2023': {
+      cogs: 26474,
+      opex: 69877
+    },
+    '2024': {
+      cogs: 62823,
+      opex: 154754
+    },
+    '2025': {
+      cogs: 205900,
+      opex: 396651
+    },
+    'Q1 2026': {
+      cogs: 99581,
+      opex: 0
+    } // 100% COGS, all in February
+  };
+  const chartDataReported = years.map(y => ({
     year: y,
     netRev: FINANCIALS_ANNUAL['Net Revenue'][y] / 1e6,
     gm: FINANCIALS_ANNUAL['Gross Margin'][y] / 1e6,
     ebitda: FINANCIALS_ANNUAL['Ordinary EBITDA'][y] / 1e6
   }));
+  const chartDataAdjusted = years.map(y => {
+    const sev = SEVERANCE_BY_YEAR[y] || {
+      cogs: 0,
+      opex: 0
+    };
+    return {
+      year: y,
+      netRev: FINANCIALS_ANNUAL['Net Revenue'][y] / 1e6,
+      // revenue unchanged
+      gm: (FINANCIALS_ANNUAL['Gross Margin'][y] + sev.cogs) / 1e6,
+      // GM adjusts by COGS severance
+      ebitda: (FINANCIALS_ANNUAL['Ordinary EBITDA'][y] + sev.cogs + sev.opex) / 1e6 // EBITDA adjusts by total
+    };
+  });
+
+  // Toggle state — defaults to Adjusted (the truer operating picture)
+  const [ebitdaView, setEbitdaView] = React.useState('adjusted');
+  const chartData = ebitdaView === 'adjusted' ? chartDataAdjusted : chartDataReported;
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '8px 0 24px'
@@ -5554,7 +5724,7 @@ const FinancialsCapital = () => {
       lineHeight: 1.55,
       maxWidth: 760
     }
-  }, "Consolidated Net Revenue, Gross Margin, SG&A, and Ordinary EBITDA \u2014 annual through 2025 plus Q1 2026. All figures NetSuite-sourced via B_Financial_01.1.")), /*#__PURE__*/React.createElement("div", {
+  }, "Consolidated Net Revenue, Gross Margin, SG&A, and Ordinary EBITDA \u2014 annual through 2025 plus Q1 2026. All figures NetSuite-sourced via Financial_01.1.")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(4, 1fr)',
@@ -5568,7 +5738,7 @@ const FinancialsCapital = () => {
     info: {
       def: 'FY2025 net revenue, NetSuite-sourced.',
       calc: 'Sum of monthly net revenue Jan-Dec 2025.',
-      src: 'B_Financial_01.1.',
+      src: 'Financial_01.1.',
       note: '+3.5% YoY vs 2024 ($27.84M). First year of net revenue growth since 2022 peak ($38.91M).'
     }
   }), /*#__PURE__*/React.createElement(KPI, {
@@ -5578,7 +5748,7 @@ const FinancialsCapital = () => {
     info: {
       def: 'Q1 2026 net revenue (Jan-Mar 2026).',
       calc: '$2.50M Jan + $2.42M Feb + $2.39M Mar.',
-      src: 'B_Financial_01.1.',
+      src: 'Financial_01.1.',
       note: '+2.1% QoQ vs Q4 2025 ($7.11M). First quarter of QoQ growth combining a Venture-segment inflection (+$220K) with stable Growth-segment revenue.'
     }
   }), /*#__PURE__*/React.createElement(KPI, {
@@ -5588,7 +5758,7 @@ const FinancialsCapital = () => {
     info: {
       def: 'FY2025 net revenue gross margin.',
       calc: '$9.84M GM / $28.81M Net Rev = 34.2%',
-      src: 'B_Financial_01.1.',
+      src: 'Financial_01.1.',
       note: 'Down 5.7 pts from 2024 (39.9%). GM compression in 2025 driven by international/delivery cost timing and platform/talent investment ahead of Growth-segment scaling. Q1 2026 reported GM is 33.9%; adjusted for the $99.6K one-time COGS severance recorded in February, Adjusted GM is 35.2% — a 1.4-pt lift over 2025 and the first quarter of structural margin recovery.'
     }
   }), /*#__PURE__*/React.createElement(KPI, {
@@ -5598,7 +5768,7 @@ const FinancialsCapital = () => {
     info: {
       def: 'Q1 2026 Ordinary EBITDA — pre-adjustments.',
       calc: '$2.46M GM − $2.41M SG&A − $0.04M D&A − ~$0 Other I&E.',
-      src: 'B_Financial_01.1.',
+      src: 'Financial_01.1.',
       note: 'First positive quarter on Ordinary EBITDA since Q4 2022. Adjusted EBITDA bridge added below: Q1 2026 Adjusted EBITDA prints at $145K after adding back $99.6K of one-time severance recorded in February — 100% in COGS, lifting Adjusted Gross Margin to 35.2% (from 33.9% reported). April 24 deck cited $69K Adjusted EBITDA — a late adjustment between deck draft and data room; the data-room reconciliation is the canonical figure.'
     }
   })), /*#__PURE__*/React.createElement(ChartCard, {
@@ -5787,10 +5957,55 @@ const FinancialsCapital = () => {
       marginTop: 24
     }
   }, /*#__PURE__*/React.createElement(ChartCard, {
-    title: "Annual revenue + EBITDA \xB7 the recovery shape",
-    sub: "Revenue (left axis, bars) and EBITDA (right axis, line) \u2014 annuals through 2025 with Q1 2026 stub.",
+    title: `Annual revenue + ${ebitdaView === 'adjusted' ? 'Adjusted ' : 'Reported '}EBITDA · the recovery shape`,
+    sub: `Revenue (left axis, bars) and ${ebitdaView === 'adjusted' ? 'Adjusted ' : 'Reported '}EBITDA (right axis, line) — annuals through 2025 with Q1 2026 stub. ${ebitdaView === 'adjusted' ? 'Adjusted = Reported plus one-time severance add-backs (Financial_05). 2021–2022 had no severance, so Adj = Reported for those years.' : 'Reported = Ordinary EBITDA as booked.'}`,
     wide: true
-  }, /*#__PURE__*/React.createElement(ResponsiveContainer, {
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+      marginBottom: 12
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'inline-flex',
+      background: C.bg,
+      border: `1px solid ${C.border}`,
+      borderRadius: 20,
+      padding: 3,
+      gap: 2
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setEbitdaView('adjusted'),
+    style: {
+      padding: '5px 14px',
+      fontSize: 11,
+      fontWeight: 600,
+      letterSpacing: 0.4,
+      background: ebitdaView === 'adjusted' ? C.accent : 'transparent',
+      color: ebitdaView === 'adjusted' ? '#0c0c0c' : C.textMid,
+      border: 'none',
+      borderRadius: 18,
+      cursor: 'pointer',
+      fontFamily: 'inherit',
+      transition: 'all 0.15s ease'
+    }
+  }, "ADJUSTED"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setEbitdaView('reported'),
+    style: {
+      padding: '5px 14px',
+      fontSize: 11,
+      fontWeight: 600,
+      letterSpacing: 0.4,
+      background: ebitdaView === 'reported' ? C.accent : 'transparent',
+      color: ebitdaView === 'reported' ? '#0c0c0c' : C.textMid,
+      border: 'none',
+      borderRadius: 18,
+      cursor: 'pointer',
+      fontFamily: 'inherit',
+      transition: 'all 0.15s ease'
+    }
+  }, "REPORTED"))), /*#__PURE__*/React.createElement(ResponsiveContainer, {
     width: "100%",
     height: 300
   }, /*#__PURE__*/React.createElement(ComposedChart, {
@@ -5834,7 +6049,7 @@ const FinancialsCapital = () => {
     },
     tickFormatter: v => `$${v.toFixed(1)}M`,
     label: {
-      value: 'EBITDA ($M)',
+      value: `${ebitdaView === 'adjusted' ? 'Adj. ' : ''}EBITDA ($M)`,
       angle: 90,
       position: 'insideRight',
       fill: C.textDim,
@@ -5859,7 +6074,7 @@ const FinancialsCapital = () => {
   }), /*#__PURE__*/React.createElement(Bar, {
     yAxisId: "left",
     dataKey: "gm",
-    name: "Gross Margin ($M)",
+    name: `${ebitdaView === 'adjusted' ? 'Adj. ' : ''}Gross Margin ($M)`,
     fill: C.blue + '22',
     stroke: C.blue,
     strokeWidth: 1
@@ -5867,7 +6082,7 @@ const FinancialsCapital = () => {
     yAxisId: "right",
     type: "monotone",
     dataKey: "ebitda",
-    name: "Ordinary EBITDA ($M)",
+    name: `${ebitdaView === 'adjusted' ? 'Adjusted' : 'Ordinary'} EBITDA ($M)`,
     stroke: C.green,
     strokeWidth: 2.5,
     dot: {
@@ -5885,7 +6100,7 @@ const FinancialsCapital = () => {
     }
   }, /*#__PURE__*/React.createElement(ChartCard, {
     title: "Reported \u2192 Adjusted EBITDA bridge",
-    sub: "Annual reconciliation from Ordinary (reported) EBITDA to Adjusted EBITDA, with severance add-backs from B_Financial_05. Severance has been the only one-time adjustment booked over the period.",
+    sub: "Annual reconciliation from Ordinary (reported) EBITDA to Adjusted EBITDA, with severance add-backs from Financial_05. Severance has been the only one-time adjustment booked over the period.",
     wide: true
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -5937,7 +6152,7 @@ const FinancialsCapital = () => {
       fontWeight: 600
     }
   }, "Q1 2026"))), /*#__PURE__*/React.createElement("tbody", null, (() => {
-    // Severance from B_Financial_05 One-Time Adjustments (annual totals in dollars).
+    // Severance from Financial_05 One-Time Adjustments (annual totals in dollars).
     // 2023: COGS 26,474 + OPEX 69,877 = 96,351
     // 2024: 62,823 + 154,754 = 217,577
     // 2025: 205,900 + 396,651 = 602,551
@@ -6045,7 +6260,7 @@ const FinancialsCapital = () => {
       margin: 0,
       fontStyle: 'italic'
     }
-  }, "Detailed cap table provided in the data room (file F_Corporate_01.2 \u2014 Purchase and Contribution Agreement, July 2020) and on request from chris@propellerindustries.com.")), /*#__PURE__*/React.createElement("div", {
+  }, "Detailed cap table provided in the data room (file Corporate_01.2 \u2014 Purchase and Contribution Agreement, July 2020) and on request from chris@propellerindustries.com.")), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 24,
       padding: '14px 18px',
@@ -6068,7 +6283,7 @@ const FinancialsCapital = () => {
       color: C.textMid,
       lineHeight: 1.6
     }
-  }, "Monthly P&L trajectory chart \u2022 Balance Sheet snapshot from B_Financial_01.2 \u2022 Cash Flow Statement from B_Financial_01.3 \u2022 2026 budget walk from B_Financial_06")));
+  }, "Monthly P&L trajectory chart \u2022 Balance Sheet snapshot from Financial_01.2 \u2022 Cash Flow Statement from Financial_01.3 \u2022 2026 budget walk from Financial_06")));
 };
 const DeliveryCapacity = () => {
   const d = DELIVERY_DATA;
@@ -6136,7 +6351,7 @@ const DeliveryCapacity = () => {
     info: {
       def: 'US-based employees on active W-2 payroll status as of Q1 2026.',
       calc: `${d.headcount.total_active} active rows from the Employee Census file (Termination Date blank).`,
-      src: 'D_Operations_01 (Active+Term roster, 230 rows total — 97 active, 133 termed historical).',
+      src: 'Operations_01 (Active+Term roster, 230 rows total — 97 active, 133 termed historical).',
       note: `Propeller's full team of ${MARQUEE.teamSize}+ includes international staff and contractors not in this file. The US W-2 base is the directly-billable capacity from which utilization and realization are measured.`
     }
   }), /*#__PURE__*/React.createElement(KPI, {
@@ -6146,7 +6361,7 @@ const DeliveryCapacity = () => {
     info: {
       def: 'Active US W-2 staff flagged as billable in the HR file.',
       calc: `${d.headcount.billable_active} of ${d.headcount.total_active} (${d.headcount.billable_pct}%).`,
-      src: 'D_Operations_01 "Billable (Y/N)" column.',
+      src: 'Operations_01 "Billable (Y/N)" column.',
       note: 'Non-billable (~32%) is leadership, sales, marketing, ops, IT, people — the supporting structure that the billable team operates on top of.'
     }
   }), /*#__PURE__*/React.createElement(KPI, {
@@ -6156,7 +6371,7 @@ const DeliveryCapacity = () => {
     info: {
       def: 'Median Years of Service for active US W-2 staff.',
       calc: `Computed from the YEARS OF SERVICE column (Y:M format parsed). Average ${d.headcount.avg_yos}y; ${d.headcount.gte_5y} staff at 5+ years.`,
-      src: 'D_Operations_01.',
+      src: 'Operations_01.',
       note: 'For a 18-year services firm absorbing a venture-funding contraction, ~3.5y median is a healthy signal. The 20 employees at 5+ years represent the institutional-knowledge layer that anchors client continuity.'
     }
   }), /*#__PURE__*/React.createElement(KPI, {
@@ -6166,7 +6381,7 @@ const DeliveryCapacity = () => {
     info: {
       def: 'Count of active US W-2 staff with 5+ years tenure.',
       calc: `${d.headcount.gte_5y} of ${d.headcount.total_active} active (${(d.headcount.gte_5y / d.headcount.total_active * 100).toFixed(0)}%).`,
-      src: 'D_Operations_01 YEARS OF SERVICE column.',
+      src: 'Operations_01 YEARS OF SERVICE column.',
       note: 'The senior anchor for client continuity. Multi-stage client relationships compound around this group.'
     }
   })), /*#__PURE__*/React.createElement(ChartCard, {
@@ -6308,7 +6523,7 @@ const DeliveryCapacity = () => {
       def: 'Actual hours worked / possible hours available, across all client-facing staff with scheduled capacity.',
       calc: `${d.utilization.total_actual_hours.toLocaleString()} actual / ${d.utilization.total_possible_hours.toLocaleString()} possible across ${d.utilization.n_users} staff.`,
       src: 'Operations_02 (Utilization Report). March 2026 snapshot.',
-      note: 'At 99.7%, the client-facing roster is working close to full capacity. This is the near-term gating constraint — and it is being managed deliberately. The path forward is platform leverage (PropellerOS lifts realization without lifting hours) combined with disciplined hiring against the Growth-segment pipeline. Kevin and Vernise own the hiring plan that adds the next tranche of billable capacity.'
+      note: 'At 99.7%, the client-facing roster is working close to full capacity. This is the near-term gating constraint — and it is being managed deliberately. The path forward is platform leverage (PropellerOS lifts realization without lifting hours) combined with disciplined hiring against the Growth-segment pipeline.'
     }
   }), /*#__PURE__*/React.createElement(KPI, {
     value: `${d.utilization.billable_rate_pct}%`,
@@ -7103,7 +7318,881 @@ const TeamStructure = () => {
       fontSize: 12,
       color: C.textMid
     }
-  }, "Org chart visual from F_Corporate_03 (full reporting structure beneath the leadership team)")));
+  }, "Org chart visual from Corporate_03 (full reporting structure beneath the leadership team)")));
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// HEADCOUNT BY ROLE & PARTNER — quarterly endpoints Jan 2013 → Apr 2026
+// Source: HC by Role sheet (Master v6.14)
+// Source-chain transparent: HCHist (2013-2019) / OM (2020-2021, noisy) / HRIS+OM (2022-Mar 2026) / FRP Apr 2026
+// Note: 2020Q1-2021Q4 OM data has known anomalies (payroll provider transition).
+// Charts surface this with a visual treatment + footnote.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const HC_BY_ROLE = [
+// Pre-international era (2013-2017): US only, partner data not yet tracked
+{
+  q: '13Q1',
+  m: '2013-03',
+  bill: 3,
+  sales: 0,
+  ga: 1,
+  tech: 0,
+  us: 7,
+  con: 0,
+  cob: 0,
+  frt: 0,
+  ana: 0,
+  pm: 0,
+  intl: 0,
+  tot: 7,
+  src: 'HCHist'
+}, {
+  q: '14Q1',
+  m: '2014-03',
+  bill: 3,
+  sales: 0,
+  ga: 1,
+  tech: 0,
+  us: 10,
+  con: 0,
+  cob: 0,
+  frt: 0,
+  ana: 0,
+  pm: 0,
+  intl: 0,
+  tot: 10,
+  src: 'HCHist'
+}, {
+  q: '15Q1',
+  m: '2015-03',
+  bill: 3,
+  sales: 0,
+  ga: 1,
+  tech: 0,
+  us: 10,
+  con: 0,
+  cob: 0,
+  frt: 0,
+  ana: 0,
+  pm: 0,
+  intl: 0,
+  tot: 10,
+  src: 'HCHist'
+}, {
+  q: '16Q1',
+  m: '2016-03',
+  bill: 4,
+  sales: 0,
+  ga: 1,
+  tech: 0,
+  us: 11,
+  con: 0,
+  cob: 0,
+  frt: 0,
+  ana: 0,
+  pm: 0,
+  intl: 0,
+  tot: 11,
+  src: 'HCHist'
+}, {
+  q: '17Q1',
+  m: '2017-03',
+  bill: 4,
+  sales: 0,
+  ga: 2,
+  tech: 0,
+  us: 12,
+  con: 0,
+  cob: 0,
+  frt: 0,
+  ana: 0,
+  pm: 0,
+  intl: 0,
+  tot: 12,
+  src: 'HCHist'
+},
+// 2018: international (Consero, Frontline) comes on
+{
+  q: '18Q1',
+  m: '2018-03',
+  bill: 13,
+  sales: 0,
+  ga: 3,
+  tech: 0,
+  us: 22,
+  con: 53,
+  cob: 0,
+  frt: 7,
+  ana: 0,
+  pm: 0,
+  intl: 60,
+  tot: 82,
+  src: 'HCHist'
+}, {
+  q: '18Q3',
+  m: '2018-09',
+  bill: 19,
+  sales: 1,
+  ga: 5,
+  tech: 0,
+  us: 31,
+  con: 62,
+  cob: 0,
+  frt: 7,
+  ana: 0,
+  pm: 0,
+  intl: 69,
+  tot: 100,
+  src: 'HCHist'
+}, {
+  q: '19Q1',
+  m: '2019-03',
+  bill: 32,
+  sales: 1,
+  ga: 5,
+  tech: 0,
+  us: 44,
+  con: 68,
+  cob: 0,
+  frt: 12,
+  ana: 0,
+  pm: 0,
+  intl: 80,
+  tot: 124,
+  src: 'HCHist'
+}, {
+  q: '19Q3',
+  m: '2019-09',
+  bill: 40,
+  sales: 2,
+  ga: 8,
+  tech: 0,
+  us: 56,
+  con: 71,
+  cob: 0,
+  frt: 13,
+  ana: 0,
+  pm: 0,
+  intl: 84,
+  tot: 140,
+  src: 'HCHist'
+},
+// 2020-2021: OM source has known noise from payroll-provider transition
+{
+  q: '20Q1',
+  m: '2020-03',
+  bill: 86,
+  sales: 0,
+  ga: 13,
+  tech: 6,
+  us: 205,
+  con: 82,
+  cob: 0,
+  frt: 11,
+  ana: 0,
+  pm: 0,
+  intl: 93,
+  tot: 298,
+  src: 'OM'
+}, {
+  q: '20Q3',
+  m: '2020-09',
+  bill: 72,
+  sales: 0,
+  ga: 13,
+  tech: 6,
+  us: 193,
+  con: 79,
+  cob: 0,
+  frt: 12,
+  ana: 0,
+  pm: 4,
+  intl: 95,
+  tot: 288,
+  src: 'OM'
+}, {
+  q: '21Q1',
+  m: '2021-03',
+  bill: 91,
+  sales: 0,
+  ga: 18,
+  tech: 6,
+  us: 243,
+  con: 96,
+  cob: 0,
+  frt: 14,
+  ana: 0,
+  pm: 8,
+  intl: 118,
+  tot: 361,
+  src: 'OM'
+}, {
+  q: '21Q3',
+  m: '2021-09',
+  bill: 101,
+  sales: 0,
+  ga: 23,
+  tech: 7,
+  us: 142,
+  con: 117,
+  cob: 0,
+  frt: 16,
+  ana: 0,
+  pm: 9,
+  intl: 142,
+  tot: 284,
+  src: 'OM'
+},
+// 2022Q1 onward: HRIS+OM, clean
+{
+  q: '22Q1',
+  m: '2022-03',
+  bill: 60,
+  sales: 3,
+  ga: 13,
+  tech: 2,
+  us: 143,
+  con: 116,
+  cob: 28,
+  frt: 16,
+  ana: 0,
+  pm: 13,
+  intl: 173,
+  tot: 316,
+  src: 'HRIS+OM'
+}, {
+  q: '22Q2',
+  m: '2022-06',
+  bill: 73,
+  sales: 3,
+  ga: 14,
+  tech: 2,
+  us: 136,
+  con: 128,
+  cob: 28,
+  frt: 16,
+  ana: 0,
+  pm: 13,
+  intl: 185,
+  tot: 321,
+  src: 'HRIS+OM'
+}, {
+  q: '22Q3',
+  m: '2022-09',
+  bill: 87,
+  sales: 3,
+  ga: 20,
+  tech: 3,
+  us: 139,
+  con: 138,
+  cob: 28,
+  frt: 16,
+  ana: 0,
+  pm: 12,
+  intl: 194,
+  tot: 333,
+  src: 'HRIS+OM'
+}, {
+  q: '22Q4',
+  m: '2022-12',
+  bill: 96,
+  sales: 3,
+  ga: 23,
+  tech: 3,
+  us: 147,
+  con: 139,
+  cob: 27,
+  frt: 16,
+  ana: 0,
+  pm: 12,
+  intl: 194,
+  tot: 341,
+  src: 'HRIS+OM'
+}, {
+  q: '23Q1',
+  m: '2023-03',
+  bill: 83,
+  sales: 4,
+  ga: 24,
+  tech: 4,
+  us: 120,
+  con: 131,
+  cob: 25,
+  frt: 13,
+  ana: 0,
+  pm: 13,
+  intl: 182,
+  tot: 302,
+  src: 'HRIS+OM'
+}, {
+  q: '23Q2',
+  m: '2023-06',
+  bill: 77,
+  sales: 6,
+  ga: 23,
+  tech: 4,
+  us: 117,
+  con: 112,
+  cob: 16,
+  frt: 12,
+  ana: 0,
+  pm: 13,
+  intl: 153,
+  tot: 270,
+  src: 'HRIS+OM'
+}, {
+  q: '23Q3',
+  m: '2023-09',
+  bill: 61,
+  sales: 7,
+  ga: 15,
+  tech: 4,
+  us: 93,
+  con: 88,
+  cob: 13,
+  frt: 11,
+  ana: 0,
+  pm: 13,
+  intl: 125,
+  tot: 218,
+  src: 'HRIS+OM'
+}, {
+  q: '23Q4',
+  m: '2023-12',
+  bill: 57,
+  sales: 8,
+  ga: 16,
+  tech: 5,
+  us: 92,
+  con: 88,
+  cob: 13,
+  frt: 11,
+  ana: 0,
+  pm: 12,
+  intl: 124,
+  tot: 216,
+  src: 'HRIS+OM'
+}, {
+  q: '24Q1',
+  m: '2024-03',
+  bill: 57,
+  sales: 9,
+  ga: 15,
+  tech: 5,
+  us: 92,
+  con: 84,
+  cob: 17,
+  frt: 11,
+  ana: 0,
+  pm: 13,
+  intl: 125,
+  tot: 217,
+  src: 'HRIS+OM'
+}, {
+  q: '24Q2',
+  m: '2024-06',
+  bill: 57,
+  sales: 9,
+  ga: 14,
+  tech: 5,
+  us: 90,
+  con: 84,
+  cob: 17,
+  frt: 11,
+  ana: 0,
+  pm: 14,
+  intl: 126,
+  tot: 216,
+  src: 'HRIS+OM'
+}, {
+  q: '24Q3',
+  m: '2024-09',
+  bill: 63,
+  sales: 9,
+  ga: 13,
+  tech: 4,
+  us: 96,
+  con: 85,
+  cob: 16,
+  frt: 13,
+  ana: 0,
+  pm: 14,
+  intl: 128,
+  tot: 224,
+  src: 'HRIS+OM'
+}, {
+  q: '24Q4',
+  m: '2024-12',
+  bill: 70,
+  sales: 8,
+  ga: 14,
+  tech: 4,
+  us: 101,
+  con: 85,
+  cob: 16,
+  frt: 12,
+  ana: 7,
+  pm: 14,
+  intl: 134,
+  tot: 235,
+  src: 'HRIS+OM'
+}, {
+  q: '25Q1',
+  m: '2025-03',
+  bill: 71,
+  sales: 9,
+  ga: 14,
+  tech: 4,
+  us: 102,
+  con: 106,
+  cob: 18,
+  frt: 12,
+  ana: 14,
+  pm: 14,
+  intl: 164,
+  tot: 266,
+  src: 'HRIS+OM'
+}, {
+  q: '25Q2',
+  m: '2025-06',
+  bill: 72,
+  sales: 8,
+  ga: 14,
+  tech: 3,
+  us: 104,
+  con: 119,
+  cob: 19,
+  frt: 10,
+  ana: 11,
+  pm: 14,
+  intl: 173,
+  tot: 277,
+  src: 'HRIS+OM'
+}, {
+  q: '25Q3',
+  m: '2025-09',
+  bill: 67,
+  sales: 8,
+  ga: 12,
+  tech: 3,
+  us: 96,
+  con: 115,
+  cob: 20,
+  frt: 8,
+  ana: 11,
+  pm: 14,
+  intl: 167,
+  tot: 263,
+  src: 'HRIS+OM'
+}, {
+  q: '25Q4',
+  m: '2025-12',
+  bill: 65,
+  sales: 8,
+  ga: 11,
+  tech: 3,
+  us: 92,
+  con: 113,
+  cob: 20,
+  frt: 9,
+  ana: 11,
+  pm: 15,
+  intl: 171,
+  tot: 261,
+  src: 'HRIS+OM'
+}, {
+  q: '26Q1',
+  m: '2026-03',
+  bill: 63,
+  sales: 8,
+  ga: 12,
+  tech: 3,
+  us: 91,
+  con: 113,
+  cob: 20,
+  frt: 9,
+  ana: 11,
+  pm: 15,
+  intl: 173,
+  tot: 264,
+  src: 'FRP Apr 2026'
+}];
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Team & Capacity tab — the headcount story
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const TeamCapacity = () => {
+  // Recent snapshot (Q1 2026)
+  const cur = HC_BY_ROLE[HC_BY_ROLE.length - 1];
+  // Reference: peak (Q4 2022)
+  const peak = HC_BY_ROLE.find(r => r.q === '22Q4');
+  // Reference: trough (Q4 2023)
+  const trough = HC_BY_ROLE.find(r => r.q === '23Q4');
+
+  // Chart 1 data: US vs Intl stacked (2020 onward — partner data exists)
+  const usIntlData = HC_BY_ROLE.filter(r => r.m >= '2020-01').map(r => ({
+    q: r.q,
+    US: r.us,
+    Intl: r.intl,
+    total: r.tot
+  }));
+
+  // Chart 2 data: US billable vs non-billable (full series 2013+)
+  const usDetailData = HC_BY_ROLE.map(r => ({
+    q: r.q,
+    Billable: r.bill,
+    'Non-Billable': r.us - r.bill
+  }));
+
+  // Chart 3 data: International partner composition (2020+)
+  const intlPartnerData = HC_BY_ROLE.filter(r => r.m >= '2020-01').map(r => ({
+    q: r.q,
+    Consero: r.con,
+    'Consero OB': r.cob,
+    Frontline: r.frt,
+    Anaptyss: r.ana,
+    PlatMap: r.pm
+  }));
+  const intlPct = (cur.intl / cur.tot * 100).toFixed(0);
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '8px 0 24px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C.accent,
+      letterSpacing: 2,
+      fontWeight: 700,
+      marginBottom: 10,
+      textTransform: 'uppercase'
+    }
+  }, "Team & Capacity"), /*#__PURE__*/React.createElement("h2", {
+    style: {
+      fontSize: 24,
+      fontWeight: 700,
+      letterSpacing: -0.4,
+      lineHeight: 1.2,
+      margin: '0 0 12px',
+      color: C.text
+    }
+  }, "Peak \u2192 reset \u2192 stabilization. The team shape today."), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 14,
+      color: C.textMid,
+      lineHeight: 1.6,
+      maxWidth: 840
+    }
+  }, "Propeller\u2019s team scaled to ~340 at the 2022 peak (US + International), restructured down through 2023 alongside the venture-funding correction, and has rebuilt to ~", cur.tot, " on a different composition: more international leverage, leaner US bench, and a deliberate shape that supports the platform-led model going forward.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(4, 1fr)',
+      gap: 12,
+      marginBottom: 24
+    }
+  }, /*#__PURE__*/React.createElement(KPI, {
+    value: cur.tot.toLocaleString(),
+    label: "Total Team (Q1 2026)",
+    color: C.accent,
+    info: {
+      def: 'Grand total of US payroll + international partner-delivered headcount.',
+      calc: `US ${cur.us} + International ${cur.intl} = ${cur.tot}.`,
+      src: 'Operations_01 + FRP Apr 2026.',
+      note: `Down from ~340 peak (Q4 2022), now stabilized in the 260-280 range across the last six quarters.`
+    }
+  }), /*#__PURE__*/React.createElement(KPI, {
+    value: `${cur.us}`,
+    label: "US Headcount",
+    color: C.blue,
+    info: {
+      def: 'US payroll headcount (Propeller direct employees).',
+      calc: `Billable ${cur.bill} + Sales ${cur.sales} + G&A ${cur.ga} + Tech ${cur.tech} = ${cur.us}.`,
+      src: 'Operations_01.',
+      note: `Down from peak of ${peak.us} in Q4 2022 (-${peak.us - cur.us}). The 2023 reset moved capacity offshore via Consero/Frontline.`
+    }
+  }), /*#__PURE__*/React.createElement(KPI, {
+    value: `${cur.intl}`,
+    label: "International (partners)",
+    color: C.green,
+    info: {
+      def: 'Partner-delivered international team (Consero, Consero OB, Frontline, Anaptyss, PlatMap).',
+      calc: `Consero ${cur.con} + Consero OB ${cur.cob} + Frontline ${cur.frt} + Anaptyss ${cur.ana} + PlatMap ${cur.pm} = ${cur.intl}.`,
+      src: 'Operating Metrics + FRP Apr 2026.',
+      note: 'International grew through the reset. Diversification across 5 partners (vs. primarily Consero in 2020) gives flex on capacity, geography, and pricing.'
+    }
+  }), /*#__PURE__*/React.createElement(KPI, {
+    value: `${intlPct}%`,
+    label: "International share",
+    color: C.warm,
+    info: {
+      def: 'International headcount as % of total team.',
+      calc: `${cur.intl} / ${cur.tot} = ${intlPct}%.`,
+      src: 'Operations_01 + Operating Metrics.',
+      note: 'Up from ~50% at the 2022 peak. Reflects the deliberate shift toward partner-delivered offshore capacity as part of the post-2023 cost structure.'
+    }
+  })), /*#__PURE__*/React.createElement(ChartCard, {
+    title: "Total team trajectory \xB7 US + International, by quarter (2020 \u2014 Q1 2026)",
+    sub: "Stacked composition. International scaled past US in 2022 and held; US right-sized through 2023 and has stabilized in the 90-105 range.",
+    wide: true
+  }, /*#__PURE__*/React.createElement(ResponsiveContainer, {
+    width: "100%",
+    height: 320
+  }, /*#__PURE__*/React.createElement(ComposedChart, {
+    data: usIntlData,
+    margin: {
+      top: 10,
+      right: 30,
+      left: 0,
+      bottom: 0
+    }
+  }, /*#__PURE__*/React.createElement(CartesianGrid, {
+    strokeDasharray: "3 3",
+    stroke: C.border,
+    vertical: false
+  }), /*#__PURE__*/React.createElement(XAxis, {
+    dataKey: "q",
+    stroke: C.textDim,
+    tick: {
+      fontSize: 10
+    }
+  }), /*#__PURE__*/React.createElement(YAxis, {
+    stroke: C.textDim,
+    tick: {
+      fontSize: 10
+    },
+    label: {
+      value: 'Headcount',
+      angle: -90,
+      position: 'insideLeft',
+      fill: C.textDim,
+      fontSize: 10
+    }
+  }), /*#__PURE__*/React.createElement(Tooltip, {
+    content: /*#__PURE__*/React.createElement(CustomTooltip, {
+      unit: "raw"
+    })
+  }), /*#__PURE__*/React.createElement(Legend, {
+    wrapperStyle: {
+      fontSize: 12,
+      paddingTop: 8
+    }
+  }), /*#__PURE__*/React.createElement(Bar, {
+    dataKey: "US",
+    name: "US",
+    stackId: "hc",
+    fill: C.blue + 'cc',
+    stroke: C.blue,
+    strokeWidth: 1
+  }), /*#__PURE__*/React.createElement(Bar, {
+    dataKey: "Intl",
+    name: "International",
+    stackId: "hc",
+    fill: C.green + 'cc',
+    stroke: C.green,
+    strokeWidth: 1
+  }))), /*#__PURE__*/React.createElement(InsightBlock, null, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.accent
+    }
+  }, "The 2022-2023 reset reshaped the team."), " Peak total of ~340 collapsed to ~215 by Q4 2023 as the venture-funding correction prompted right-sizing. The rebuild since 2024 has come overwhelmingly from international growth \u2014 from ~125 to ", cur.intl, " \u2014 while US has stabilized in the 90-105 range. International share moved from 50% in 2022 to ", intlPct, "% today.", /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C.textDim,
+      marginTop: 8,
+      lineHeight: 1.4
+    }
+  }, /*#__PURE__*/React.createElement("em", null, "Note: 2020Q1-2021Q4 OM-source data shows known anomalies from a payroll provider transition (e.g., US=243 Q1'21, then 132 Q2'21, then 318 Q4'21). Q1 2022 onward sourced from HRIS+OM (consistent). Q1 2026 from FRP Apr 2026.")))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 24
+    }
+  }, /*#__PURE__*/React.createElement(ChartCard, {
+    title: "US headcount detail \xB7 Billable + Non-Billable (2013 \u2014 Q1 2026)",
+    sub: "The full Propeller arc from founding to today. Billable peaked at 96 in Q4 2022, reset to 57 in late 2023, and has rebuilt to 63 alongside the operating discipline reset.",
+    wide: true
+  }, /*#__PURE__*/React.createElement(ResponsiveContainer, {
+    width: "100%",
+    height: 320
+  }, /*#__PURE__*/React.createElement(ComposedChart, {
+    data: usDetailData,
+    margin: {
+      top: 10,
+      right: 30,
+      left: 0,
+      bottom: 0
+    }
+  }, /*#__PURE__*/React.createElement(CartesianGrid, {
+    strokeDasharray: "3 3",
+    stroke: C.border,
+    vertical: false
+  }), /*#__PURE__*/React.createElement(XAxis, {
+    dataKey: "q",
+    stroke: C.textDim,
+    tick: {
+      fontSize: 9
+    },
+    interval: 3
+  }), /*#__PURE__*/React.createElement(YAxis, {
+    stroke: C.textDim,
+    tick: {
+      fontSize: 10
+    },
+    label: {
+      value: 'US Headcount',
+      angle: -90,
+      position: 'insideLeft',
+      fill: C.textDim,
+      fontSize: 10
+    }
+  }), /*#__PURE__*/React.createElement(Tooltip, {
+    content: /*#__PURE__*/React.createElement(CustomTooltip, {
+      unit: "raw"
+    })
+  }), /*#__PURE__*/React.createElement(Legend, {
+    wrapperStyle: {
+      fontSize: 12,
+      paddingTop: 8
+    }
+  }), /*#__PURE__*/React.createElement(Bar, {
+    dataKey: "Billable",
+    name: "Billable",
+    stackId: "us",
+    fill: C.accent + 'cc',
+    stroke: C.accent,
+    strokeWidth: 1
+  }), /*#__PURE__*/React.createElement(Bar, {
+    dataKey: "Non-Billable",
+    name: "Non-Billable",
+    stackId: "us",
+    fill: C.textDim + '44',
+    stroke: C.textDim,
+    strokeWidth: 1
+  }))), /*#__PURE__*/React.createElement(InsightBlock, null, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.accent
+    }
+  }, "The US team tells the recovery story."), " Billable scaled from 3 (2013) to a peak of ", peak.bill, " (Q4 2022), reset to ", trough.bill, " through the 2023 restructuring, and now sits at ", cur.bill, " (Q1 2026). Non-billable held steadier \u2014 the 2023 cuts targeted billable supply (which had outpaced demand in the venture pullback) rather than the firm\u2019s operating infrastructure. The composition today is healthier: ", cur.bill, " billable vs ", cur.us - cur.bill, " non-billable, a ", (cur.bill / cur.us * 100).toFixed(0), "% billable ratio."))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 24
+    }
+  }, /*#__PURE__*/React.createElement(ChartCard, {
+    title: "International composition \xB7 by partner (2020 \u2014 Q1 2026)",
+    sub: "Diversification across 5 delivery partners. Consero remains the largest, but Consero OB, PlatMap, and Anaptyss together now contribute meaningful capacity.",
+    wide: true
+  }, /*#__PURE__*/React.createElement(ResponsiveContainer, {
+    width: "100%",
+    height: 320
+  }, /*#__PURE__*/React.createElement(ComposedChart, {
+    data: intlPartnerData,
+    margin: {
+      top: 10,
+      right: 30,
+      left: 0,
+      bottom: 0
+    }
+  }, /*#__PURE__*/React.createElement(CartesianGrid, {
+    strokeDasharray: "3 3",
+    stroke: C.border,
+    vertical: false
+  }), /*#__PURE__*/React.createElement(XAxis, {
+    dataKey: "q",
+    stroke: C.textDim,
+    tick: {
+      fontSize: 10
+    }
+  }), /*#__PURE__*/React.createElement(YAxis, {
+    stroke: C.textDim,
+    tick: {
+      fontSize: 10
+    },
+    label: {
+      value: 'International Headcount',
+      angle: -90,
+      position: 'insideLeft',
+      fill: C.textDim,
+      fontSize: 10
+    }
+  }), /*#__PURE__*/React.createElement(Tooltip, {
+    content: /*#__PURE__*/React.createElement(CustomTooltip, {
+      unit: "raw"
+    })
+  }), /*#__PURE__*/React.createElement(Legend, {
+    wrapperStyle: {
+      fontSize: 11,
+      paddingTop: 8
+    }
+  }), /*#__PURE__*/React.createElement(Bar, {
+    dataKey: "Consero",
+    name: "Consero",
+    stackId: "intl",
+    fill: C.green + 'cc',
+    stroke: C.green,
+    strokeWidth: 1
+  }), /*#__PURE__*/React.createElement(Bar, {
+    dataKey: "Consero OB",
+    name: "Consero OB",
+    stackId: "intl",
+    fill: C.green + '66',
+    stroke: C.green,
+    strokeWidth: 1
+  }), /*#__PURE__*/React.createElement(Bar, {
+    dataKey: "Frontline",
+    name: "Frontline",
+    stackId: "intl",
+    fill: C.blue + 'cc',
+    stroke: C.blue,
+    strokeWidth: 1
+  }), /*#__PURE__*/React.createElement(Bar, {
+    dataKey: "Anaptyss",
+    name: "Anaptyss",
+    stackId: "intl",
+    fill: C.warm + 'cc',
+    stroke: C.warm,
+    strokeWidth: 1
+  }), /*#__PURE__*/React.createElement(Bar, {
+    dataKey: "PlatMap",
+    name: "PlatMap",
+    stackId: "intl",
+    fill: C.accent + 'cc',
+    stroke: C.accent,
+    strokeWidth: 1
+  }))), /*#__PURE__*/React.createElement(InsightBlock, null, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.accent
+    }
+  }, "Five-partner architecture gives operational flex."), " Consero remains the backbone (", cur.con, " headcount, ~", (cur.con / cur.intl * 100).toFixed(0), "% of international), but Consero Onboarding (", cur.cob, "), PlatMap (", cur.pm, "), Anaptyss (", cur.ana, "), and Frontline (", cur.frt, ") together provide meaningful capacity diversification. Anaptyss came online in late 2024 and ramped through 2025. The international footprint scaled from ~95 in 2020 to ", cur.intl, " today \u2014 almost entirely outside the US payroll structure."))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 24,
+      padding: '18px 22px',
+      background: C.card,
+      border: `1px solid ${C.border}`,
+      borderRadius: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 700,
+      color: C.accent,
+      letterSpacing: 1.5,
+      marginBottom: 10,
+      textTransform: 'uppercase'
+    }
+  }, "What the headcount data does not yet show"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: C.textMid,
+      lineHeight: 1.65,
+      margin: '0 0 10px'
+    }
+  }, "Two views are deferred until segment-level allocation is cleaner: (1) headcount mapped to Venture vs Growth segments, which is hard because fixed-fee Growth engagements don\u2019t cleanly book hours to a segment; and (2) revenue per head broken out by segment. Both are achievable with additional taxonomy work and would tell the operating-leverage story directly once PropellerOS begins to show traction."), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: C.textMid,
+      lineHeight: 1.65,
+      margin: 0
+    }
+  }, "For now: the visible story is the recovery. Operating leverage from PropellerOS is the next chapter, not the current one.")));
 };
 const TrajectoryDiscussion = () => /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
   style: {
@@ -7753,11 +8842,475 @@ const TrajectoryDiscussion = () => /*#__PURE__*/React.createElement("div", null,
     fontStyle: 'italic'
   }
 }, "The next move is a conversation about which path fits the shape both sides are looking for. The work itself can begin as soon as that conversation lands.")));
-const InformationRequest = () => /*#__PURE__*/React.createElement(TabStub, {
-  title: "Information Request",
-  source: "April 30 Pothos email \xB7 Kevin's status-tracker pattern",
-  planned: ['Header: "Information Request — Final Update" with date stamp', 'Legend: In Progress · Complete · Not Needed (color-coded pills)', 'Overall progress bar: X of Y complete', 'Four KPI tiles: In Progress · Complete · Not Needed · Total', 'Sectioned list by category (Financial · Revenue & Customer · Operations & Service Delivery · Platform & Technology)', 'Status link column — every Complete line clicks through to relevant tab', 'Line-to-tab mapping deferred until Chris sees layout (v1.1 walkthrough)']
-});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Information Request — full checklist from Kevin's data ask spreadsheet.
+// 28 items in 5 categories. Status pills: Available · Partial · Bundled · Pending.
+// Source citations match item codes so future Proton data-room links plug in cleanly.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const INFO_REQUEST_ITEMS = [
+// Financial (12 items)
+{
+  cat: 'Financial',
+  code: 'Financial_01.1',
+  desc: 'Monthly P&L, FY2023 through Q1 2026',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Financial',
+  code: 'Financial_01.2',
+  desc: 'Monthly balance sheet, FY2023 through Q1 2026',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Financial',
+  code: 'Financial_01.3',
+  desc: 'Monthly cash flow, FY2023 through Q1 2026',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Financial',
+  code: 'Financial_02.1',
+  desc: 'P&L by segment (Venture) with contribution margin',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Financial',
+  code: 'Financial_02.2',
+  desc: 'P&L by segment (Growth) with contribution margin',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Financial',
+  code: 'Financial_02.3',
+  desc: 'P&L by segment (TAS) with contribution margin',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Financial',
+  code: 'Financial_03.1',
+  desc: 'P&L by CFO with contribution margin — 2026',
+  status: 'partial',
+  note: 'Only available for 2025 & 2026.'
+}, {
+  cat: 'Financial',
+  code: 'Financial_03.2',
+  desc: 'P&L by CFO with contribution margin — 2025',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Financial',
+  code: 'Financial_04',
+  desc: 'Margin by customer (sales cube): client-level revenue, fully loaded delivery cost, GM %, tenure',
+  status: 'bundled',
+  note: 'Included in Financial_03 (P&L by CFO).'
+}, {
+  cat: 'Financial',
+  code: 'Financial_05',
+  desc: 'Reported-to-Adjusted EBITDA bridge (one-time items, severance, platform investment)',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Financial',
+  code: 'Financial_06',
+  desc: '2026 budget',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Financial',
+  code: 'Financial_07',
+  desc: '3-year operating model (if available) with key assumptions',
+  status: 'pending',
+  note: 'Not available — formalized in 2027 plan.'
+},
+// Revenue & Customer (3 items)
+{
+  cat: 'Revenue & Customer',
+  code: 'Revenue_01',
+  desc: 'Client-level revenue history by month, FY2022–present, with start/end date, churn reason',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Revenue & Customer',
+  code: 'Revenue_02',
+  desc: 'Growth segment ACV build — drivers behind the $10M+ 2026 expectation',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Revenue & Customer',
+  code: 'Revenue_03',
+  desc: 'Pipeline: open opportunities, stage, ACV, source',
+  status: 'available',
+  note: ''
+},
+// Operations & Service Delivery (4 items)
+{
+  cat: 'Operations & Service Delivery',
+  code: 'Operations_01',
+  desc: 'Headcount roster: role, level, location, start date, billable vs. non-billable, utilization',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Operations & Service Delivery',
+  code: 'Operations_02',
+  desc: 'Utilization and realization by service line, trailing 12 months',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Operations & Service Delivery',
+  code: 'Operations_03',
+  desc: 'Attrition, FY2023–present',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Operations & Service Delivery',
+  code: 'Operations_04',
+  desc: 'Delivery capacity — Demand Planning Model',
+  status: 'available',
+  note: ''
+},
+// Platform & Technology (4 items)
+{
+  cat: 'Platform & Technology',
+  code: 'Technology_01',
+  desc: 'PropellerOS roadmap and current deployment % across client base',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Platform & Technology',
+  code: 'Technology_02',
+  desc: 'Off-the-shelf PropellerOS materials',
+  status: 'bundled',
+  note: 'Included in Technology_01.'
+}, {
+  cat: 'Platform & Technology',
+  code: 'Technology_03',
+  desc: 'Engineering team headcount and cost run-rate',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Platform & Technology',
+  code: 'Technology_04',
+  desc: 'Capitalized software detail (build cost to date, ongoing)',
+  status: 'available',
+  note: ''
+},
+// Legal & Corporate & Other (5 items)
+{
+  cat: 'Legal & Corporate',
+  code: 'Corporate_01.1',
+  desc: 'Newlight investment documents — Closing Set Index',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Legal & Corporate',
+  code: 'Corporate_01.2',
+  desc: 'Newlight investment documents — Purchase & Contribution Agreement',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Legal & Corporate',
+  code: 'Corporate_02',
+  desc: 'Any prior diligence reports (QofE, legal, tech) that are shareable',
+  status: 'pending',
+  note: 'No diligence reports were provided to Propeller.'
+}, {
+  cat: 'Legal & Corporate',
+  code: 'Corporate_03',
+  desc: 'Org chart, full firm',
+  status: 'available',
+  note: ''
+}, {
+  cat: 'Legal & Corporate',
+  code: 'Corporate_04',
+  desc: '13-page Roadmap Deck (referenced on slide 15 of investor presentation)',
+  status: 'pending',
+  note: 'In preparation; expected with next data-room update.'
+}];
+const STATUS_META = {
+  available: {
+    label: 'Available',
+    color: '#7ed29b',
+    dot: '●'
+  },
+  partial: {
+    label: 'Partial',
+    color: '#e8c468',
+    dot: '◐'
+  },
+  bundled: {
+    label: 'Bundled',
+    color: '#5fb4d4',
+    dot: '◆'
+  },
+  pending: {
+    label: 'Pending',
+    color: '#9aa1ad',
+    dot: '○'
+  }
+};
+const InformationRequest = () => {
+  const C_LOCAL = {
+    accent: '#e8c468',
+    text: '#f4f4f6',
+    textMid: '#a8aab0',
+    textDim: '#6b6e75',
+    bg: '#0c0c0c',
+    card: '#161618',
+    border: '#2a2a2e'
+  };
+
+  // Tally counts by status
+  const tally = INFO_REQUEST_ITEMS.reduce((acc, item) => {
+    acc[item.status] = (acc[item.status] || 0) + 1;
+    return acc;
+  }, {});
+  const total = INFO_REQUEST_ITEMS.length;
+
+  // Group by category
+  const byCat = INFO_REQUEST_ITEMS.reduce((acc, item) => {
+    if (!acc[item.cat]) acc[item.cat] = [];
+    acc[item.cat].push(item);
+    return acc;
+  }, {});
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '8px 0 24px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C_LOCAL.accent,
+      letterSpacing: 2,
+      fontWeight: 700,
+      marginBottom: 10,
+      textTransform: 'uppercase'
+    }
+  }, "Data Ask \xB7 Status"), /*#__PURE__*/React.createElement("h2", {
+    style: {
+      fontSize: 24,
+      fontWeight: 700,
+      letterSpacing: -0.4,
+      lineHeight: 1.2,
+      margin: '0 0 12px',
+      color: C_LOCAL.text
+    }
+  }, "Information Request \u2014 28 items, status-tracked."), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 14,
+      color: C_LOCAL.textMid,
+      lineHeight: 1.6,
+      maxWidth: 840
+    }
+  }, "The full data ask from Kevin\u2019s checklist of April 30. Each item carries the same code used as the source citation throughout the deck, so every line is traceable to its source. Live links to the data-room files will be added once Pothos confirms data-room access (Proton).")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(5, 1fr)',
+      gap: 12,
+      marginBottom: 24
+    }
+  }, Object.entries(STATUS_META).map(([key, meta]) => /*#__PURE__*/React.createElement("div", {
+    key: key,
+    style: {
+      padding: '14px 16px',
+      background: C_LOCAL.card,
+      border: `1px solid ${meta.color}55`,
+      borderLeft: `3px solid ${meta.color}`,
+      borderRadius: 4
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 700,
+      color: meta.color,
+      letterSpacing: 1.5,
+      marginBottom: 6,
+      textTransform: 'uppercase'
+    }
+  }, meta.label), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 22,
+      fontWeight: 700,
+      color: C_LOCAL.text,
+      letterSpacing: -0.5
+    }
+  }, tally[key] || 0), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C_LOCAL.textDim,
+      marginTop: 2
+    }
+  }, "of ", total, " items"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '14px 16px',
+      background: C_LOCAL.card,
+      border: `1px solid ${C_LOCAL.accent}55`,
+      borderLeft: `3px solid ${C_LOCAL.accent}`,
+      borderRadius: 4
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 700,
+      color: C_LOCAL.accent,
+      letterSpacing: 1.5,
+      marginBottom: 6,
+      textTransform: 'uppercase'
+    }
+  }, "Coverage"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 22,
+      fontWeight: 700,
+      color: C_LOCAL.text,
+      letterSpacing: -0.5
+    }
+  }, Math.round(((tally.available || 0) + (tally.partial || 0) + (tally.bundled || 0)) / total * 100), "%"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: C_LOCAL.textDim,
+      marginTop: 2
+    }
+  }, "materially delivered"))), Object.entries(byCat).map(([cat, items]) => /*#__PURE__*/React.createElement("div", {
+    key: cat,
+    style: {
+      marginBottom: 20
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 700,
+      color: C_LOCAL.accent,
+      letterSpacing: 1.5,
+      marginBottom: 10,
+      textTransform: 'uppercase'
+    }
+  }, cat), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: C_LOCAL.card,
+      border: `1px solid ${C_LOCAL.border}`,
+      borderRadius: 6,
+      overflow: 'hidden'
+    }
+  }, /*#__PURE__*/React.createElement("table", {
+    style: {
+      width: '100%',
+      fontSize: 12.5,
+      borderCollapse: 'collapse'
+    }
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+    style: {
+      borderBottom: `1px solid ${C_LOCAL.border}`,
+      background: '#1a1a1c'
+    }
+  }, /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: 'left',
+      padding: '10px 14px',
+      color: C_LOCAL.textDim,
+      fontWeight: 600,
+      letterSpacing: 0.3,
+      width: '14%'
+    }
+  }, "Item"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: 'left',
+      padding: '10px 14px',
+      color: C_LOCAL.textDim,
+      fontWeight: 600,
+      letterSpacing: 0.3
+    }
+  }, "Description"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: 'left',
+      padding: '10px 14px',
+      color: C_LOCAL.textDim,
+      fontWeight: 600,
+      letterSpacing: 0.3,
+      width: '12%'
+    }
+  }, "Status"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: 'left',
+      padding: '10px 14px',
+      color: C_LOCAL.textDim,
+      fontWeight: 600,
+      letterSpacing: 0.3,
+      width: '28%'
+    }
+  }, "Notes"))), /*#__PURE__*/React.createElement("tbody", null, items.map((item, i) => {
+    const meta = STATUS_META[item.status];
+    return /*#__PURE__*/React.createElement("tr", {
+      key: i,
+      style: {
+        borderBottom: i < items.length - 1 ? `1px solid ${C_LOCAL.border}` : 'none'
+      }
+    }, /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: '10px 14px',
+        fontFamily: 'monospace',
+        fontSize: 11.5,
+        color: C_LOCAL.textMid
+      }
+    }, item.code), /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: '10px 14px',
+        color: C_LOCAL.text,
+        lineHeight: 1.5
+      }
+    }, item.desc), /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: '10px 14px'
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5,
+        padding: '2px 8px',
+        background: `${meta.color}18`,
+        border: `1px solid ${meta.color}66`,
+        borderRadius: 3,
+        color: meta.color,
+        fontSize: 10.5,
+        fontWeight: 600,
+        letterSpacing: 0.4,
+        textTransform: 'uppercase'
+      }
+    }, meta.label)), /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: '10px 14px',
+        color: C_LOCAL.textDim,
+        lineHeight: 1.5,
+        fontStyle: item.note ? 'italic' : 'normal'
+      }
+    }, item.note || '\u2014'));
+  })))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 24,
+      padding: '16px 20px',
+      background: `${C_LOCAL.accent}11`,
+      borderLeft: `3px solid ${C_LOCAL.accent}`,
+      borderRadius: 4
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 700,
+      color: C_LOCAL.accent,
+      letterSpacing: 1.5,
+      marginBottom: 8,
+      textTransform: 'uppercase'
+    }
+  }, "What this list does not show yet"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: C_LOCAL.textMid,
+      lineHeight: 1.65,
+      margin: 0
+    }
+  }, "Once data-room access is provisioned (Proton), each Available / Partial / Bundled item will link directly to its file in the data room. The source citations throughout the deck use these exact item codes, so the linking is one-step.")));
+};
 const DataRoom = () => /*#__PURE__*/React.createElement(TabStub, {
   title: "Data Room",
   source: "To be hosted on Todd's platform (URL pattern pending)",
@@ -7789,6 +9342,76 @@ const VersionHistory = () => /*#__PURE__*/React.createElement("div", null, /*#__
     margin: 0
   }
 }, "Build & iteration log")), /*#__PURE__*/React.createElement("div", {
+  style: {
+    padding: '18px',
+    background: C.card,
+    border: `1px solid ${C.accent}55`,
+    borderRadius: 6,
+    marginBottom: 14
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 14
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 13,
+    fontWeight: 700,
+    color: C.accent
+  }
+}, "v1.13 \xB7 May 27, 2026"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 11,
+    color: C.textDim
+  }
+}, "Value Reframe rewrite \xB7 logo grid overhaul \xB7 event labels \xB7 ARPC fix \xB7 EBITDA toggle \xB7 Info Request \xB7 Team & Capacity")), /*#__PURE__*/React.createElement("ul", {
+  style: {
+    margin: 0,
+    paddingLeft: 18,
+    color: C.textMid,
+    fontSize: 13,
+    lineHeight: 1.7
+  }
+}, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Value Reframe rewritten in a clearer two-beat structure."), " Lead with the problem: \u201CHire a CFO. Add a controller. That used to equal scale.\u201D Beat two carries the operating-system answer: \u201CPropeller is that operating system.\u201D Same rewrite applied both on Overview (hand-off to Why Now) and inside the canonical Why Now & The Platform section. The dense single-paragraph version is gone."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Long-arc event labels (Plan A)."), " Seven events now have small visible labels rendered above the chart plot area, color-coded to match the era each one sits in. Close pairs (Ray CEO + Growth launch in Q2\u2013Q3 2024; PropellerOS + Brand refresh in Q1\u2013Q2 2026) staggered vertically to avoid collision. Hover hit zones widened from 24px to 36px to make discovery easier. Tooltip card now anchors near the hovered line (with clamping) instead of always centering. Helper text updated."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Extraordinary Companies overhauled to match investor PDF."), " Logo grid fully reconciled against the April 24 investor slide: ", /*#__PURE__*/React.createElement("strong", null, "19 unicorn-status alumni marked"), " with an inline unicorn icon (Liquid Death, Poppi, Siete, Olipop, Gr\xFCns, hims, Away, The Farmer\u2019s Dog, Keeps, Casper, BetterUp, braze, planet, triplelift, loadsmart, dialpad, newsela, Solana, Candy, Optimism). ", /*#__PURE__*/React.createElement("strong", null, "10 additional Acquired pills added"), " in CPG (Welly, Chameleon Cold-Brew, Gr\xFCns, Flying Embers, Good Culture, Hu, Krave, Rustic Bakery, Simple Mills, Sir Kensington\u2019s). ", /*#__PURE__*/React.createElement("strong", null, "YT renamed to YTP (Youth to the People)"), " with Acquired pill (L\u2019Or\xE9al). ", /*#__PURE__*/React.createElement("strong", null, "ZICO Acquired pill removed"), " \u2014 client bought it back from Coca-Cola, not acquired. ", /*#__PURE__*/React.createElement("strong", null, "Soylent Acquired pill removed"), " per investor slide. The unicorn icon replaces the prior gold-triangle prefix."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Adjusted / Reported EBITDA toggle on the recovery-shape chart."), " Pill control top-right of the chart card. Defaults to Adjusted (truer operating picture), one click flips to Reported. Three series recompute together: Net Revenue is unchanged (top line doesn\u2019t adjust), Gross Margin changes by the COGS portion of severance, EBITDA changes by total severance. Bridge table below the chart stays visible in both views (it IS the proof of the adjustment). Insight text stays constant. Severance amounts sourced from Financial_05: 2023 $96K (26+70), 2024 $218K (63+155), 2025 $603K (206+397), Q1 2026 $100K (all COGS)."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "ARPC corrected from monthly to annual."), " Previous dashboard showed Venture $19.7K and Growth $48.8K labeled as \u201C$/client (mo)\u201D \u2014 the underlying data was actually quarterly $/client. Math is fixed: annualized = quarterly \xD7 4 = $79K/yr Venture and $195K/yr Growth, which matches Chris\u2019s framing (\u201CVenture >$60K/yr, Growth >$200K/yr\u201D). All chart Y-axis labels, legends, KPI tiles, popover notes, and insight text updated to annual framing. The \u201C2.5\xD7 the Venture rate\u201D relationship preserved."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Information Request tab rebuilt with the full 28-item checklist."), " Kevin\u2019s data ask spreadsheet rendered as the operating tracker. Five status pills: Available (24 items), Partial (1: Financial_03.1 P&L by CFO \u2014 only 2025/2026), Bundled (2: Financial_04 in Financial_03, Technology_02 in Technology_01), Pending (3: Financial_07 3-year model not available, Corporate_02 no diligence reports, Corporate_04 13-page Roadmap Deck in preparation). Each row carries Kevin\u2019s verbatim note. Coverage tile: 96% materially delivered. The structure is set up so once Proton data-room access lands, each Available item will link directly to its file."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Source citations standardized to Kevin\u2019s item codes."), " Across the deck, all ", /*#__PURE__*/React.createElement("code", null, "src:"), " citations changed from internal filename prefixes (Financial_01.1, C_Revenue_01, D_Operations_01, etc.) to Kevin\u2019s checklist codes (Financial_01.1, Revenue_01, Operations_01). 53 citations updated. The dashboard now uses the same naming convention as the Information Request tab, which means the eventual data-room linking is plug-and-play."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "New Team & Capacity tab."), " Three headcount charts, all sourced from the master file\u2019s consolidated HC by Role sheet (160 monthly data points, Jan 2013 \u2014 Apr 2026). Chart 1: Total team trajectory (US + International stacked, 2020 onward). Chart 2: US headcount detail (Billable + Non-Billable, full 13-year arc). Chart 3: International composition by partner (Consero, Consero OB, Frontline, Anaptyss, PlatMap, 2020 onward). Four KPI tiles for the Q1 2026 snapshot: total team (264), US (91), International (173), International share (66%). Pre-2022 OM-source data has known noise (payroll-provider transition) and is footnoted. Segment-level breakdown (Venture vs Growth headcount) and revenue-per-head deferred \u2014 allocation taxonomy needs more work before those views are honest."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Delivery & Capacity utilization KPI scrubbed."), " Removed the \u201CKevin and Vernise own the hiring plan\u201D attribution from the 99.7% utilization note. Internal-operating-reality language doesn\u2019t belong on an external deck."))), /*#__PURE__*/React.createElement("div", {
   style: {
     padding: '18px',
     background: C.card,
@@ -8124,7 +9747,7 @@ const VersionHistory = () => /*#__PURE__*/React.createElement("div", null, /*#__
   style: {
     color: C.text
   }
-}, "Bug found and fixed."), " Ray flagged on Business Today: \u201CAm I reading it right that we already lost 50% of the clients we signed last year by now? That seems counter intuitive.\u201D He was reading correctly off the chart \u2014 the chart was wrong. The 2025 cohort line bottomed at 48.2% at M9. Real number from C_Revenue_01 with a clean rebuild: ", /*#__PURE__*/React.createElement("strong", null, "69.6%"), " at M9. Variance was systematic across all cohort years; every vintage understated, magnitude growing with cohort recency (~2pts for 2021 LEGACY, ~7pts for 2022, ~10pts for 2023, ~13pts for 2024, ~16pts for 2025)."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+}, "Bug found and fixed."), " Ray flagged on Business Today: \u201CAm I reading it right that we already lost 50% of the clients we signed last year by now? That seems counter intuitive.\u201D He was reading correctly off the chart \u2014 the chart was wrong. The 2025 cohort line bottomed at 48.2% at M9. Real number from Revenue_01 with a clean rebuild: ", /*#__PURE__*/React.createElement("strong", null, "69.6%"), " at M9. Variance was systematic across all cohort years; every vintage understated, magnitude growing with cohort recency (~2pts for 2021 LEGACY, ~7pts for 2022, ~10pts for 2023, ~13pts for 2024, ~16pts for 2025)."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
   style: {
     color: C.text
   }
@@ -8190,7 +9813,7 @@ const VersionHistory = () => /*#__PURE__*/React.createElement("div", null, /*#__
   style: {
     color: C.text
   }
-}, "Adjusted EBITDA bridge shipped."), " Reported\u2192Adjusted reconciliation table now on Financials & Capital, sourced from B_Financial_05 (severance, the only one-time line booked). Q1 2026 Adjusted EBITDA = $145K. Overview KPI strip updated from the prior placeholder \u201C+$44K Adj.\u201D (which was actually Ordinary) to the real $145K Adjusted figure. Master Reconciliation entry for the April 24 deck\u2019s $69K Adj. EBITDA citation reconciled to the data-room $145K figure."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+}, "Adjusted EBITDA bridge shipped."), " Reported\u2192Adjusted reconciliation table now on Financials & Capital, sourced from Financial_05 (severance, the only one-time line booked). Q1 2026 Adjusted EBITDA = $145K. Overview KPI strip updated from the prior placeholder \u201C+$44K Adj.\u201D (which was actually Ordinary) to the real $145K Adjusted figure. Master Reconciliation entry for the April 24 deck\u2019s $69K Adj. EBITDA citation reconciled to the data-room $145K figure."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
   style: {
     color: C.text
   }
@@ -8232,7 +9855,7 @@ const VersionHistory = () => /*#__PURE__*/React.createElement("div", null, /*#__
   style: {
     color: C.text
   }
-}, "Delivery & Capacity tab built."), " Real content from four operations data-room files: D_Operations_01 (active+termed roster, 230 rows), D_Operations_03 (133 termed historical), Operations_02 (utilization report, 60 staff March 2026 snapshot), D_Operations_04 (forward-12-month resourcing demand). Four sections: (1) Headcount snapshot \u2014 97 US W-2 active, 66 billable, median tenure 3.5y, 20 staff at 5+ years + trajectory chart YE 2022 (130) \u2192 YE 2023 (92) \u2192 YE 2024 (104) \u2192 Q1 2026 (96); (2) Shape of the team \u2014 22-tier role-family bar chart with Accounting Manager (13), Director of Accounting (10), Controller (9) as the load-bearing ladders; (3) Utilization 99.7% \xB7 billable rate 58.5% \xB7 realization 58.7% with the \u201Cdon\u2019t push utilization, lift realization\u201D framing block; (4) Attrition trajectory from 26.3% (2023 peak) to ~10% (2026 YTD annualized) with terminations bars and rate line."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+}, "Delivery & Capacity tab built."), " Real content from four operations data-room files: Operations_01 (active+termed roster, 230 rows), Operations_03 (133 termed historical), Operations_02 (utilization report, 60 staff March 2026 snapshot), Operations_04 (forward-12-month resourcing demand). Four sections: (1) Headcount snapshot \u2014 97 US W-2 active, 66 billable, median tenure 3.5y, 20 staff at 5+ years + trajectory chart YE 2022 (130) \u2192 YE 2023 (92) \u2192 YE 2024 (104) \u2192 Q1 2026 (96); (2) Shape of the team \u2014 22-tier role-family bar chart with Accounting Manager (13), Director of Accounting (10), Controller (9) as the load-bearing ladders; (3) Utilization 99.7% \xB7 billable rate 58.5% \xB7 realization 58.7% with the \u201Cdon\u2019t push utilization, lift realization\u201D framing block; (4) Attrition trajectory from 26.3% (2023 peak) to ~10% (2026 YTD annualized) with terminations bars and rate line."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
   style: {
     color: C.text
   }
@@ -8352,7 +9975,7 @@ const VersionHistory = () => /*#__PURE__*/React.createElement("div", null, /*#__
   style: {
     color: C.text
   }
-}, "Carryover into v1.5-B."), " Trajectory & Discussion tab (new build) and Overview rewrite (anchored on everything v1.5-A landed). Marquee category spelling final-pass against the April 24 deck. Adjusted EBITDA bridge from B_Financial_05."))), /*#__PURE__*/React.createElement("div", {
+}, "Carryover into v1.5-B."), " Trajectory & Discussion tab (new build) and Overview rewrite (anchored on everything v1.5-A landed). Marquee category spelling final-pass against the April 24 deck. Adjusted EBITDA bridge from Financial_05."))), /*#__PURE__*/React.createElement("div", {
   style: {
     padding: '18px',
     background: C.card,
@@ -8386,7 +10009,7 @@ const VersionHistory = () => /*#__PURE__*/React.createElement("div", null, /*#__
     fontSize: 13,
     lineHeight: 1.7
   }
-}, /*#__PURE__*/React.createElement("li", null, "Segment Economics tab built: two-engine model, Venture and Growth P&Ls with quarterly trajectory, KPIs and ChartCards."), /*#__PURE__*/React.createElement("li", null, "Financials & Capital tab built: consolidated annual P&L 2021\u2013Q1 2026 from B_Financial_01.1."), /*#__PURE__*/React.createElement("li", null, "Master Reconciliation internal tab: 16 line-item reconciliations against the April 24 deck and Master File v6.10.5."), /*#__PURE__*/React.createElement("li", null, "Series Eight wordmark inlined as base64 PNG (passed to AccessGate via wordmarkSrc prop \u2014 functional once library upgraded to v1.1)."))), /*#__PURE__*/React.createElement("div", {
+}, /*#__PURE__*/React.createElement("li", null, "Segment Economics tab built: two-engine model, Venture and Growth P&Ls with quarterly trajectory, KPIs and ChartCards."), /*#__PURE__*/React.createElement("li", null, "Financials & Capital tab built: consolidated annual P&L 2021\u2013Q1 2026 from Financial_01.1."), /*#__PURE__*/React.createElement("li", null, "Master Reconciliation internal tab: 16 line-item reconciliations against the April 24 deck and Master File v6.10.5."), /*#__PURE__*/React.createElement("li", null, "Series Eight wordmark inlined as base64 PNG (passed to AccessGate via wordmarkSrc prop \u2014 functional once library upgraded to v1.1)."))), /*#__PURE__*/React.createElement("div", {
   style: {
     padding: '18px',
     background: C.card,
@@ -8419,7 +10042,7 @@ const VersionHistory = () => /*#__PURE__*/React.createElement("div", null, /*#__
     fontSize: 13,
     lineHeight: 1.7
   }
-}, /*#__PURE__*/React.createElement("li", null, "Project scaffolded against Dutch v1.11.0 reference (Archetype B \u2192 Archetype E adaptation in progress)."), /*#__PURE__*/React.createElement("li", null, "Cohort engine rebuilt from C_Revenue_01 (NetSuite GL): 53 monthly cohorts \xD7 M1\u2013M24, 936 clients with revenue activity Nov 2021 \u2013 Mar 2026."), /*#__PURE__*/React.createElement("li", null, "Nov 2021 cohort labeled \u201C2021 LEGACY\u201D \u2014 pseudo-cohort representing all-clients-as-of-Nov-2021. Per-client cube starts there due to documented Aug 2020\u2013Oct 2021 ERP-migration gap."), /*#__PURE__*/React.createElement("li", null, "NRR/GRR/Logo Retention computed by year. 2022 NRR (512%) suppressed as cube-start artifact."), /*#__PURE__*/React.createElement("li", null, "2025 NRR rebuilt at 79.4%; deck states 80.6% (1.2pt variance \u2014 Kantata vs NetSuite source). Flagged on To-Do tab."), /*#__PURE__*/React.createElement("li", null, "Overview tab v1.0: Q1 2026 inflection, founder voice from Chris\u2019s verbal framing (May 23 session), six exec KPIs with InfoPopovers."), /*#__PURE__*/React.createElement("li", null, "Business Today tab v1.0: NRR triple, yearly cohort curves, per-month cohort heatmap, marquee logo wall (5 categories \xD7 39 clients with Acquired/IPO/SPAC tags)."), /*#__PURE__*/React.createElement("li", null, "Tab shell: 10 external + 2 internal. Series Eight wordmark inline SVG. Flywheel-blade motif on Overview hero."), /*#__PURE__*/React.createElement("li", null, "Tabs 2\u20134, 5, 7, 8, 9 stubbed with structure + planned-content lists."), /*#__PURE__*/React.createElement("li", null, "Team & Structure: 9 confirmed leaders. Tony Plesner removed (advisor only). Bios + LinkedIn URLs pending."))));
+}, /*#__PURE__*/React.createElement("li", null, "Project scaffolded against Dutch v1.11.0 reference (Archetype B \u2192 Archetype E adaptation in progress)."), /*#__PURE__*/React.createElement("li", null, "Cohort engine rebuilt from Revenue_01 (NetSuite GL): 53 monthly cohorts \xD7 M1\u2013M24, 936 clients with revenue activity Nov 2021 \u2013 Mar 2026."), /*#__PURE__*/React.createElement("li", null, "Nov 2021 cohort labeled \u201C2021 LEGACY\u201D \u2014 pseudo-cohort representing all-clients-as-of-Nov-2021. Per-client cube starts there due to documented Aug 2020\u2013Oct 2021 ERP-migration gap."), /*#__PURE__*/React.createElement("li", null, "NRR/GRR/Logo Retention computed by year. 2022 NRR (512%) suppressed as cube-start artifact."), /*#__PURE__*/React.createElement("li", null, "2025 NRR rebuilt at 79.4%; deck states 80.6% (1.2pt variance \u2014 Kantata vs NetSuite source). Flagged on To-Do tab."), /*#__PURE__*/React.createElement("li", null, "Overview tab v1.0: Q1 2026 inflection, founder voice from Chris\u2019s verbal framing (May 23 session), six exec KPIs with InfoPopovers."), /*#__PURE__*/React.createElement("li", null, "Business Today tab v1.0: NRR triple, yearly cohort curves, per-month cohort heatmap, marquee logo wall (5 categories \xD7 39 clients with Acquired/IPO/SPAC tags)."), /*#__PURE__*/React.createElement("li", null, "Tab shell: 10 external + 2 internal. Series Eight wordmark inline SVG. Flywheel-blade motif on Overview hero."), /*#__PURE__*/React.createElement("li", null, "Tabs 2\u20134, 5, 7, 8, 9 stubbed with structure + planned-content lists."), /*#__PURE__*/React.createElement("li", null, "Team & Structure: 9 confirmed leaders. Tony Plesner removed (advisor only). Bios + LinkedIn URLs pending."))));
 const TodoOpenItems = () => /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
   style: {
     padding: '8px 0 24px'
@@ -8586,7 +10209,7 @@ const TodoOpenItems = () => /*#__PURE__*/React.createElement("div", null, /*#__P
   style: {
     color: C.text
   }
-}, "C_Revenue_01"), " version if Chris has one \u2014 cohort engine is file-agnostic, will re-derive on swap."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+}, "Revenue_01"), " version if Chris has one \u2014 cohort engine is file-agnostic, will re-derive on swap."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
   style: {
     color: C.text
   }
@@ -8867,7 +10490,7 @@ const MasterReconciliation = () => {
       fontSize: 13,
       lineHeight: 1.7
     }
-  }, /*#__PURE__*/React.createElement("li", null, "Sep 2025 Venture variance (+4.4%, +$78K) \u2014 largest single-month gap; worth source-walking"), /*#__PURE__*/React.createElement("li", null, "FY2025 Board Net Revenue \u2014 not yet populated in Master File Yearly Comparison; data-room shows $28.81M"), /*#__PURE__*/React.createElement("li", null, "Growth-segment monthly Sep 2024 \u2013 Dec 2024 \u2014 Master File has data; reconcile to data-room B_Financial_02.2"), /*#__PURE__*/React.createElement("li", null, "Adjusted EBITDA bridge \u2014 Master File may have one-time adjustments not yet in B_Financial_05; cross-walk pending"), /*#__PURE__*/React.createElement("li", null, "NRR methodology \u2014 Master File Read Me line 90 notes Kantata\u2192NetSuite restatement planned for PA v7.5; this will resolve the 79.4% vs 80.6% deck variance once published"))));
+  }, /*#__PURE__*/React.createElement("li", null, "Sep 2025 Venture variance (+4.4%, +$78K) \u2014 largest single-month gap; worth source-walking"), /*#__PURE__*/React.createElement("li", null, "FY2025 Board Net Revenue \u2014 not yet populated in Master File Yearly Comparison; data-room shows $28.81M"), /*#__PURE__*/React.createElement("li", null, "Growth-segment monthly Sep 2024 \u2013 Dec 2024 \u2014 Master File has data; reconcile to data-room Financial_02.2"), /*#__PURE__*/React.createElement("li", null, "Adjusted EBITDA bridge \u2014 Master File may have one-time adjustments not yet in Financial_05; cross-walk pending"), /*#__PURE__*/React.createElement("li", null, "NRR methodology \u2014 Master File Read Me line 90 notes Kantata\u2192NetSuite restatement planned for PA v7.5; this will resolve the 79.4% vs 80.6% deck variance once published"))));
 };
 const TABS_VISIBLE = TABS.map((t, i) => ({
   label: t,
@@ -9056,7 +10679,7 @@ function PropellerInvestorDashboard() {
       fontSize: 11,
       color: C.textDim
     }
-  }, "Propeller team only \u2014 hide before sharing with investors (flip IS_EXTERNAL = true)")), tab === 0 && /*#__PURE__*/React.createElement(Overview, null), tab === 1 && /*#__PURE__*/React.createElement(BusinessToday, null), tab === 2 && /*#__PURE__*/React.createElement(WhyNowPlatform, null), tab === 3 && /*#__PURE__*/React.createElement(SegmentEconomics, null), tab === 4 && /*#__PURE__*/React.createElement(FinancialsCapital, null), tab === 5 && /*#__PURE__*/React.createElement(DeliveryCapacity, null), tab === 6 && /*#__PURE__*/React.createElement(TeamStructure, null), tab === 7 && /*#__PURE__*/React.createElement(TrajectoryDiscussion, null), tab === 8 && /*#__PURE__*/React.createElement(InformationRequest, null), tab === 9 && /*#__PURE__*/React.createElement(DataRoom, null), tab === 10 && /*#__PURE__*/React.createElement(VersionHistory, null), tab === 11 && /*#__PURE__*/React.createElement(TodoOpenItems, null), tab === 12 && /*#__PURE__*/React.createElement(MasterReconciliation, null)), /*#__PURE__*/React.createElement("div", {
+  }, "Propeller team only \u2014 hide before sharing with investors (flip IS_EXTERNAL = true)")), tab === 0 && /*#__PURE__*/React.createElement(Overview, null), tab === 1 && /*#__PURE__*/React.createElement(BusinessToday, null), tab === 2 && /*#__PURE__*/React.createElement(WhyNowPlatform, null), tab === 3 && /*#__PURE__*/React.createElement(SegmentEconomics, null), tab === 4 && /*#__PURE__*/React.createElement(FinancialsCapital, null), tab === 5 && /*#__PURE__*/React.createElement(DeliveryCapacity, null), tab === 6 && /*#__PURE__*/React.createElement(TeamStructure, null), tab === 7 && /*#__PURE__*/React.createElement(TeamCapacity, null), tab === 8 && /*#__PURE__*/React.createElement(TrajectoryDiscussion, null), tab === 9 && /*#__PURE__*/React.createElement(InformationRequest, null), tab === 10 && /*#__PURE__*/React.createElement(DataRoom, null), tab === 11 && /*#__PURE__*/React.createElement(VersionHistory, null), tab === 12 && /*#__PURE__*/React.createElement(TodoOpenItems, null), tab === 13 && /*#__PURE__*/React.createElement(MasterReconciliation, null)), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '20px 32px',
       borderTop: `1px solid ${C.border}`,
