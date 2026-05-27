@@ -932,7 +932,7 @@ window.DynDeckLib = {
 };
 })();
 
-// ─── DASHBOARD_Propeller (client) v1.14-B ───
+// ─── DASHBOARD_Propeller (client) v1.15-A ───
 (() => {
   var React = globalThis.React;
   var R = globalThis.React;
@@ -1818,8 +1818,8 @@ const AZURE_DATA_ROOM_BASE = ''; // '' = pending; e.g. 'https://propeller-dataro
 const MARQUEE = {
   years: 18,
   clients: 1400,
-  capitalRaised: 30,
-  // $B
+  capitalRaised: 25,
+  // $B (v1.15-A: 30 → 25, defensible round-down from $27.3B PA-curated)
   enterpriseValue: 100,
   // $B
   unicorns: 24,
@@ -6769,10 +6769,10 @@ const FinancialsCapital = () => {
   }, "Notes.")), /*#__PURE__*/React.createElement("div", null, "\xB7 Propeller NL Holdings LLC and SCI Partners SC are defined as the \u201CNewlight Member.\u201D"), /*#__PURE__*/React.createElement("div", null, "\xB7 PI Member Partners, LLC is defined as \u201CFounder Holdings.\u201D"), /*#__PURE__*/React.createElement("div", null, "\xB7 Voting Units means the Class A Preference Units and the Class B Units owned by a Newlight Member or by Founder Holdings."), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 8,
-      color: C.warm,
+      color: C.textDim,
       fontStyle: 'italic'
     }
-  }, "\xB7 src: Propeller Summary Cap Table 12/31/2025. Pending route to Kevin and Todd for any additions/footnotes before external ship.")))), /*#__PURE__*/React.createElement("div", {
+  }, "\xB7 src: Propeller Summary Cap Table 12/31/2025.")))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 24,
       padding: '14px 18px',
@@ -7032,34 +7032,34 @@ const DeliveryCapacity = () => {
       marginBottom: 20
     }
   }, /*#__PURE__*/React.createElement(KPI, {
-    value: `${d.utilization.utilization_pct}%`,
-    label: "Utilization",
-    color: C.green,
+    value: "Pending",
+    label: "US Utilization",
+    color: C.warm,
     info: {
-      def: 'Actual hours worked / possible hours available, across all client-facing staff with scheduled capacity.',
-      calc: `${d.utilization.total_actual_hours.toLocaleString()} actual / ${d.utilization.total_possible_hours.toLocaleString()} possible across ${d.utilization.n_users} staff.`,
-      src: 'Operations_02 (Utilization Report). March 2026 snapshot.',
-      note: 'At 99.7%, the client-facing roster is working close to full capacity. This is the near-term gating constraint — and it is being managed deliberately. The path forward is platform leverage (PropellerOS lifts realization without lifting hours) combined with disciplined hiring against the Growth-segment pipeline.'
+      def: 'Adjusted utilization, US service line. Sourced from monthly FRP KPI summary (auditor-aligned definition: billable hours / capacity-adjusted possible hours).',
+      calc: 'Trailing-12-month series by service line, per Pothos request §Operations &middot; Utilization and realization by service line.',
+      src: 'FRP YTD KPI Summary (Apr 2026 issue). Operations_02 (Kantata) deprecated for external reporting — methodology measures work-load against flat 22-day month, not auditor utilization.',
+      note: 'Pending v1.15-B fill. Awaiting FRP underlying data from Kevin. Headline approximate: 65% US, 69% Intl Accounting, 68% Intl Growth (April 2026 YTD).'
     }
   }), /*#__PURE__*/React.createElement(KPI, {
-    value: `${d.utilization.billable_rate_pct}%`,
-    label: "Billable rate",
-    color: C.accent,
+    value: "Pending",
+    label: "Intl Accounting Utilization",
+    color: C.warm,
     info: {
-      def: 'Billable actual hours / possible hours. The portion of staff capacity that converts to revenue.',
-      calc: `${d.utilization.total_billable_actual_hours.toLocaleString()} billable / ${d.utilization.total_possible_hours.toLocaleString()} possible.`,
-      src: 'Operations_02 Billable Actual Hours column.',
-      note: 'Billable rate < utilization indicates the gap between what the team is doing and what is billed. Includes internal work, training, business development, and unbilled overage — the typical structure for an embedded services firm.'
+      def: 'Adjusted utilization, International Accounting service line. FRP-sourced.',
+      calc: 'Trailing-12-month series. Pending v1.15-B fill.',
+      src: 'FRP YTD KPI Summary (Apr 2026 issue).',
+      note: 'Pending v1.15-B fill. International Accounting historically runs above US — the operating-leverage signal of the partnership delivery model.'
     }
   }), /*#__PURE__*/React.createElement(KPI, {
-    value: `${d.utilization.realization_pct}%`,
-    label: "Realization",
-    color: C.accent,
+    value: "Pending",
+    label: "Intl Growth Utilization",
+    color: C.warm,
     info: {
-      def: 'Billable actual / total actual hours. The share of worked time that bills to a client.',
-      calc: `${d.utilization.total_billable_actual_hours.toLocaleString()} billable / ${d.utilization.total_actual_hours.toLocaleString()} actual = ${d.utilization.realization_pct}%.`,
-      src: 'Operations_02.',
-      note: 'For an embedded services firm where senior staff carry pre-sales, account management, and platform development inside the same head, ~58-60% realization is a workable ratio. Productization of Financial Intelligence is the lever that lifts this further.'
+      def: 'Adjusted utilization, International Growth service line. FRP-sourced.',
+      calc: 'Trailing-12-month series. Pending v1.15-B fill.',
+      src: 'FRP YTD KPI Summary (Apr 2026 issue).',
+      note: 'Pending v1.15-B fill. International Growth carries Sales / S&M / Growth account staff under the partnership model.'
     }
   })), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -7078,14 +7078,14 @@ const DeliveryCapacity = () => {
       marginBottom: 6,
       textTransform: 'uppercase'
     }
-  }, "Reading the numbers"), /*#__PURE__*/React.createElement("p", {
+  }, "Reading the numbers \u2014 v1.15-B pending"), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 13,
       color: C.textMid,
       lineHeight: 1.6,
       margin: 0
     }
-  }, "High utilization (99.7%) and moderate realization (58.7%) is the signature of a services firm running near capacity with a meaningful internal-work load. The path forward is not to push utilization higher \u2014 that\u2019s how delivery firms break their senior team \u2014 but to lift realization through platform leverage. Every percentage-point of realization gained is gross-margin captured without an incremental hire.")), /*#__PURE__*/React.createElement("div", {
+  }, "Utilization and realization by service line, trailing-12-month series, is queued for v1.15-B. Source: FRP YTD KPI Summary (April 2026 issue), which segments US, International Accounting, and International Growth on the auditor-aligned definition Pothos requested. The Kantata-sourced numbers prior versions carried (99.7% / 58.5% / 58.7%) measured a different denominator (flat 22-day work-month, not capacity-adjusted) and are deprecated for external reporting. Final segment-level KPIs and trend chart land alongside the FRP data extract.")), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 24,
       marginBottom: 14
@@ -7191,7 +7191,7 @@ const DeliveryCapacity = () => {
       lineHeight: 1.7,
       margin: '0 0 10px'
     }
-  }, "The team is the right shape and the right size for the current book. Utilization at 99.7% says capacity is the binding constraint on near-term growth. Realization at 58.7% says the platform leverage isn\u2019t yet fully captured. The headcount trajectory (130 \u2192 92 \u2192 104 \u2192 96) shows a firm that scaled responsibly through the contraction and is now in position to add senior client-facing capacity against the demand that is already showing up."), /*#__PURE__*/React.createElement("p", {
+  }, "The team is the right shape and the right size for the current book. The headcount trajectory through the 2023 reset and 2024-26 stabilization shows a firm that scaled responsibly through the contraction and is now positioned to add senior client-facing capacity against the demand that is already showing up. The partnership-leveraged international segment is now the majority of total team capacity \u2014 the operating-model lever that absorbs growth without proportional US hiring."), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 13,
       color: C.textMid,
@@ -11424,10 +11424,6 @@ const PRIORITY_META = {
 const PRIORITY_ITEMS = [
 // ─── P0 · immediate, ship-blockers or close-to-blocker ────────────────────
 {
-  pri: 'P0',
-  title: 'Cap-table footnotes + additions',
-  body: 'Route the v1.14-A cap-table render to Kevin and Todd for any additions to footnotes or sub-rows (e.g., MIU vesting schedules) before the external Pothos ship. The "pending route to Kevin and Todd" marker stays on the render until they sign off.'
-}, {
   pri: 'P0',
   title: 'Azure data-room URLs from Todd',
   body: 'Front-end is wired in v1.14-B (Open buttons, checkboxes, batch ZIP). Set AZURE_DATA_ROOM_BASE to the live URL once Todd\u2019s admin panel ships and POST /api/data-room/zip is operational. Five-minute wire-up, no further build.'
