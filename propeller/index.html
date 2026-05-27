@@ -942,6 +942,7 @@ window.DynDeckLib = {
 function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 const { useState, useMemo, useRef, useEffect } = React;
 const { LineChart, Line, BarChart, Bar, ComposedChart, Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, ReferenceLine, ReferenceArea, PieChart, Pie } = Recharts;
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // PROPELLER INDUSTRIES — INVESTOR INTELLIGENCE DASHBOARD · v1.0 · May 23, 2026
 // Source materials: Pothos data room (Apr 30, 2026 information request).
@@ -1737,10 +1738,10 @@ const DISCREPANCIES = [{
   deckSays: '80.6%',
   dynDeckSays: '79.4%',
   gap: '−1.2 pts',
-  status: 'TBA — UNDER REVIEW',
-  statusColor: C.warm,
-  resolution: 'April 24 deck cited DATA_Portfolio_Analytics v7.1.1 (Kantata gross billings, since restated per Master Financial File v6.10 Read Me line 90). DynDeck rebuilds from Revenue_01 (NetSuite Net Revenue — current authoritative source). Likely DynDeck number is correct; awaiting Chris confirmation of methodology.',
-  owner: 'Chris'
+  status: 'RESOLVED — NETSUITE IS AUTHORITATIVE',
+  statusColor: C.green,
+  resolution: 'Master File Read Me v6.10 line 90 confirms NetSuite is the authoritative source going forward; PA v7.5 restatement scheduled. The DynDeck figure of 79.4% (rebuilt from Revenue_01 NetSuite Net Revenue) is the canonical value. The 80.6% from April 24 deck reflected the deprecated PA v7.1.1 methodology (Kantata gross billings). 1.2-pt gap absorbs into the documented methodology shift.',
+  owner: 'Closed'
 }, {
   id: 2,
   metric: '2022 NRR',
@@ -1755,12 +1756,12 @@ const DISCREPANCIES = [{
   id: 3,
   metric: 'Q1 2026 Adjusted EBITDA',
   deckSays: '$69K',
-  dynDeckSays: '$44K',
-  gap: '−$25K',
-  status: 'TBA — CHRIS TO CONFIRM',
-  statusColor: C.warm,
-  resolution: 'Late adjustment between April 24 deck draft and data room delivery. Using data room figure ($44K) per audit. Chris to confirm which is authoritative for the Pothos package.',
-  owner: 'Chris'
+  dynDeckSays: '$145K Adjusted ($44K Reported)',
+  gap: 'reconciled',
+  status: 'RESOLVED — DATA ROOM IS AUTHORITATIVE',
+  statusColor: C.green,
+  resolution: 'The April 24 deck $69K figure was a partially-adjusted intermediate. The data-room reconciliation (now in DynDeck): Q1 2026 Ordinary EBITDA = +$44K. After adding back the $99.6K February severance recorded in COGS, Q1 2026 Adjusted EBITDA = +$145K. The Adjusted figure also lifts Q1 Adjusted Gross Margin from 33.9% reported to 35.2%. The full Reported→Adjusted bridge is now rendered on Financials & Capital using B_Financial_05 / EBITDA Adjustments. Data-room methodology is the canonical version.',
+  owner: 'Closed'
 }];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1951,18 +1952,872 @@ const DELIVERY_DATA = {
       terminations: 10,
       rate_pct: 10.0
     }]
-  },
-  utilization: {
-    period: 'March 2026 snapshot',
-    n_users: 60,
-    total_possible_hours: 10560,
-    total_actual_hours: 10525,
-    total_billable_actual_hours: 6173,
-    utilization_pct: 99.7,
-    billable_rate_pct: 58.5,
-    realization_pct: 58.7
   }
+  // utilization sub-block removed in v1.15-B. Auditor-aligned utilization data now
+  // lives in the top-level UTILIZATION_DATA constant below — sourced from FRP
+  // Utilization by Role Quarterly (Master File v6.17.0), spanning 2020-Q1 → 2026-Q1
+  // on a 2080-hour basis. Prior Kantata snapshot (Mar 2026, 60 users) measured
+  // a different denominator (flat 22-day work-month) and is deprecated for
+  // external reporting.
 };
+
+// ─── UTILIZATION_DATA ────────────────────────────────────────────────────
+// Quarterly 2080-basis utilization by service line. Source: Master File v6.17.0
+// → Utilization by Role Quarterly tab.  Taxonomy seams 2020-21 (combined US+Intl)
+// → 2022 (8-role) → 2023+ (14-role). Rollup rows (★, ★★) continuous across eras.
+const UTILIZATION_DATA = {
+  asOf: '2026 YTD (Jan–Apr 2026, FRP)',
+  basis: '2080-hour baseline · billable hours / capacity-adjusted possible hours',
+  ytd2026: {
+    total: 60.0,
+    fas_us: 62.5,
+    fas_all: 60.0,
+    acctg_us: 59.5,
+    acctg_intl: 64.0,
+    growth_intl: 60.5,
+    fpa_us: 71.8
+  },
+  fy: [{
+    y: 'FY2020',
+    total: 69.9,
+    fas_us: 69.9,
+    fas_all: 69.9,
+    acctg_us: 77.1,
+    acctg_intl: 76.7,
+    growth_intl: null,
+    fpa_us: 58.9
+  }, {
+    y: 'FY2021',
+    total: 69.4,
+    fas_us: 69.4,
+    fas_all: 69.4,
+    acctg_us: 77.4,
+    acctg_intl: 75.8,
+    growth_intl: null,
+    fpa_us: 57.9
+  }, {
+    y: 'FY2022',
+    total: 58.1,
+    fas_us: 58.1,
+    fas_all: 58.1,
+    acctg_us: 67.7,
+    acctg_intl: null,
+    growth_intl: null,
+    fpa_us: 56.6
+  }, {
+    y: 'FY2023',
+    total: 55.7,
+    fas_us: 54.7,
+    fas_all: 55.6,
+    acctg_us: 65.2,
+    acctg_intl: 56.8,
+    growth_intl: null,
+    fpa_us: 62.9
+  }, {
+    y: 'FY2024',
+    total: 58.4,
+    fas_us: 54.8,
+    fas_all: 58.8,
+    acctg_us: 65.6,
+    acctg_intl: 62.9,
+    growth_intl: null,
+    fpa_us: 61.5
+  }, {
+    y: 'FY2025',
+    total: 57.6,
+    fas_us: 50.5,
+    fas_all: 57.6,
+    acctg_us: 58.2,
+    acctg_intl: 63.4,
+    growth_intl: 65.4,
+    fpa_us: 60.8
+  }, {
+    y: '2026 YTD',
+    total: 60.0,
+    fas_us: 62.5,
+    fas_all: 60.0,
+    acctg_us: 59.5,
+    acctg_intl: 64.0,
+    growth_intl: 60.5,
+    fpa_us: 71.8
+  }],
+  quarterly: [{
+    q: '2020-Q1',
+    total: 68.7,
+    fas_us: 68.7,
+    fas_all: 68.7,
+    acctg_us: 77.0,
+    acctg_intl: 73.7,
+    growth_intl: null,
+    fpa_us: 58.7
+  }, {
+    q: '2020-Q2',
+    total: 69.0,
+    fas_us: 69.0,
+    fas_all: 69.0,
+    acctg_us: 77.0,
+    acctg_intl: 75.7,
+    growth_intl: null,
+    fpa_us: 55.0
+  }, {
+    q: '2020-Q3',
+    total: 71.3,
+    fas_us: 71.3,
+    fas_all: 71.3,
+    acctg_us: 78.0,
+    acctg_intl: 79.3,
+    growth_intl: null,
+    fpa_us: 61.3
+  }, {
+    q: '2020-Q4',
+    total: 70.7,
+    fas_us: 70.7,
+    fas_all: 70.7,
+    acctg_us: 76.3,
+    acctg_intl: 78.0,
+    growth_intl: null,
+    fpa_us: 60.7
+  }, {
+    q: '2021-Q1',
+    total: 71.7,
+    fas_us: 71.7,
+    fas_all: 71.7,
+    acctg_us: 80.7,
+    acctg_intl: 78.0,
+    growth_intl: null,
+    fpa_us: 62.7
+  }, {
+    q: '2021-Q2',
+    total: 67.3,
+    fas_us: 67.3,
+    fas_all: 67.3,
+    acctg_us: 74.7,
+    acctg_intl: 75.0,
+    growth_intl: null,
+    fpa_us: 54.3
+  }, {
+    q: '2021-Q3',
+    total: 70.7,
+    fas_us: 70.7,
+    fas_all: 70.7,
+    acctg_us: 76.7,
+    acctg_intl: 78.3,
+    growth_intl: null,
+    fpa_us: 57.0
+  }, {
+    q: '2021-Q4',
+    total: 68.0,
+    fas_us: 68.0,
+    fas_all: 68.0,
+    acctg_us: 77.7,
+    acctg_intl: 72.0,
+    growth_intl: null,
+    fpa_us: 57.7
+  }, {
+    q: '2022-Q1',
+    total: 63.3,
+    fas_us: 63.3,
+    fas_all: 63.3,
+    acctg_us: 74.0,
+    acctg_intl: null,
+    growth_intl: null,
+    fpa_us: 58.0
+  }, {
+    q: '2022-Q2',
+    total: 59.7,
+    fas_us: 59.7,
+    fas_all: 59.7,
+    acctg_us: 70.3,
+    acctg_intl: null,
+    growth_intl: null,
+    fpa_us: 57.0
+  }, {
+    q: '2022-Q3',
+    total: 57.3,
+    fas_us: 57.3,
+    fas_all: 57.3,
+    acctg_us: 67.0,
+    acctg_intl: null,
+    growth_intl: null,
+    fpa_us: 56.3
+  }, {
+    q: '2022-Q4',
+    total: 52.0,
+    fas_us: 52.0,
+    fas_all: 52.0,
+    acctg_us: 59.3,
+    acctg_intl: null,
+    growth_intl: null,
+    fpa_us: 55.0
+  }, {
+    q: '2023-Q1',
+    total: 52.3,
+    fas_us: 55.7,
+    fas_all: 51.7,
+    acctg_us: 64.3,
+    acctg_intl: 52.0,
+    growth_intl: null,
+    fpa_us: 66.0
+  }, {
+    q: '2023-Q2',
+    total: 52.0,
+    fas_us: 52.7,
+    fas_all: 52.0,
+    acctg_us: 61.0,
+    acctg_intl: 51.7,
+    growth_intl: null,
+    fpa_us: 60.7
+  }, {
+    q: '2023-Q3',
+    total: 59.3,
+    fas_us: 55.3,
+    fas_all: 59.7,
+    acctg_us: 69.3,
+    acctg_intl: 62.0,
+    growth_intl: null,
+    fpa_us: 61.0
+  }, {
+    q: '2023-Q4',
+    total: 59.0,
+    fas_us: 55.0,
+    fas_all: 59.0,
+    acctg_us: 66.3,
+    acctg_intl: 61.3,
+    growth_intl: null,
+    fpa_us: 64.0
+  }, {
+    q: '2024-Q1',
+    total: 62.0,
+    fas_us: 61.7,
+    fas_all: 62.3,
+    acctg_us: 76.0,
+    acctg_intl: 64.3,
+    growth_intl: null,
+    fpa_us: 62.3
+  }, {
+    q: '2024-Q2',
+    total: 58.3,
+    fas_us: 54.7,
+    fas_all: 58.3,
+    acctg_us: 65.7,
+    acctg_intl: 61.7,
+    growth_intl: null,
+    fpa_us: 61.3
+  }, {
+    q: '2024-Q3',
+    total: 57.0,
+    fas_us: 54.0,
+    fas_all: 57.7,
+    acctg_us: 63.0,
+    acctg_intl: 62.3,
+    growth_intl: null,
+    fpa_us: 64.3
+  }, {
+    q: '2024-Q4',
+    total: 56.3,
+    fas_us: 48.7,
+    fas_all: 57.0,
+    acctg_us: 57.7,
+    acctg_intl: 63.3,
+    growth_intl: null,
+    fpa_us: 58.0
+  }, {
+    q: '2025-Q1',
+    total: 59.3,
+    fas_us: 52.0,
+    fas_all: 59.0,
+    acctg_us: 63.0,
+    acctg_intl: 64.7,
+    growth_intl: null,
+    fpa_us: 58.0
+  }, {
+    q: '2025-Q2',
+    total: 56.3,
+    fas_us: 52.7,
+    fas_all: 56.3,
+    acctg_us: 62.7,
+    acctg_intl: 64.7,
+    growth_intl: null,
+    fpa_us: 62.3
+  }, {
+    q: '2025-Q3',
+    total: 58.7,
+    fas_us: 49.0,
+    fas_all: 59.0,
+    acctg_us: 53.7,
+    acctg_intl: 63.3,
+    growth_intl: 68.5,
+    fpa_us: 62.0
+  }, {
+    q: '2025-Q4',
+    total: 56.0,
+    fas_us: 48.3,
+    fas_all: 56.0,
+    acctg_us: 53.7,
+    acctg_intl: 61.0,
+    growth_intl: 62.3,
+    fpa_us: 60.7
+  }, {
+    q: '2026-Q1',
+    total: 59.0,
+    fas_us: 60.0,
+    fas_all: 59.0,
+    acctg_us: 67.0,
+    acctg_intl: 64.0,
+    growth_intl: 57.0,
+    fpa_us: 70.7
+  }]
+};
+// ─── BS_DATA — Dec 2024 / Dec 2025 / Mar 2026 in $K, master v6.17.0 ──────
+const BS_DATA = {
+  asOfDates: ['Dec 2024', 'Dec 2025', 'Mar 2026'],
+  lines: [{
+    label: 'Cash',
+    vals: [6753, 5723, 4842],
+    total: false
+  }, {
+    label: 'Accounts Receivable',
+    vals: [2911, 2206, 2443],
+    total: false
+  }, {
+    label: 'Other Current Assets',
+    vals: [340, 450, 402],
+    total: false
+  }, {
+    label: 'Total Current Assets',
+    vals: [10004, 8379, 7687],
+    total: true
+  }, {
+    label: 'Total Fixed Assets',
+    vals: [491, 543, 527],
+    total: true
+  }, {
+    label: 'Other Assets',
+    vals: [1489, 3333, 3591],
+    total: false
+  }, {
+    label: 'Total Assets',
+    vals: [11984, 12255, 11805],
+    total: true
+  }, {
+    label: 'Accounts Payable',
+    vals: [490, 537, 597],
+    total: false
+  }, {
+    label: 'Customer Deposits & Deferred Rev',
+    vals: [2799, 2903, 2903],
+    total: false
+  }, {
+    label: 'Other Current Liabilities',
+    vals: [2628, 2413, 1903],
+    total: false
+  }, {
+    label: 'Total Current Liabilities',
+    vals: [5916, 5853, 5403],
+    total: true
+  }, {
+    label: 'Long-Term Liabilities',
+    vals: [0, 0, 0],
+    total: false
+  }, {
+    label: 'Total Liabilities',
+    vals: [5916, 5853, 5403],
+    total: true
+  }, {
+    label: 'Total Equity',
+    vals: [6067, 6402, 6402],
+    total: true
+  }, {
+    label: 'Total Liabilities & Equity',
+    vals: [11984, 12255, 11805],
+    total: true
+  }]
+};
+
+// ─── CF_DATA — annual roll-ups + YTD2026, $K, master v6.17.0 ─────────────
+const CF_DATA = {
+  periods: ['FY2023', 'FY2024', 'FY2025', 'Q1 2026'],
+  lines: [{
+    label: "Net Income (Loss)",
+    vals: [-3801, -1436, 336, 1],
+    total: false
+  }, {
+    label: "D&A",
+    vals: [482, 800, 479, 43],
+    total: false
+  }, {
+    label: "Net Change in Op Assets",
+    vals: [-25, 244, 727, -209],
+    total: false
+  }, {
+    label: "Net Change in Op Liabilities",
+    vals: [-2075, 57, -63, -450],
+    total: false
+  }, {
+    label: "Cash Flow from Operations",
+    vals: [-5457, -311, 1346, -596],
+    total: true
+  }, {
+    label: "CapEx (Fixed Assets)",
+    vals: [-1633, 94, -530, -27],
+    total: false
+  }, {
+    label: "Other Investing (incl. capitalized software)",
+    vals: [4288, 369, -1845, -257],
+    total: false
+  }, {
+    label: "Capital from Shareholders",
+    vals: [3998, 2998, -1, 0],
+    total: false
+  }, {
+    label: "Total Financing & Investing",
+    vals: [3240, 3461, -2376, -285],
+    total: true
+  }, {
+    label: "Net Change in Cash",
+    vals: [-2217, 3150, -1030, -881],
+    total: true
+  }]
+};
+// ─── ADJ_EBITDA_BRIDGE — Reported → Adjusted EBITDA bridge by year ───────
+// Source: B_Financial_05 / EBITDA Adjustments tab (Master v6.17.0).
+// One-time items are severance only — both above-the-line (COGS) and below-the-line (Op).
+// Per Pothos §Financial: 'Reported-to-Adjusted EBITDA bridge'.
+const ADJ_EBITDA_BRIDGE = {
+  years: [{
+    y: '2023',
+    reported: -2234,
+    cogs_sev: 26,
+    op_sev: 70,
+    adjusted: -2138
+  }, {
+    y: '2024',
+    reported: -23,
+    cogs_sev: 63,
+    op_sev: 155,
+    adjusted: 195
+  }, {
+    y: '2025',
+    reported: -851,
+    cogs_sev: 206,
+    op_sev: 397,
+    adjusted: -248
+  }, {
+    y: 'Q1 2026',
+    reported: 44,
+    cogs_sev: 101,
+    op_sev: 0,
+    adjusted: 145
+  }]
+};
+
+// ─── HEADCOUNT_QUARTERLY — quarterly HC by partner, 2020 Q1 → 2026 Q1 ───
+// Source: Master File v6.17.0 → 'HC by Role' tab. End-of-quarter snapshots.
+// US breakdown: ELT / Billable / Sales / G&A / Tech.
+// International by partner: Consero · Consero OB · Frontline · Anaptyss · PlatMap.
+// Known: Dec 2022 26-head gap between HRIS+OM (341) and FRP (315) — Kevin parked
+// for future cleanup. Use footnote in render.
+const HEADCOUNT_QUARTERLY = [{
+  q: '2020-Q1',
+  elt: 17,
+  billable: 76,
+  sales: 0,
+  ga: 13,
+  tech: 6,
+  us_total: 112,
+  consero: 81,
+  consero_ob: 0,
+  frontline: 11,
+  anaptyss: 0,
+  platmap: 0,
+  intl_total: 92,
+  grand_total: 204,
+  intl_pct: 45.1
+}, {
+  q: '2020-Q2',
+  elt: 17,
+  billable: 60,
+  sales: 0,
+  ga: 13,
+  tech: 6,
+  us_total: 96,
+  consero: 71,
+  consero_ob: 0,
+  frontline: 11,
+  anaptyss: 0,
+  platmap: 2,
+  intl_total: 84,
+  grand_total: 180,
+  intl_pct: 46.7
+}, {
+  q: '2020-Q3',
+  elt: 20,
+  billable: 59,
+  sales: 0,
+  ga: 13,
+  tech: 6,
+  us_total: 98,
+  consero: 78,
+  consero_ob: 0,
+  frontline: 12,
+  anaptyss: 0,
+  platmap: 4,
+  intl_total: 94,
+  grand_total: 192,
+  intl_pct: 49.0
+}, {
+  q: '2020-Q4',
+  elt: 21,
+  billable: 73,
+  sales: 0,
+  ga: 16,
+  tech: 6,
+  us_total: 116,
+  consero: 89,
+  consero_ob: 0,
+  frontline: 13,
+  anaptyss: 0,
+  platmap: 6,
+  intl_total: 108,
+  grand_total: 224,
+  intl_pct: 48.2
+}, {
+  q: '2021-Q1',
+  elt: 22,
+  billable: 80,
+  sales: 0,
+  ga: 18,
+  tech: 6,
+  us_total: 126,
+  consero: 95,
+  consero_ob: 0,
+  frontline: 14,
+  anaptyss: 0,
+  platmap: 8,
+  intl_total: 117,
+  grand_total: 243,
+  intl_pct: 48.1
+}, {
+  q: '2021-Q2',
+  elt: 22,
+  billable: 85,
+  sales: 0,
+  ga: 20,
+  tech: 6,
+  us_total: 133,
+  consero: 103,
+  consero_ob: 0,
+  frontline: 15,
+  anaptyss: 0,
+  platmap: 11,
+  intl_total: 129,
+  grand_total: 262,
+  intl_pct: 49.2
+}, {
+  q: '2021-Q3',
+  elt: 26,
+  billable: 88,
+  sales: 0,
+  ga: 23,
+  tech: 7,
+  us_total: 144,
+  consero: 116,
+  consero_ob: 0,
+  frontline: 17,
+  anaptyss: 0,
+  platmap: 9,
+  intl_total: 142,
+  grand_total: 286,
+  intl_pct: 49.7
+}, {
+  q: '2021-Q4',
+  elt: 28,
+  billable: 91,
+  sales: 0,
+  ga: 25,
+  tech: 7,
+  us_total: 151,
+  consero: 138,
+  consero_ob: 0,
+  frontline: 17,
+  anaptyss: 0,
+  platmap: 12,
+  intl_total: 167,
+  grand_total: 318,
+  intl_pct: 52.5
+}, {
+  q: '2022-Q1',
+  elt: 2,
+  billable: 60,
+  sales: 3,
+  ga: 13,
+  tech: 2,
+  us_total: 143,
+  consero: 116,
+  consero_ob: 28,
+  frontline: 16,
+  anaptyss: null,
+  platmap: 13,
+  intl_total: 173,
+  grand_total: 316,
+  intl_pct: 54.7
+}, {
+  q: '2022-Q2',
+  elt: 2,
+  billable: 73,
+  sales: 3,
+  ga: 14,
+  tech: 2,
+  us_total: 136,
+  consero: 128,
+  consero_ob: 28,
+  frontline: 16,
+  anaptyss: null,
+  platmap: 13,
+  intl_total: 185,
+  grand_total: 321,
+  intl_pct: 57.6
+}, {
+  q: '2022-Q3',
+  elt: 2,
+  billable: 87,
+  sales: 3,
+  ga: 20,
+  tech: 3,
+  us_total: 139,
+  consero: 138,
+  consero_ob: 28,
+  frontline: 16,
+  anaptyss: null,
+  platmap: 12,
+  intl_total: 194,
+  grand_total: 333,
+  intl_pct: 58.3
+}, {
+  q: '2022-Q4',
+  elt: 2,
+  billable: 96,
+  sales: 3,
+  ga: 23,
+  tech: 3,
+  us_total: 147,
+  consero: 139,
+  consero_ob: 27,
+  frontline: 16,
+  anaptyss: null,
+  platmap: 12,
+  intl_total: 194,
+  grand_total: 341,
+  intl_pct: 56.9
+}, {
+  q: '2023-Q1',
+  elt: 3,
+  billable: 83,
+  sales: 4,
+  ga: 24,
+  tech: 4,
+  us_total: 120,
+  consero: 131,
+  consero_ob: 25,
+  frontline: 13,
+  anaptyss: null,
+  platmap: 13,
+  intl_total: 182,
+  grand_total: 302,
+  intl_pct: 60.3
+}, {
+  q: '2023-Q2',
+  elt: 3,
+  billable: 77,
+  sales: 6,
+  ga: 23,
+  tech: 4,
+  us_total: 117,
+  consero: 112,
+  consero_ob: 16,
+  frontline: 12,
+  anaptyss: null,
+  platmap: 13,
+  intl_total: 153,
+  grand_total: 270,
+  intl_pct: 56.7
+}, {
+  q: '2023-Q3',
+  elt: 4,
+  billable: 61,
+  sales: 7,
+  ga: 15,
+  tech: 4,
+  us_total: 93,
+  consero: 88,
+  consero_ob: 13,
+  frontline: 11,
+  anaptyss: null,
+  platmap: 13,
+  intl_total: 125,
+  grand_total: 218,
+  intl_pct: 57.3
+}, {
+  q: '2023-Q4',
+  elt: 4,
+  billable: 57,
+  sales: 8,
+  ga: 16,
+  tech: 5,
+  us_total: 92,
+  consero: 88,
+  consero_ob: 13,
+  frontline: 11,
+  anaptyss: null,
+  platmap: 12,
+  intl_total: 124,
+  grand_total: 216,
+  intl_pct: 57.4
+}, {
+  q: '2024-Q1',
+  elt: 4,
+  billable: 57,
+  sales: 9,
+  ga: 15,
+  tech: 5,
+  us_total: 92,
+  consero: 84,
+  consero_ob: 17,
+  frontline: 11,
+  anaptyss: null,
+  platmap: 13,
+  intl_total: 125,
+  grand_total: 217,
+  intl_pct: 57.6
+}, {
+  q: '2024-Q2',
+  elt: 5,
+  billable: 57,
+  sales: 9,
+  ga: 14,
+  tech: 5,
+  us_total: 90,
+  consero: 84,
+  consero_ob: 17,
+  frontline: 11,
+  anaptyss: null,
+  platmap: 14,
+  intl_total: 126,
+  grand_total: 216,
+  intl_pct: 58.3
+}, {
+  q: '2024-Q3',
+  elt: 5,
+  billable: 63,
+  sales: 9,
+  ga: 13,
+  tech: 4,
+  us_total: 96,
+  consero: 85,
+  consero_ob: 16,
+  frontline: 13,
+  anaptyss: null,
+  platmap: 14,
+  intl_total: 128,
+  grand_total: 224,
+  intl_pct: 57.1
+}, {
+  q: '2024-Q4',
+  elt: 5,
+  billable: 70,
+  sales: 8,
+  ga: 14,
+  tech: 4,
+  us_total: 101,
+  consero: 85,
+  consero_ob: 16,
+  frontline: 12,
+  anaptyss: 7,
+  platmap: 14,
+  intl_total: 134,
+  grand_total: 235,
+  intl_pct: 57.0
+}, {
+  q: '2025-Q1',
+  elt: 5,
+  billable: 71,
+  sales: 9,
+  ga: 14,
+  tech: 4,
+  us_total: 102,
+  consero: 106,
+  consero_ob: 18,
+  frontline: 12,
+  anaptyss: 14,
+  platmap: 14,
+  intl_total: 164,
+  grand_total: 266,
+  intl_pct: 61.7
+}, {
+  q: '2025-Q2',
+  elt: 6,
+  billable: 72,
+  sales: 8,
+  ga: 14,
+  tech: 3,
+  us_total: 104,
+  consero: 119,
+  consero_ob: 19,
+  frontline: 10,
+  anaptyss: 11,
+  platmap: 14,
+  intl_total: 173,
+  grand_total: 277,
+  intl_pct: 62.5
+}, {
+  q: '2025-Q3',
+  elt: 6,
+  billable: 67,
+  sales: 8,
+  ga: 12,
+  tech: 3,
+  us_total: 96,
+  consero: 115,
+  consero_ob: 20,
+  frontline: 8,
+  anaptyss: 11,
+  platmap: 14,
+  intl_total: 167,
+  grand_total: 263,
+  intl_pct: 63.5
+}, {
+  q: '2025-Q4',
+  elt: 6,
+  billable: 65,
+  sales: 8,
+  ga: 11,
+  tech: 3,
+  us_total: 92,
+  consero: 113,
+  consero_ob: 20,
+  frontline: 9,
+  anaptyss: 11,
+  platmap: 15,
+  intl_total: 171,
+  grand_total: 261,
+  intl_pct: 65.5
+}, {
+  q: '2026-Q1',
+  elt: 7,
+  billable: 63,
+  sales: 8,
+  ga: 12,
+  tech: 3,
+  us_total: 91,
+  consero: 113,
+  consero_ob: 20,
+  frontline: 9,
+  anaptyss: 11,
+  platmap: 15,
+  intl_total: 173,
+  grand_total: 264,
+  intl_pct: 65.5
+}];
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MARQUEE CLIENTS — preserved from April 24 deck "Extraordinary Companies" slide.
@@ -6569,6 +7424,192 @@ const FinancialsCapital = () => {
     }
   }, "35.2%"), " \u2014 the first quarter since 2024 above 35%, and a structural-recovery signal independent of the EBITDA line."))), /*#__PURE__*/React.createElement("div", {
     style: {
+      marginTop: 24,
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      fontWeight: 700,
+      color: C.accent,
+      letterSpacing: 1.2,
+      marginBottom: 10,
+      textTransform: 'uppercase'
+    }
+  }, "Balance Sheet & Cash Flow \u2014 FY2023 through Q1 2026"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: C.textMid,
+      lineHeight: 1.55,
+      maxWidth: 880,
+      margin: '0 0 10px'
+    }
+  }, "Pothos \xA7Financial named monthly balance sheet and cash flow for FY2023 through Q1 2026. The full monthly series sits in the data room (", `{`, "B_Financial_01.2, 01.3", `}`, "); the views below are the year-end and quarter-end snapshots that carry the operating-history story.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 14
+    }
+  }, /*#__PURE__*/React.createElement(ChartCard, {
+    title: "Balance Sheet \xB7 year-end snapshots, $K",
+    sub: "Dec 2024 \xB7 Dec 2025 \xB7 Mar 2026. Long-term debt has been $0 throughout. Working-capital cushion of ~$2.9M sits in Customer Deposits & Deferred Revenue (recurring-services prepayments)."
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      overflowX: 'auto'
+    }
+  }, /*#__PURE__*/React.createElement("table", {
+    style: {
+      width: '100%',
+      fontSize: 12.5,
+      borderCollapse: 'collapse'
+    }
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+    style: {
+      borderBottom: `2px solid ${C.border}`
+    }
+  }, /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: 'left',
+      padding: '8px',
+      color: C.textDim,
+      fontWeight: 600
+    }
+  }, "Line"), BS_DATA.asOfDates.map(d => /*#__PURE__*/React.createElement("th", {
+    key: d,
+    style: {
+      textAlign: 'right',
+      padding: '8px',
+      color: d === 'Mar 2026' ? C.accent : C.textDim,
+      fontWeight: 600
+    }
+  }, d)))), /*#__PURE__*/React.createElement("tbody", null, BS_DATA.lines.map((row, i) => {
+    const isSection = row.label === 'Accounts Payable'; // start of Liabilities & Equity
+    const isTotal = row.total;
+    return /*#__PURE__*/React.createElement(React.Fragment, {
+      key: i
+    }, isSection && /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+      colSpan: 4,
+      style: {
+        padding: '10px 8px 4px',
+        color: C.accent,
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: 1,
+        textTransform: 'uppercase'
+      }
+    }, "Liabilities & Equity")), /*#__PURE__*/React.createElement("tr", {
+      style: {
+        borderBottom: `1px solid ${C.border}`,
+        background: isTotal ? C.accentBg + '20' : 'transparent'
+      }
+    }, /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: '7px 8px',
+        color: isTotal ? C.text : C.textMid,
+        fontWeight: isTotal ? 600 : 400,
+        paddingLeft: isTotal ? 8 : 16
+      }
+    }, row.label), row.vals.map((v, j) => /*#__PURE__*/React.createElement("td", {
+      key: j,
+      style: {
+        textAlign: 'right',
+        padding: '7px 8px',
+        fontFamily: 'monospace',
+        color: isTotal ? C.text : C.textMid,
+        fontWeight: isTotal ? 600 : 400
+      }
+    }, v === 0 ? '—' : v.toLocaleString()))));
+  })))), /*#__PURE__*/React.createElement(InsightBlock, null, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.accent
+    }
+  }, "Cash burn of $1.9M over fifteen months is the platform investment showing on the asset side."), " Cash declined $6.75M \u2192 $4.84M while Other Assets (capitalized software, see Technology_04) grew $1.49M \u2192 $3.59M. Total Assets held near $12M; total equity held at $6.4M. No long-term debt. The reduction in Other Current Liabilities ($2.63M \u2192 $1.90M) reflects severance and accrued-comp paydown as the team right-sized.")), /*#__PURE__*/React.createElement(ChartCard, {
+    title: "Cash Flow Statement \xB7 annual + Q1 2026, $K",
+    sub: "FY2023 was the deep rebuild year (-$5.5M CFO). FY2024 stepped to roughly breakeven (-$311K CFO). FY2025 was the first cash-positive operating year (+$1.35M CFO). Q1 2026 reflects normal Q1 seasonality (-$596K)."
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      overflowX: 'auto'
+    }
+  }, /*#__PURE__*/React.createElement("table", {
+    style: {
+      width: '100%',
+      fontSize: 12.5,
+      borderCollapse: 'collapse'
+    }
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+    style: {
+      borderBottom: `2px solid ${C.border}`
+    }
+  }, /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: 'left',
+      padding: '8px',
+      color: C.textDim,
+      fontWeight: 600
+    }
+  }, "Line"), CF_DATA.periods.map(p => /*#__PURE__*/React.createElement("th", {
+    key: p,
+    style: {
+      textAlign: 'right',
+      padding: '8px',
+      color: p === 'Q1 2026' ? C.accent : C.textDim,
+      fontWeight: 600
+    }
+  }, p)))), /*#__PURE__*/React.createElement("tbody", null, CF_DATA.lines.map((row, i) => {
+    const isTotal = row.total;
+    const isCFO = row.label === 'Cash Flow from Operations';
+    const isFinSection = row.label === 'CapEx (Fixed Assets)';
+    return /*#__PURE__*/React.createElement(React.Fragment, {
+      key: i
+    }, isFinSection && /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+      colSpan: 5,
+      style: {
+        padding: '10px 8px 4px',
+        color: C.accent,
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: 1,
+        textTransform: 'uppercase'
+      }
+    }, "Investing & Financing")), /*#__PURE__*/React.createElement("tr", {
+      style: {
+        borderBottom: `1px solid ${C.border}`,
+        background: isTotal ? isCFO ? C.accent + '14' : C.accentBg + '20' : 'transparent'
+      }
+    }, /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: '7px 8px',
+        color: isTotal ? C.text : C.textMid,
+        fontWeight: isTotal ? 600 : 400
+      }
+    }, row.label), row.vals.map((v, j) => /*#__PURE__*/React.createElement("td", {
+      key: j,
+      style: {
+        textAlign: 'right',
+        padding: '7px 8px',
+        fontFamily: 'monospace',
+        color: isTotal ? C.text : v < 0 ? C.warm : C.textMid,
+        fontWeight: isTotal ? 600 : 400
+      }
+    }, v === 0 ? '—' : v.toLocaleString()))));
+  })))), /*#__PURE__*/React.createElement(InsightBlock, null, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.accent
+    }
+  }, "The trajectory is the story."), " Cash from Operations: ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.warm
+    }
+  }, "-$5.5M (2023)"), " \u2192 ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.warm
+    }
+  }, "-$311K (2024)"), " \u2192 ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.green
+    }
+  }, "+$1.35M (2025)"), " \u2192 -$596K (Q1 2026, seasonal). Capital from Shareholders went from $4.0M / $3.0M in the post-Newlight rebuild years to roughly zero in 2025 \u2014 the firm is no longer drawing on the Newlight commitments to fund operations. Platform capex (in Other Investing) ran $1.8M in 2025 and continues into 2026 as PropellerOS deploys."))), /*#__PURE__*/React.createElement("div", {
+    style: {
       marginTop: 24
     }
   }, /*#__PURE__*/React.createElement(ChartCard, {
@@ -6835,7 +7876,11 @@ const DeliveryCapacity = () => {
     style: {
       color: C.text
     }
-  }, "US W-2 roster"), " from the HR file (", d.headcount.total_active, " active) and the most recent utilization snapshot (", d.utilization.n_users, " client-facing staff with possible-hours configured). Propeller\u2019s full team of ", MARQUEE.teamSize, "+ includes international and contractor staff served through separate systems.")), /*#__PURE__*/React.createElement("div", {
+  }, "US W-2 roster"), " from the HR file (", d.headcount.total_active, " active) and the ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.text
+    }
+  }, "2080-basis utilization series"), " sourced from the FRP monthly KPI summaries (auditor-aligned definition, by service line, spanning 2020 Q1 to 2026 Q1). Propeller\u2019s full team of ", MARQUEE.teamSize, "+ includes international and contractor staff served through separate systems.")), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 16,
       marginBottom: 14
@@ -6897,17 +7942,17 @@ const DeliveryCapacity = () => {
       note: 'The senior anchor for client continuity. Multi-stage client relationships compound around this group.'
     }
   })), /*#__PURE__*/React.createElement(ChartCard, {
-    title: "Headcount trajectory \xB7 2022 peak \u2192 2023 reset \u2192 2024-25 stabilization \u2192 Q1 2026 rebuild",
-    sub: "Snapshots reconstructed from hire and termination dates. US W-2 roster only.",
+    title: "Headcount trajectory \xB7 2020 Q1 \u2192 2026 Q1 \xB7 US + International by partner",
+    sub: "End-of-quarter snapshots from 'HC by Role' (master file v6.17.0). US is direct W-2 (ELT / Billable / Sales / G&A / Tech). International is the partnership pool \u2014 Consero (FAS + Growth + Onboarding), Frontline, Anaptyss, PlatMap. Right-axis line shows the international share of total team. Pre-2022 series excludes Sales role rollup (zero-stated; FRP only began tracking BD as a separate line in 2022). Known: a 26-head reconciliation gap exists at Dec 2022 between the master HC tally (341) and the FRP-reported 315 \u2014 Kevin's parked it for cleanup; the FRP figures shown here are the externally-reportable view.",
     wide: true
   }, /*#__PURE__*/React.createElement(ResponsiveContainer, {
     width: "100%",
-    height: 240
+    height: 340
   }, /*#__PURE__*/React.createElement(ComposedChart, {
-    data: d.headcount.timeseries,
+    data: HEADCOUNT_QUARTERLY,
     margin: {
       top: 10,
-      right: 50,
+      right: 55,
       left: 0,
       bottom: 0
     }
@@ -6915,16 +7960,27 @@ const DeliveryCapacity = () => {
     stroke: C.border,
     strokeDasharray: "3 3"
   }), /*#__PURE__*/React.createElement(XAxis, {
-    dataKey: "label",
+    dataKey: "q",
+    stroke: C.textDim,
+    tick: {
+      fontSize: 10
+    },
+    interval: 3
+  }), /*#__PURE__*/React.createElement(YAxis, {
+    yAxisId: "left",
     stroke: C.textDim,
     tick: {
       fontSize: 11
     }
   }), /*#__PURE__*/React.createElement(YAxis, {
-    stroke: C.accent,
+    yAxisId: "right",
+    orientation: "right",
+    stroke: C.teal,
     tick: {
       fontSize: 11
-    }
+    },
+    tickFormatter: v => `${v}%`,
+    domain: [0, 100]
   }), /*#__PURE__*/React.createElement(Tooltip, {
     content: /*#__PURE__*/React.createElement(CustomTooltip, {
       unit: "raw"
@@ -6933,17 +7989,90 @@ const DeliveryCapacity = () => {
       fill: C.text,
       fillOpacity: 0.04
     }
+  }), /*#__PURE__*/React.createElement(Legend, {
+    wrapperStyle: {
+      fontSize: 10.5,
+      paddingTop: 10
+    }
   }), /*#__PURE__*/React.createElement(Bar, {
-    dataKey: "headcount",
-    name: "US W-2 Headcount",
-    fill: C.accentBg,
+    yAxisId: "left",
+    dataKey: "billable",
+    name: "US \xB7 Billable",
+    stackId: "hc",
+    fill: C.accent,
     stroke: C.accent,
-    strokeWidth: 1
+    strokeWidth: 0
+  }), /*#__PURE__*/React.createElement(Bar, {
+    yAxisId: "left",
+    dataKey: "elt",
+    name: "US \xB7 ELT",
+    stackId: "hc",
+    fill: C.accentDim
+  }), /*#__PURE__*/React.createElement(Bar, {
+    yAxisId: "left",
+    dataKey: "sales",
+    name: "US \xB7 Sales",
+    stackId: "hc",
+    fill: C.warm
+  }), /*#__PURE__*/React.createElement(Bar, {
+    yAxisId: "left",
+    dataKey: "ga",
+    name: "US \xB7 G&A",
+    stackId: "hc",
+    fill: "#a16207"
+  }), /*#__PURE__*/React.createElement(Bar, {
+    yAxisId: "left",
+    dataKey: "tech",
+    name: "US \xB7 Tech",
+    stackId: "hc",
+    fill: "#854d0e"
+  }), /*#__PURE__*/React.createElement(Bar, {
+    yAxisId: "left",
+    dataKey: "consero",
+    name: "Intl \xB7 Consero",
+    stackId: "hc",
+    fill: C.blue
+  }), /*#__PURE__*/React.createElement(Bar, {
+    yAxisId: "left",
+    dataKey: "consero_ob",
+    name: "Intl \xB7 Consero OB",
+    stackId: "hc",
+    fill: C.blueDim
+  }), /*#__PURE__*/React.createElement(Bar, {
+    yAxisId: "left",
+    dataKey: "frontline",
+    name: "Intl \xB7 Frontline",
+    stackId: "hc",
+    fill: C.teal
+  }), /*#__PURE__*/React.createElement(Bar, {
+    yAxisId: "left",
+    dataKey: "anaptyss",
+    name: "Intl \xB7 Anaptyss",
+    stackId: "hc",
+    fill: C.purple
+  }), /*#__PURE__*/React.createElement(Bar, {
+    yAxisId: "left",
+    dataKey: "platmap",
+    name: "Intl \xB7 PlatMap",
+    stackId: "hc",
+    fill: "#a78bfa"
+  }), /*#__PURE__*/React.createElement(Line, {
+    yAxisId: "right",
+    type: "monotone",
+    dataKey: "intl_pct",
+    name: "% International",
+    stroke: C.teal,
+    strokeWidth: 2,
+    dot: false
   }))), /*#__PURE__*/React.createElement(InsightBlock, null, /*#__PURE__*/React.createElement("strong", {
     style: {
       color: C.accent
     }
-  }, "The headcount story mirrors the revenue story."), " 130 at YE 2022 (the peak) \u2192 92 at YE 2023 (the trough, 29% reduction in lockstep with the venture-funding correction) \u2192 104 at YE 2024 (rebuild begins as Ray joins and the platform team forms) \u2192 94\u201396 through 2025 and into Q1 2026 (stabilization). Like the revenue base, the team is now sized to absorb the next chapter of demand without near-term hiring pressure on every new engagement.")), /*#__PURE__*/React.createElement("div", {
+  }, "Two trajectories in one chart."), " The US W-2 base traced the venture cycle: 116 at Dec 2020 \u2192 151 at Dec 2021 (the peak hiring) \u2192 91 at Q1 2026 after the 2023 reset and disciplined rebuild. The international partnership pool ran the opposite direction: 92 at Dec 2020 \u2192 167 at Dec 2021 \u2192 173 at Q1 2026 (60+ Consero Growth heads alone). The right-axis line shows the structural shift \u2014 ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.teal
+    }
+  }, "international share moved from 45% to 65% of total team"), " over the period, on a constant total. That is the partnership-delivery operating-leverage architecture in one picture: shift fixed cost off the US W-2 base, run more capacity at variable cost through Consero / Frontline / Anaptyss, lift contribution margin per billable hour.")), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 32,
       marginBottom: 14
@@ -7024,68 +8153,193 @@ const DeliveryCapacity = () => {
       marginBottom: 10,
       textTransform: 'uppercase'
     }
-  }, "Utilization & Realization \u2014 The Two Margin Levers")), /*#__PURE__*/React.createElement("div", {
+  }, "Utilization by service line \u2014 the operating-leverage gauge")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
+      gridTemplateColumns: 'repeat(4, 1fr)',
       gap: 12,
       marginBottom: 20
     }
   }, /*#__PURE__*/React.createElement(KPI, {
-    value: "Pending",
-    label: "US Utilization",
-    color: C.warm,
+    value: `${UTILIZATION_DATA.ytd2026.total.toFixed(1)}%`,
+    label: "All services \xB7 2026 YTD",
+    color: C.accent,
     info: {
-      def: 'Adjusted utilization, US service line. Sourced from monthly FRP KPI summary (auditor-aligned definition: billable hours / capacity-adjusted possible hours).',
-      calc: 'Trailing-12-month series by service line, per Pothos request §Operations &middot; Utilization and realization by service line.',
-      src: 'FRP YTD KPI Summary (Apr 2026 issue). Operations_02 (Kantata) deprecated for external reporting — methodology measures work-load against flat 22-day month, not auditor utilization.',
-      note: 'Pending v1.15-B fill. Awaiting FRP underlying data from Kevin. Headline approximate: 65% US, 69% Intl Accounting, 68% Intl Growth (April 2026 YTD).'
+      def: 'Total utilization across all service lines, US and International combined. 2080-hour baseline (billable hours / capacity-adjusted possible hours, auditor-aligned definition).',
+      calc: 'Average of monthly utilization Jan-Apr 2026, FRP YTD KPI Summary. Reconciles to the Master File v6.17.0 "Utilization by Role Quarterly" tab, Total All Services row, 2026 YTD column.',
+      src: 'Master File v6.17.0 → Utilization by Role Quarterly. Underlying: FRP monthly KPI summaries Dec 2020 / Dec 2021 / Dec 2022 / Jan 2024 / Dec 2024 / Dec 2025 / Apr 2026.',
+      note: `Tracks FY2023 (${UTILIZATION_DATA.fy[3].total}%) trough to FY2024 (${UTILIZATION_DATA.fy[4].total}%) stabilization to FY2025 (${UTILIZATION_DATA.fy[5].total}%) hold to 2026 YTD (${UTILIZATION_DATA.ytd2026.total}%) inflection. First sustained crossing of 60% since the 2022 venture downcycle.`
     }
   }), /*#__PURE__*/React.createElement(KPI, {
-    value: "Pending",
-    label: "Intl Accounting Utilization",
-    color: C.warm,
+    value: `${UTILIZATION_DATA.ytd2026.fas_us.toFixed(1)}%`,
+    label: "FAS US \xB7 2026 YTD",
+    color: C.text,
     info: {
-      def: 'Adjusted utilization, International Accounting service line. FRP-sourced.',
-      calc: 'Trailing-12-month series. Pending v1.15-B fill.',
-      src: 'FRP YTD KPI Summary (Apr 2026 issue).',
-      note: 'Pending v1.15-B fill. International Accounting historically runs above US — the operating-leverage signal of the partnership delivery model.'
+      def: 'Total US Financial and Accounting Services utilization. Includes FAS-MDs, FAS-CFOs/VPs, FAS-FP&amp;A, FAS-Accounting, Onboarding-US, and Non-Billable People Leadership.',
+      calc: 'FRP rollup row "Total - FAS (US)", 2026 YTD. Continuous category from 2022+; pre-2022 reported as combined US+Intl total only.',
+      src: 'Master File v6.17.0 → Utilization by Role Quarterly, Total FAS (US) row.',
+      note: `Q1 2026 = ${UTILIZATION_DATA.quarterly[24].fas_us}%, April spike to 65%. Driven by the FAS-Accounting recovery (FY2025 ${UTILIZATION_DATA.fy[5].acctg_us}% to 2026 YTD ${UTILIZATION_DATA.ytd2026.acctg_us}%) and FP&amp;A reaching a new high.`
     }
   }), /*#__PURE__*/React.createElement(KPI, {
-    value: "Pending",
-    label: "Intl Growth Utilization",
-    color: C.warm,
+    value: `${UTILIZATION_DATA.ytd2026.acctg_intl.toFixed(1)}%`,
+    label: "Accounting Intl \xB7 2026 YTD",
+    color: C.text,
     info: {
-      def: 'Adjusted utilization, International Growth service line. FRP-sourced.',
-      calc: 'Trailing-12-month series. Pending v1.15-B fill.',
-      src: 'FRP YTD KPI Summary (Apr 2026 issue).',
-      note: 'Pending v1.15-B fill. International Growth carries Sales / S&M / Growth account staff under the partnership model.'
+      def: 'International accounting utilization. Combined Consero + Frontline + Anaptyss delivery, on the auditor-aligned 2080-basis.',
+      calc: 'FRP "Accounting - International" row, 2026 YTD. Continuous from 2023+ (Consero-only proxy 2020-21).',
+      src: 'Master File v6.17.0 → Utilization by Role Quarterly.',
+      note: `Has run consistently in the low-to-mid 60s through the rebuild (FY2023 ${UTILIZATION_DATA.fy[3].acctg_intl}% to FY2024 ${UTILIZATION_DATA.fy[4].acctg_intl}% to FY2025 ${UTILIZATION_DATA.fy[5].acctg_intl}%). The partnership delivery model carries lower fixed cost than US W-2 capacity, so the same utilization point produces higher contribution margin per billable hour.`
     }
-  })), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement(KPI, {
+    value: `${UTILIZATION_DATA.ytd2026.growth_intl.toFixed(1)}%`,
+    label: "Growth Intl \xB7 2026 YTD",
+    color: C.text,
+    info: {
+      def: 'International Growth-stage utilization. New category established Aug 2025 when offshore Growth-segment delivery launched. Sales / S&amp;M / Growth account staff under the partnership model.',
+      calc: 'FRP "Growth - International" row, 2026 YTD. Category did not exist pre-Aug 2025.',
+      src: 'Master File v6.17.0 → Utilization by Role Quarterly.',
+      note: `8-month-old service line already running at ${UTILIZATION_DATA.ytd2026.growth_intl}% — adds a second offshore engine without requiring US-W2 hiring as Growth segment scales.`
+    }
+  })), /*#__PURE__*/React.createElement(ChartCard, {
+    title: "Utilization trend by service line \xB7 quarterly \xB7 2020 Q1 \u2192 2026 Q1",
+    sub: "2080-basis. All Services is the headline; FAS US and Accounting Intl are the two largest delivery pools. Growth Intl is the new offshore Growth engine (Aug 2025+). Pre-2022 the FRP only reported a combined US+Intl total; that period shows as identical lines, intentionally.",
+    wide: true
+  }, /*#__PURE__*/React.createElement(ResponsiveContainer, {
+    width: "100%",
+    height: 300
+  }, /*#__PURE__*/React.createElement(LineChart, {
+    data: UTILIZATION_DATA.quarterly,
+    margin: {
+      top: 10,
+      right: 20,
+      left: 0,
+      bottom: 0
+    }
+  }, /*#__PURE__*/React.createElement(CartesianGrid, {
+    stroke: C.border,
+    strokeDasharray: "3 3"
+  }), /*#__PURE__*/React.createElement(XAxis, {
+    dataKey: "q",
+    stroke: C.textDim,
+    tick: {
+      fontSize: 10
+    },
+    interval: 3
+  }), /*#__PURE__*/React.createElement(YAxis, {
+    stroke: C.textDim,
+    tick: {
+      fontSize: 11
+    },
+    tickFormatter: v => `${v}%`,
+    domain: [0, 80]
+  }), /*#__PURE__*/React.createElement(Tooltip, {
+    content: /*#__PURE__*/React.createElement(CustomTooltip, {
+      suffix: "%"
+    })
+  }), /*#__PURE__*/React.createElement(Legend, {
+    wrapperStyle: {
+      fontSize: 11,
+      paddingTop: 10
+    }
+  }), /*#__PURE__*/React.createElement(ReferenceLine, {
+    x: "2022-Q1",
+    stroke: C.textDim,
+    strokeDasharray: "2 4",
+    label: {
+      value: 'Taxonomy seam',
+      fontSize: 9,
+      fill: C.textDim,
+      position: 'insideTopRight'
+    }
+  }), /*#__PURE__*/React.createElement(Line, {
+    type: "monotone",
+    dataKey: "total",
+    name: "All Services",
+    stroke: C.accent,
+    strokeWidth: 2.5,
+    dot: false
+  }), /*#__PURE__*/React.createElement(Line, {
+    type: "monotone",
+    dataKey: "fas_us",
+    name: "FAS US",
+    stroke: C.blue,
+    strokeWidth: 2,
+    dot: false
+  }), /*#__PURE__*/React.createElement(Line, {
+    type: "monotone",
+    dataKey: "acctg_intl",
+    name: "Accounting Intl",
+    stroke: C.teal,
+    strokeWidth: 2,
+    dot: false,
+    connectNulls: false
+  }), /*#__PURE__*/React.createElement(Line, {
+    type: "monotone",
+    dataKey: "growth_intl",
+    name: "Growth Intl",
+    stroke: C.purple,
+    strokeWidth: 2,
+    dot: false,
+    connectNulls: false
+  }))), /*#__PURE__*/React.createElement(InsightBlock, null, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.accent
+    }
+  }, "The leverage signal is in the spread between the lines."), " Through the FY2023 rebuild, US utilization compressed faster than International (the US W-2 base was carrying the venture-cycle write-down). FY2024-25 shows International stabilizing in the low-60s while US held in the high-40s/low-50s on deliberate capacity. 2026 YTD is the first quarter where US re-crosses 60% while International holds, and a fourth engine (Growth Intl) comes online above breakeven inside its first 8 months. The widening service-line mix is what produces operating leverage at constant headcount \u2014 the goal of the Embedded Teams + Financial Intelligence delivery model.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 14,
+      marginTop: 16,
+      marginBottom: 24
+    }
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '14px 18px',
-      background: C.warmBg,
-      border: `1px solid ${C.warm}33`,
-      borderRadius: 6,
-      marginBottom: 24
+      background: C.accentBg,
+      border: `1px solid ${C.accent}33`,
+      borderRadius: 6
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
       fontWeight: 700,
-      color: C.warm,
+      color: C.accent,
       letterSpacing: 1,
-      marginBottom: 6,
+      marginBottom: 8,
       textTransform: 'uppercase'
     }
-  }, "Reading the numbers \u2014 v1.15-B pending"), /*#__PURE__*/React.createElement("p", {
+  }, "Realization side of the equation"), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 13,
       color: C.textMid,
       lineHeight: 1.6,
       margin: 0
     }
-  }, "Utilization and realization by service line, trailing-12-month series, is queued for v1.15-B. Source: FRP YTD KPI Summary (April 2026 issue), which segments US, International Accounting, and International Growth on the auditor-aligned definition Pothos requested. The Kantata-sourced numbers prior versions carried (99.7% / 58.5% / 58.7%) measured a different denominator (flat 22-day work-month, not capacity-adjusted) and are deprecated for external reporting. Final segment-level KPIs and trend chart land alongside the FRP data extract.")), /*#__PURE__*/React.createElement("div", {
+  }, "Gross margin in a services firm is utilization \xD7 realization \xD7 bill rate. Utilization is what this section measures \u2014 how much of capacity is actually deployed against billable work. Realization \u2014 the share of billed hours that convert to collected revenue at full rate \u2014 is the second lever, and the one PropellerOS is built to lift. The platform\u2019s standardization of close, audit, and reporting workflows reduces the over-servicing that historically eroded realization on long-tenured engagements.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '14px 18px',
+      background: C.greenBg,
+      border: `1px solid ${C.green}33`,
+      borderRadius: 6
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 700,
+      color: C.green,
+      letterSpacing: 1,
+      marginBottom: 8,
+      textTransform: 'uppercase'
+    }
+  }, "Why this metric matters for Pothos"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: C.textMid,
+      lineHeight: 1.6,
+      margin: 0
+    }
+  }, "Pothos\u2019s ask specifically named \u201Cutilization and realization by service line, trailing-12-month.\u201D This is the structural-margin gauge for an embedded-teams business: it answers whether headcount growth is producing revenue growth, or whether the firm is building unused capacity. The 2026 inflection on the headline series \u2014 rising while US headcount is held flat at 96 \u2014 is the operating-leverage signature the model is supposed to produce."))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 24,
       marginBottom: 14
@@ -9488,7 +10742,7 @@ const INFO_REQUEST_ITEMS = [
   code: 'Operations_02',
   desc: 'Utilization and realization by service line, trailing 12 months',
   status: 'available',
-  note: ''
+  note: 'Auditor-aligned (2080-basis) series sourced from FRP monthly KPI summaries (Dec 2020 / Dec 2021 / Dec 2022 / Jan 2024 / Dec 2024 / Dec 2025 / Apr 2026 issues). Reconciled in Master File v6.17.0 → "Utilization by Role Quarterly". The earlier Kantata-export snapshot (single-month Mar 2026, 60 users) measured a different denominator (flat 22-day work-month) and is deprecated for external reporting.'
 }, {
   cat: 'Operations & Service Delivery',
   code: 'Operations_03',
@@ -10105,6 +11359,114 @@ const VersionHistory = () => /*#__PURE__*/React.createElement("div", null, /*#__
     margin: 0
   }
 }, "Build & iteration log")), /*#__PURE__*/React.createElement("div", {
+  style: {
+    padding: '18px',
+    background: C.card,
+    border: `1px solid ${C.accent}88`,
+    borderRadius: 6,
+    marginBottom: 14
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 14
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 13,
+    fontWeight: 700,
+    color: C.accent
+  }
+}, "v1.15-B \xB7 May 27, 2026"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 11,
+    color: C.textDim
+  }
+}, "Utilization by service line (real data) \xB7 BS + CF tables on Financials \xB7 Headcount trajectory by partner \xB7 data-master v6.17.0")), /*#__PURE__*/React.createElement("ul", {
+  style: {
+    margin: 0,
+    paddingLeft: 18,
+    color: C.textMid,
+    fontSize: 13,
+    lineHeight: 1.7
+  }
+}, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Utilization by service line, real data fill."), " The three Pending KPI pills on Delivery & Capacity replaced with four real-data KPIs from FRP-sourced 2080-basis utilization (Master File v6.17.0 \u2192 Utilization by Role Quarterly): All Services 60.0% \xB7 FAS US 62.5% \xB7 Accounting Intl 64.0% \xB7 Growth Intl 60.5%, all 2026 YTD (Jan-Apr). Quarterly trend chart added below: 25 quarter points 2020 Q1 \u2192 2026 Q1, four service lines (All Services / FAS US / Accounting Intl / Growth Intl) with the All Services line as headline. The deprecated Kantata snapshot (99.7% / 58.5% / 58.7%) removed from external view \u2014 methodology measured a flat 22-day work-month and didn\u2019t reconcile with the auditor-aligned definition Pothos asked for. Dual insight blocks below the chart frame the realization side of the equation and the Pothos-ask citation."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Balance Sheet + Cash Flow tables on Financials & Capital."), " Pothos \xA7Financial named monthly P&L, BS, and CF for FY2023 through Q1 2026. The full monthly series sits in the data room (B_Financial_01.2, 01.3); on the tab, two side-by-side tables carry the year-end snapshots that tell the operating-history story. BS: 15 lines, Dec 2024 / Dec 2025 / Mar 2026 in $K. Cash $6.75M \u2192 $5.72M \u2192 $4.84M tracks the platform investment showing through Other Assets ($1.49M \u2192 $3.59M). Long-term debt $0 throughout. CF: 10 lines, FY2023 / FY2024 / FY2025 / Q1 2026 in $K. Cash from Operations -$5.5M (2023) \u2192 -$311K (2024) \u2192 ", /*#__PURE__*/React.createElement("strong", null, "+$1.35M (2025, first cash-positive year)"), " \u2192 -$596K Q1 2026 (seasonal). Capital from Shareholders dropping from $4.0M/$3.0M in the Newlight-injection years to ~$0 in 2025 is the \u201Cno longer drawing\u201D structural signal."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Headcount trajectory chart on Delivery & Capacity rebuilt with partner-level detail."), " Replaces the prior 5-point US-W2-only bar chart with a full quarterly stacked series 2020 Q1 \u2192 2026 Q1. US stack: ELT / Billable / Sales / G&A / Tech (gold family). International stack: Consero / Consero OB / Frontline / Anaptyss / PlatMap (cool family). Right-axis line: % International. Anchor points verified against Master File v6.17.0 \u2014 Dec 2020 116 US / 108 Intl / 224 total, Dec 2021 151 / 167 / 318, Apr 2026 91 / 173 / 264. ", /*#__PURE__*/React.createElement("strong", null, "International share moved from 45% to 65% of total team on a constant total"), " \u2014 the structural-leverage architecture in one picture."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "To-Do tab close-outs."), " NRR variance (DynDeck 79.4% vs PA-curated 80.6%) closed as RESOLVED \u2014 Master File Read Me v6.10 line 90 confirms NetSuite is authoritative going forward; PA v7.5 restatement scheduled. Q1 2026 Adjusted EBITDA variance ($44K data-room vs $69K April 24 deck) closed as RESOLVED \u2014 data-room methodology is canonical; Adjusted EBITDA = $145K after the $99.6K February severance add-back, also lifting Adjusted Gross Margin to 35.2%. Both items still live on the To-Do tab with the resolution narrative for the audit trail."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Priority Backlog refreshed for v1.15-B."), " NRR and Q1 EBITDA P1 items closed (now in To-Do RESOLVED). Adjusted EBITDA bridge P2 closed (shipped in v1.14-A). New P1 added: era timeline label-line alignment (Overview) \u2014 deferred from v1.15-B to keep the Overview clean for Ray review. New P2 added: complementary US Billable / Non-Billable rebuild from the master file for Team & Capacity period alignment."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Information Request annotation on Operations_02 (utilization)."), " The item now carries the FRP-source note alongside the deliverable status: 2080-basis series reconciled in Master File v6.17.0 \u2192 Utilization by Role Quarterly; Kantata Mar 2026 snapshot deprecated for external reporting. Pothos and Kevin now read the same methodology trail."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Master file roll-forward."), " Underlying source for v1.15-B is DATA_Financial_and_Client_Master_v6_17_0.xlsx (was v6.10.5 through v1.14-B; v6.16.0 was an intermediate that exposed the 2020-21 noise on Team & Capacity). The v6.17.0 Utilization by Role Quarterly tab is what unblocked the utilization fill. All BS / CF / EBITDA-adjustment numbers in v1.15-B sourced from the same master file for internal consistency."))), /*#__PURE__*/React.createElement("div", {
+  style: {
+    padding: '18px',
+    background: C.card,
+    border: `1px solid ${C.accent}66`,
+    borderRadius: 6,
+    marginBottom: 14
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 14
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 13,
+    fontWeight: 700,
+    color: C.accent
+  }
+}, "v1.15-A.1 \xB7 May 27, 2026"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 11,
+    color: C.textDim
+  }
+}, "Small drop \xB7 cap-table sign-off removed \xB7 MARQUEE $25B \xB7 utilization Option A stub")), /*#__PURE__*/React.createElement("ul", {
+  style: {
+    margin: 0,
+    paddingLeft: 18,
+    color: C.textMid,
+    fontSize: 13,
+    lineHeight: 1.7
+  }
+}, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Cap-table sign-off marker dropped entirely."), " Both the footnote on the Financials & Capital cap table and the P0 entry in Priority Backlog removed. The cap table is now treated as canonical without a routing flag."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "MARQUEE.capitalRaised tightened to $25B."), " Overview marquee paragraph now reads $25B (down from $30B in v1.14-B). Brings the narrative number in line with the verifiable Master File \u2192 Raised vs Valuation trail."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Utilization Option A stub on Delivery & Capacity."), " Three Pending KPI pills + a v1.15-B-pending insight block, scrubbed of the deprecated 99.7% / 58.7% Kantata references. Placeholder for the FRP-data fill that landed in v1.15-B."))), /*#__PURE__*/React.createElement("div", {
   style: {
     padding: '18px',
     background: C.card,
@@ -11431,22 +12793,18 @@ const PRIORITY_ITEMS = [
 // ─── P1 · current sprint, next 1\u20132 weeks ───────────────────────────────
 {
   pri: 'P1',
-  title: 'NRR variance resolution',
-  body: 'DynDeck shows 79.4% rebuilt from C_Revenue_01 (NetSuite GL); April 24 deck shows 80.6% from PA v7.1.1 (Kantata gross billings, now restated). 1.2-pt variance. Master File Read Me confirms NetSuite as authoritative going forward; PA v7.5 restatement planned. Reconcile then choose one number.'
-}, {
-  pri: 'P1',
-  title: 'Q1 2026 EBITDA reconciliation',
-  body: '$44K (data room) vs $69K (April 24 deck). Late adjustment between deck draft and data room. Currently using the data-room figure. Chris to confirm which is authoritative before external ship.'
-}, {
-  pri: 'P1',
   title: 'Master Reconciliation \u2014 Sep 2025 source walk',
   body: 'Annual consolidated Net Revenue ties exactly for FY2021\u20132024. Monthly Venture 2025 shows small variances; max is +$78K Sep 2025 (+4.4%). Kevin to source-walk that single month and confirm the variance is benign before the reconciliation log gets released externally.'
+}, {
+  pri: 'P1',
+  title: 'Era timeline label-line alignment (Overview)',
+  body: 'The dashed event lines on the Overview era-timeline chart use a label-area div overlay that obscures the ReferenceLine inside the chart itself. Functionally correct \u2014 every event is shown \u2014 but visually the line breaks at the label area instead of running clean from label to data point. Fix is a small refactor: delete the label-area extensions, let Recharts ReferenceLine draw the full vertical, add a short connector from each label corner to the line top. Deferred from v1.15-B to keep the Overview clean for Ray review.'
 },
 // ─── P2 · soon, next 2\u20136 weeks ─────────────────────────────────────────
 {
   pri: 'P2',
-  title: 'Adjusted EBITDA bridge on Financials',
-  body: 'Financials & Capital tab currently shows the recovery chart with margin-% lines and the reconciliation bridge table. A more detailed Adjusted-EBITDA bridge from B_Financial_05 (one-time adjustments) could be added as a third element on the tab. Defer until Chris confirms appetite \u2014 not urgent for Ray review.'
+  title: 'US Billable / Non-Billable chart rebuild (2020Q1 \u2192 2026Q1)',
+  body: 'Headcount trend chart shipped in v1.15-B uses the master HC by Role file. A complementary Billable / Non-Billable split chart could deepen the structural-margin story (also feeds Team & Capacity period alignment). Known: 2022 carries a 26-head reconciliation gap between US Total and Sales+G&A+Tech sum \u2014 Kevin parked that for cleanup; use a footnote when shipped.'
 }, {
   pri: 'P2',
   title: 'Cohort heatmap retained-intent toggle',
