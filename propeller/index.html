@@ -327,7 +327,6 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
 <div id="root"></div>
 <script>
 
-
 // ─── LIBRARY_DynDeck_Components_v1_1 (IIFE) ───
 (function() {
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -931,10 +930,9 @@ window.DynDeckLib = {
   Stat,
   AccessGate
 };
-
 })();
 
-// ─── DASHBOARD_Propeller (client) v1.13 ───
+// ─── DASHBOARD_Propeller (client) v1.14-A ───
 (() => {
   var React = globalThis.React;
   var R = globalThis.React;
@@ -1331,6 +1329,41 @@ const YEARLY_COHORT_CURVES = {
   '2025': {
     size: 113,
     curve: [100.0, 90.3, 86.9, 85.1, 84.2, 79.2, 76.5, 67.5, 69.6, 69.9, 68.7, 64.4, 68.1, 64.9, 67.0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+  }
+};
+
+// v1.14: Retained-intent variant — excludes clients with documented
+// Churn Reason ∈ {'Project Work', 'Project Work (not long-term)'}
+// or Root Cause = 'Short Term Contract'. 76 clients excluded across all
+// cohorts. Curve construction: rebuild raw curves from Client Registry under
+// both filters, take the per-month delta (retained - all), and apply that
+// delta to the canonical all-clients curves above. This preserves the
+// authoritative baseline and isolates the filter effect.
+// Source: Client Registry sheet, master v6.15, cols 43 (Churn Reason) +
+// 44 (Root Cause). 44% of churned clients have no documented churn reason —
+// so this filter is intentionally conservative (undercount of project-work
+// removals). The "where we explicitly classified, here's the clean view"
+// framing is documented in the methodology footnote below the chart.
+const YEARLY_COHORT_CURVES_RETAINED = {
+  '2021': {
+    size: 382,
+    curve: [100.0, 95.6, 95.7, 96.3, 91.7, 87.4, 86.4, 82.4, 79.8, 78.1, 72.7, 71.7, 71.0, 67.1, 66.1, 63.9, 61.7, 58.8, 55.5, 54.5, 48.5, 48.5, 45.4, 44.3, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+  },
+  '2022': {
+    size: 136,
+    curve: [100.0, 96.5, 94.3, 94.2, 92.7, 90.6, 88.5, 83.3, 82.2, 77.2, 76.5, 72.9, 70.7, 65.0, 60.5, 56.9, 55.9, 51.6, 47.9, 47.8, 47.9, 45.6, 42.6, 41.2, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+  },
+  '2023': {
+    size: 102,
+    curve: [100.0, 92.8, 85.3, 86.0, 84.6, 79.7, 77.1, 75.0, 72.8, 73.5, 71.6, 69.6, 65.0, 60.6, 58.7, 58.8, 57.9, 53.7, 50.8, 48.9, 47.9, 44.1, 43.9, 39.2, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+  },
+  '2024': {
+    size: 118,
+    curve: [100.0, 91.8, 91.6, 87.9, 86.2, 81.0, 81.5, 80.9, 80.2, 78.2, 73.4, 69.0, 68.7, 65.8, 62.8, 63.3, 61.9, 58.9, 56.6, 57.1, 53.8, 51.5, 47.6, 46.0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+  },
+  '2025': {
+    size: 111,
+    curve: [100.0, 90.2, 88.4, 86.4, 85.4, 80.5, 78.1, 69.1, 71.1, 71.4, 69.6, 65.2, 68.1, 64.9, 67.0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
   }
 };
 const RETENTION_YEARLY = {
@@ -1765,7 +1798,7 @@ const TABS = ['Overview',
 'Master Reconciliation' // 13 — INTERNAL · hidden pre-ship; data-room vs master file variance log for Kevin
 ];
 const INTERNAL_TAB_START = 11; // tabs 11+ are internal
-const IS_EXTERNAL = true; // v1.6: internal tabs filtered. v1.13: Team & Capacity tab + Adjusted/Reported toggle + logo grid + event labels + ARPC fix + Info Request — Pothos-ready.
+const IS_EXTERNAL = true; // v1.6: internal tabs filtered. v1.14-A: cap table render + retention chart restructure + retained-intent toggle + SVB caveat + Venture→Growth feeder + recovery margin-% redesign + global hover softening — Pothos-ready.
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // HEADLINE NUMBERS (Propeller marquee — confirmed by Chris May 23, 2026)
@@ -2399,15 +2432,19 @@ const CohortHeatmap = () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const YearlyCohortCurves = () => {
-  // Build chart data: each row is a month offset, with one key per cohort year.
-  // v1.12: trim X-axis to actual max observed month + 1 so the curves fill the
-  // available width instead of crunching into the left 60% of the chart.
+  // v1.14: toggle between two client universes:
+  //   - 'all'      → YEARLY_COHORT_CURVES (default — every client in the cohort)
+  //   - 'retained' → YEARLY_COHORT_CURVES_RETAINED (excludes 76 clients with
+  //     documented project-work intent at intake)
+  // Active clients appear in both views; the filter only affects already-
+  // departed clients, so it surfaces the retained-intent denominator.
+  const [filterMode, setFilterMode] = useState('all');
+  const SRC = filterMode === 'retained' ? YEARLY_COHORT_CURVES_RETAINED : YEARLY_COHORT_CURVES;
   const chartData = useMemo(() => {
-    // Find max observable month across all cohorts (excluding 2026 which isn't plotted)
     let maxM = 0;
-    Object.keys(YEARLY_COHORT_CURVES).forEach(y => {
+    Object.keys(SRC).forEach(y => {
       if (y === '2026') return;
-      const curve = YEARLY_COHORT_CURVES[y].curve;
+      const curve = SRC[y].curve;
       for (let i = curve.length - 1; i >= 0; i--) {
         if (curve[i] != null) {
           if (i + 1 > maxM) maxM = i + 1;
@@ -2415,35 +2452,81 @@ const YearlyCohortCurves = () => {
         }
       }
     });
-    const xMax = Math.min(maxM + 1, 48); // cap at 48 as safety
+    const xMax = Math.min(maxM + 1, 48);
     const rows = [];
     for (let m = 1; m <= xMax; m++) {
       const row = {
         month: `M${m}`
       };
-      Object.keys(YEARLY_COHORT_CURVES).forEach(y => {
-        const c = YEARLY_COHORT_CURVES[y].curve[m - 1];
+      Object.keys(SRC).forEach(y => {
+        const c = SRC[y].curve[m - 1];
         if (c != null) row[y] = c;
       });
       rows.push(row);
     }
     return rows;
-  }, []);
+  }, [filterMode]);
   const yearColors = {
     '2021': C.textDim,
-    // legacy — muted
     '2022': C.blue,
     '2023': C.purple,
     '2024': C.accent,
-    // hero year — gold
     '2025': C.teal,
     '2026': C.green
   };
+
+  // M12 readings for the toggle's effect callouts
+  const m12 = (y, src) => src[y]?.curve?.[11];
   return /*#__PURE__*/React.createElement(ChartCard, {
     title: "Cohort retention curves \xB7 by cohort year",
     sub: "% of cohort still active at each month of tenure. 2024 and 2025 vintages (gold and teal) step up materially from prior years and hold the gain.",
     wide: true
-  }, /*#__PURE__*/React.createElement(ResponsiveContainer, {
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'inline-flex',
+      background: C.bg,
+      border: `1px solid ${C.border}`,
+      borderRadius: 20,
+      padding: 3,
+      gap: 2
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setFilterMode('all'),
+    style: {
+      padding: '5px 14px',
+      fontSize: 11,
+      fontWeight: 600,
+      letterSpacing: 0.4,
+      background: filterMode === 'all' ? C.accent : 'transparent',
+      color: filterMode === 'all' ? '#0c0c0c' : C.textMid,
+      border: 'none',
+      borderRadius: 18,
+      cursor: 'pointer',
+      fontFamily: 'inherit',
+      transition: 'all 0.15s ease'
+    }
+  }, "ALL CLIENTS"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setFilterMode('retained'),
+    style: {
+      padding: '5px 14px',
+      fontSize: 11,
+      fontWeight: 600,
+      letterSpacing: 0.4,
+      background: filterMode === 'retained' ? C.accent : 'transparent',
+      color: filterMode === 'retained' ? '#0c0c0c' : C.textMid,
+      border: 'none',
+      borderRadius: 18,
+      cursor: 'pointer',
+      fontFamily: 'inherit',
+      transition: 'all 0.15s ease'
+    }
+  }, "RETAINED-INTENT ONLY"))), /*#__PURE__*/React.createElement(ResponsiveContainer, {
     width: "100%",
     height: 300
   }, /*#__PURE__*/React.createElement(LineChart, {
@@ -2475,21 +2558,25 @@ const YearlyCohortCurves = () => {
   }), /*#__PURE__*/React.createElement(Tooltip, {
     content: /*#__PURE__*/React.createElement(CustomTooltip, {
       suffix: "%"
-    })
+    }),
+    cursor: {
+      fill: C.text,
+      fillOpacity: 0.04
+    }
   }), /*#__PURE__*/React.createElement(Legend, {
     wrapperStyle: {
       fontSize: 11
     }
-  }), Object.keys(YEARLY_COHORT_CURVES).filter(y => y !== '2026').map(y => /*#__PURE__*/React.createElement(Line, {
+  }), Object.keys(SRC).filter(y => y !== '2026').map(y => /*#__PURE__*/React.createElement(Line, {
     key: y,
     type: "monotone",
     dataKey: y,
     stroke: yearColors[y],
     strokeWidth: y === '2024' || y === '2025' ? 3 : 2,
     dot: false,
-    name: `${y} cohort (n=${YEARLY_COHORT_CURVES[y].size})`,
+    name: `${y} cohort (n=${SRC[y].size})`,
     connectNulls: false
-  })))), /*#__PURE__*/React.createElement(InsightBlock, null, "New-client cohort quality has stepped up monotonically. At M9, where all four post-LEGACY vintages have observable history: 2023 holds 69%, ", /*#__PURE__*/React.createElement("strong", {
+  })))), /*#__PURE__*/React.createElement(InsightBlock, null, filterMode === 'all' ? /*#__PURE__*/React.createElement(React.Fragment, null, "New-client cohort quality has stepped up monotonically. At M9, where all four post-LEGACY vintages have observable history: 2023 holds 69%, ", /*#__PURE__*/React.createElement("strong", {
     style: {
       color: C.accent
     }
@@ -2497,7 +2584,91 @@ const YearlyCohortCurves = () => {
     style: {
       color: C.accent
     }
-  }, "2025 is currently the strongest vintage at 68%"), " \u2014 outperforming 2024 at the same offset. The 2024 cohort still holds ", /*#__PURE__*/React.createElement("strong", null, "44.6%"), " at M24 as the senior vintage with full observation; 2025 is on track to match or exceed it."));
+  }, "2025 is currently the strongest vintage at 68%"), " \u2014 outperforming 2024 at the same offset. The 2024 cohort still holds ", /*#__PURE__*/React.createElement("strong", null, "44.6%"), " at M24 as the senior vintage with full observation; 2025 is on track to match or exceed it.") : /*#__PURE__*/React.createElement(React.Fragment, null, "With explicitly project-work clients excluded (76 across all cohorts), the recovery line steepens. M12 retention moves: 2023 cohort ", m12('2023', YEARLY_COHORT_CURVES), "% \u2192 ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.accent
+    }
+  }, m12('2023', YEARLY_COHORT_CURVES_RETAINED), "%"), ", 2024 ", m12('2024', YEARLY_COHORT_CURVES), "% \u2192 ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.accent
+    }
+  }, m12('2024', YEARLY_COHORT_CURVES_RETAINED), "%"), ", 2025 ", m12('2025', YEARLY_COHORT_CURVES), "% \u2192 ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.accent
+    }
+  }, m12('2025', YEARLY_COHORT_CURVES_RETAINED), "%"), ". The intent-retained book has been holding 65\u201373% at M12 since the 2023 vintage. Underlying client quality \u2014 not the headline mix \u2014 is the read.")), filterMode === 'retained' && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 10,
+      padding: '10px 14px',
+      background: C.bg,
+      border: `1px solid ${C.border}`,
+      borderRadius: 6,
+      fontSize: 11,
+      color: C.textDim,
+      lineHeight: 1.6
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.textMid
+    }
+  }, "Methodology \xB7 retained-intent filter."), " Excludes clients with Churn Reason \u2208 ", `{Project Work, Project Work (not long-term)}`, " OR Root Cause = \u201CShort Term Contract\u201D \u2014 76 clients in total. ", /*#__PURE__*/React.createElement("strong", null, "44% of churned clients have no documented churn reason in the source data"), ", so this filter is intentionally conservative: where we explicitly classified intent, here\u2019s the clean view. The 76 excluded clients are a floor, not a ceiling. Source: Client Registry, master v6.15, cols Churn Reason + Root Cause. ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: C.warm
+    }
+  }, "src: Operations_05.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 14,
+      padding: '14px 16px',
+      background: C.purple + '14',
+      border: `1px solid ${C.purple}55`,
+      borderRadius: 6
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 700,
+      color: C.purple,
+      letterSpacing: 1,
+      marginBottom: 8,
+      textTransform: 'uppercase'
+    }
+  }, "2023 cohort \xB7 the SVB-era anomaly"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: C.textMid,
+      lineHeight: 1.6,
+      margin: '0 0 8px'
+    }
+  }, "The 2023 line sits below 2024 and 2025 at every month past M3. Reading the cohort tells you why: ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.text
+    }
+  }, "67% of the 118 clients onboarded in 2023 were Venture-stage"), " \u2014 the highest share of any cohort in the data set, in the year venture funding collapsed."), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: C.textMid,
+      lineHeight: 1.6,
+      margin: '0 0 8px'
+    }
+  }, "The largest single churn-reason category for this cohort is ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.warm
+    }
+  }, "\u201CFinancial Hardship\u201D at 14% (17 of 118 clients)"), " \u2014 VCs that didn\u2019t follow on. ", /*#__PURE__*/React.createElement("strong", null, "\u201CHired Internally\u201D graduations"), " add another 7% (8 clients) \u2014 clients that outgrew the Venture-stage need entirely."), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: C.textMid,
+      lineHeight: 1.6,
+      margin: 0
+    }
+  }, "The 2024 cohort (n=132) holds 67% at M12. The 2025 cohort (n=113) holds 64% at M12 and is climbing through its observable window. Both post-SVB cohorts are materially healthier than the SVB-era vintage \u2014 and the retained-intent view above lifts every cohort by 3\u20137 points but does not change the relative ordering. The 2023 vintage\u2019s shape is a market-condition story, not a Propeller-quality story."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8,
+      fontSize: 10,
+      color: C.textDim,
+      fontStyle: 'italic'
+    }
+  }, "src: Client Registry filtered by First Month in calendar 2023.")));
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -2506,19 +2677,38 @@ const YearlyCohortCurves = () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const RetentionTriple = () => {
-  const years = ['2023', '2024', '2025'];
-  const chartData = years.map(y => {
-    const r = RETENTION_YEARLY[y];
-    return {
-      year: y,
-      Logo: r.logo,
-      GRR: r.grr,
-      NRR: r.nrr
-    };
-  });
+  // v1.14: cluster by metric (Logo / GRR / NRR), three years inside each cluster.
+  // Each cluster reads as a 2023 → 2024 → 2025 mini-trajectory — the recovery story.
+  // Graded shades within the cluster: 2023 = lightest, 2024 = medium, 2025 = full.
+  const chartData = [{
+    metric: 'Logo Retention',
+    '2023': RETENTION_YEARLY['2023'].logo,
+    '2024': RETENTION_YEARLY['2024'].logo,
+    '2025': RETENTION_YEARLY['2025'].logo
+  }, {
+    metric: 'Gross Revenue Retention',
+    '2023': RETENTION_YEARLY['2023'].grr,
+    '2024': RETENTION_YEARLY['2024'].grr,
+    '2025': RETENTION_YEARLY['2025'].grr
+  }, {
+    metric: 'Net Revenue Retention',
+    '2023': RETENTION_YEARLY['2023'].nrr,
+    '2024': RETENTION_YEARLY['2024'].nrr,
+    '2025': RETENTION_YEARLY['2025'].nrr
+  }];
+
+  // Graded shade scheme — 2023 lightest, 2025 full. NRR cluster uses accent ramp;
+  // Logo + GRR use neutral textMid ramp so the gold draws the eye to NRR.
+  const shadeFor = (metric, year) => {
+    const isHero = metric === 'Net Revenue Retention';
+    if (isHero) {
+      return year === '2023' ? C.accent + '55' : year === '2024' ? C.accent + 'aa' : C.accent;
+    }
+    return year === '2023' ? C.textDim + '88' : year === '2024' ? C.textMid : C.text;
+  };
   return /*#__PURE__*/React.createElement(ChartCard, {
-    title: "Net Revenue Retention \xB7 Logo & Gross retention by year",
-    sub: "NRR (gold) is the headline. 2024 trough was the floor; 2025 turning the corner. 2022 suppressed \u2014 see methodology note.",
+    title: "Net Revenue Retention \xB7 Logo & Gross retention by metric, 2023 \u2192 2025",
+    sub: "Each cluster reads left \u2192 right as a 2023 / 2024 / 2025 mini-trajectory. NRR (gold) is the headline; the climb from 66.7% \u2192 79.4% is the recovery in one frame. 2022 suppressed \u2014 see methodology note.",
     wide: true
   }, /*#__PURE__*/React.createElement(ResponsiveContainer, {
     width: "100%",
@@ -2536,7 +2726,7 @@ const RetentionTriple = () => {
     stroke: C.border,
     vertical: false
   }), /*#__PURE__*/React.createElement(XAxis, {
-    dataKey: "year",
+    dataKey: "metric",
     stroke: C.textDim,
     tick: {
       fontSize: 11
@@ -2551,24 +2741,34 @@ const RetentionTriple = () => {
   }), /*#__PURE__*/React.createElement(Tooltip, {
     content: /*#__PURE__*/React.createElement(CustomTooltip, {
       suffix: "%"
-    })
+    }),
+    cursor: {
+      fill: C.text,
+      fillOpacity: 0.04
+    }
   }), /*#__PURE__*/React.createElement(Legend, {
     wrapperStyle: {
       fontSize: 11
     }
   }), /*#__PURE__*/React.createElement(Bar, {
-    dataKey: "Logo",
-    fill: C.blue,
-    name: "Logo Retention"
-  }), /*#__PURE__*/React.createElement(Bar, {
-    dataKey: "GRR",
-    fill: C.purple,
-    name: "Gross Revenue Retention"
-  }), /*#__PURE__*/React.createElement(Bar, {
-    dataKey: "NRR",
-    fill: C.accent,
-    name: "Net Revenue Retention"
-  }))), /*#__PURE__*/React.createElement("div", {
+    dataKey: "2023",
+    name: "2023"
+  }, chartData.map((d, i) => /*#__PURE__*/React.createElement(Cell, {
+    key: `c23-${i}`,
+    fill: shadeFor(d.metric, '2023')
+  }))), /*#__PURE__*/React.createElement(Bar, {
+    dataKey: "2024",
+    name: "2024"
+  }, chartData.map((d, i) => /*#__PURE__*/React.createElement(Cell, {
+    key: `c24-${i}`,
+    fill: shadeFor(d.metric, '2024')
+  }))), /*#__PURE__*/React.createElement(Bar, {
+    dataKey: "2025",
+    name: "2025"
+  }, chartData.map((d, i) => /*#__PURE__*/React.createElement(Cell, {
+    key: `c25-${i}`,
+    fill: shadeFor(d.metric, '2025')
+  }))))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       gap: 8,
@@ -2582,7 +2782,7 @@ const RetentionTriple = () => {
     style: {
       color: C.accent
     }
-  }, "NRR climbed from 66.7% (2023) \u2192 79.4% (2025)"), " \u2014 a 12.7-point recovery in the trailing-twelve-month measure. Logo retention bottomed at 66.3% in 2024 and ticked back up to 68.2% in 2025. The recovery is real but more modest than the deck's 65.1% \u2192 80.6% framing; methodology delta documented on the To-Do tab."));
+  }, "NRR climbed from 66.7% (2023) \u2192 79.4% (2025)"), " \u2014 a 12.7-point recovery in the trailing-twelve-month measure. Logo retention bottomed at 66.3% in 2024 and ticked back up to 68.2% in 2025. GRR followed the same shape \u2014 54% trough, 60% recovery. Reading left to right within each cluster, the recovery is monotonic across all three metrics. The bare-numbers recovery is real but more modest than the deck\u2019s 65.1% \u2192 80.6% framing; methodology delta documented on the To-Do tab."));
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -3639,24 +3839,38 @@ const LongArcChart = () => {
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'relative',
-      height: 42,
-      marginBottom: 4,
+      height: 48,
+      marginBottom: -22,
       marginLeft: 60,
-      marginRight: 60
+      marginRight: 60,
+      zIndex: 5
     }
   }, TRAJECTORY_EVENTS.map(e => {
     const idx = data.findIndex(d => d.p === e.q);
     const pct = (idx + 0.5) / data.length * 100;
     const isHovered = hoveredEvent === e.id;
-    // Stagger close pairs vertically
-    const topPx = e.topOffset === 1 ? 22 : 2;
-    return /*#__PURE__*/React.createElement("div", {
-      key: e.id,
+    const isBottomRow = e.topOffset === 1;
+    const topPx = isBottomRow ? 24 : 2;
+    const labelHeight = 18;
+    const labelBottom = topPx + labelHeight;
+    const lineTop = labelBottom;
+    // Line extension reaches all the way down into the chart's plot area (past the
+    // container's nominal bottom edge), since the chart now overlaps the container.
+    const lineHeight = 70 - lineTop;
+    // Horizontal offset for the LABEL ONLY (not the line):
+    // bottom-row labels shift right by enough percentage of container width to sit
+    // beside, not below, their top-row neighbor. The line stays anchored at the event's
+    // actual x-position; only the label box moves. ~7% gives clear separation at typical
+    // viewport widths.
+    const labelHorizOffset = isBottomRow ? 7 : 0; // percentage points
+    return /*#__PURE__*/React.createElement(React.Fragment, {
+      key: e.id
+    }, /*#__PURE__*/React.createElement("div", {
       onMouseEnter: () => setHoveredEvent(e.id),
       onMouseLeave: () => setHoveredEvent(null),
       style: {
         position: 'absolute',
-        left: `${pct}%`,
+        left: `${pct + labelHorizOffset}%`,
         top: topPx,
         transform: 'translateX(-50%)',
         padding: '2px 6px',
@@ -3666,7 +3880,7 @@ const LongArcChart = () => {
         whiteSpace: 'nowrap',
         cursor: 'help',
         transition: 'all 0.15s ease',
-        zIndex: isHovered ? 5 : 2
+        zIndex: isHovered ? 5 : 3
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
@@ -3675,14 +3889,42 @@ const LongArcChart = () => {
         color: isHovered ? C.text : e.dot,
         letterSpacing: 0.2
       }
-    }, e.label));
+    }, e.label)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: 'absolute',
+        left: `${pct}%`,
+        top: isBottomRow ? lineTop : 20,
+        // top-row line stops at y=20 (bottom of top label)
+        height: isBottomRow ? lineHeight : 28,
+        width: 0,
+        transform: 'translateX(-50%)',
+        borderLeft: `1px dashed ${e.dot}`,
+        opacity: isHovered ? 1 : 0.55,
+        transition: 'opacity 0.15s ease',
+        pointerEvents: 'none',
+        zIndex: 1
+      }
+    }), isBottomRow && /*#__PURE__*/React.createElement("div", {
+      style: {
+        position: 'absolute',
+        left: `${pct}%`,
+        top: lineTop - 1,
+        width: `${labelHorizOffset}%`,
+        height: 1,
+        borderTop: `1px dashed ${e.dot}`,
+        opacity: isHovered ? 1 : 0.55,
+        transition: 'opacity 0.15s ease',
+        pointerEvents: 'none',
+        zIndex: 1
+      }
+    }));
   })), /*#__PURE__*/React.createElement(ResponsiveContainer, {
     width: "100%",
-    height: 480
+    height: 510
   }, /*#__PURE__*/React.createElement(ComposedChart, {
     data: data,
     margin: {
-      top: 20,
+      top: 30,
       right: 60,
       left: 10,
       bottom: 20
@@ -3690,39 +3932,35 @@ const LongArcChart = () => {
   }, /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("pattern", {
     id: "forecastVenture",
     patternUnits: "userSpaceOnUse",
-    width: "6",
-    height: "6",
-    patternTransform: "rotate(45)"
+    width: "5",
+    height: "5"
   }, /*#__PURE__*/React.createElement("rect", {
-    width: "6",
-    height: "6",
+    width: "5",
+    height: "5",
     fill: C.blue,
-    fillOpacity: "0.35"
-  }), /*#__PURE__*/React.createElement("line", {
-    x1: "0",
-    y1: "0",
-    x2: "0",
-    y2: "6",
-    stroke: C.blue,
-    strokeWidth: "2"
+    fillOpacity: "0.32"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "2.5",
+    cy: "2.5",
+    r: "0.9",
+    fill: C.blue,
+    fillOpacity: "0.9"
   })), /*#__PURE__*/React.createElement("pattern", {
     id: "forecastGrowth",
     patternUnits: "userSpaceOnUse",
-    width: "6",
-    height: "6",
-    patternTransform: "rotate(45)"
+    width: "5",
+    height: "5"
   }, /*#__PURE__*/React.createElement("rect", {
-    width: "6",
-    height: "6",
+    width: "5",
+    height: "5",
     fill: C.accent,
-    fillOpacity: "0.35"
-  }), /*#__PURE__*/React.createElement("line", {
-    x1: "0",
-    y1: "0",
-    x2: "0",
-    y2: "6",
-    stroke: C.accent,
-    strokeWidth: "2"
+    fillOpacity: "0.32"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "2.5",
+    cy: "2.5",
+    r: "0.9",
+    fill: C.accent,
+    fillOpacity: "0.9"
   }))), activeEraObj && /*#__PURE__*/React.createElement(ReferenceArea, {
     yAxisId: "rev",
     x1: activeEraObj.x1,
@@ -3792,8 +4030,8 @@ const LongArcChart = () => {
   }), /*#__PURE__*/React.createElement(Tooltip, {
     content: /*#__PURE__*/React.createElement(ChartTooltip, null),
     cursor: {
-      fill: C.accent,
-      fillOpacity: 0.06
+      fill: C.text,
+      fillOpacity: 0.04
     }
   }), /*#__PURE__*/React.createElement(Bar, {
     yAxisId: "rev",
@@ -5300,7 +5538,11 @@ const SegmentEconomics = () => {
   }), /*#__PURE__*/React.createElement(Tooltip, {
     content: /*#__PURE__*/React.createElement(CustomTooltip, {
       unit: "raw"
-    })
+    }),
+    cursor: {
+      fill: C.text,
+      fillOpacity: 0.04
+    }
   }), /*#__PURE__*/React.createElement(Legend, {
     wrapperStyle: {
       fontSize: 12,
@@ -5326,6 +5568,67 @@ const SegmentEconomics = () => {
       color: C.accent
     }
   }, "Q1 2026 inflection visible on both drivers:"), " Venture client count ", prev.vc, " \u2192 ", cur.vc, " (+", vClientsQoQ, " QoQ \u2014 first sequential logo growth since 2023). Average annual billings per client held at ~$", (cur.vapc * 4 / 1000).toFixed(0), "K/year \u2014 pricing has been remarkably stable through the venture-funding correction. The \"compression\" was nearly all logo count, not pricing/penetration. As acquisition motion re-engages and the macro normalizes, both drivers have room to expand off this base.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 24,
+      padding: '18px 22px',
+      background: C.accentBg + '55',
+      border: `1px solid ${C.accent}66`,
+      borderRadius: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 700,
+      color: C.accent,
+      letterSpacing: 1.4,
+      marginBottom: 8,
+      textTransform: 'uppercase'
+    }
+  }, "Venture is also Growth\u2019s farm system"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 14,
+      color: C.text,
+      lineHeight: 1.6,
+      margin: '0 0 10px'
+    }
+  }, /*#__PURE__*/React.createElement("strong", null, "18 of the 38 current Growth-segment clients (47%) were originally Venture clients who graduated."), " All 18 had billings in FY2023 or FY2024 before being reclassified into Growth."), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: C.textMid,
+      lineHeight: 1.6,
+      margin: '0 0 10px'
+    }
+  }, "Graduated cohort includes ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.text
+    }
+  }, "Boulder Care, Pelago Health, Pair Eyewear, Caddis, Belli Welli, Pavilion, Perelel Health, Killer Brownie, Rudi\u2019s Bakery, OneSkin"), " \u2014 among others. These clients did the early-stage finance build with Propeller in Venture, kept growing, and were re-segmented as their billings profile moved into the Growth band ($150K+/year ARPC range). Retained as clients, just at a higher value tier."), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: C.textMid,
+      lineHeight: 1.6,
+      margin: '0 0 8px'
+    }
+  }, "That has two implications for the segment shape. ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.text
+    }
+  }, "First"), ", the Venture logo-count decline from 2022 onward isn\u2019t pure churn \u2014 part of it is the flywheel working, with clients moving up-segment and being held indefinitely at higher ARPC. ", /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.text
+    }
+  }, "Second"), ", Growth has two paths in: (a) graduated Venture clients with multi-year history and proven retention; (b) direct large-client landings into Growth\u2019s fixed-fee, sales-led GTM. The 18-of-38 stat says nearly half of today\u2019s Growth book came up through Venture \u2014 the most defensible kind of Growth client."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 10,
+      fontSize: 10,
+      color: C.textDim,
+      fontStyle: 'italic'
+    }
+  }, "Methodology: Client Registry filtered to Client Stage = \u201CGrowth Stage\u201D AND First Month < 2024-09 (i.e. onboarded before the Growth segment formally launched). 18 of 38 current Growth-stage clients meet the filter. ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: C.warm
+    }
+  }, "src: Operations_05 \xB7 Client Registry, master v6.15."))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 36,
       marginBottom: 14
@@ -5442,7 +5745,11 @@ const SegmentEconomics = () => {
   }), /*#__PURE__*/React.createElement(Tooltip, {
     content: /*#__PURE__*/React.createElement(CustomTooltip, {
       unit: "raw"
-    })
+    }),
+    cursor: {
+      fill: C.text,
+      fillOpacity: 0.04
+    }
   }), /*#__PURE__*/React.createElement(Legend, {
     wrapperStyle: {
       fontSize: 12,
@@ -5671,24 +5978,32 @@ const FinancialsCapital = () => {
       opex: 0
     } // 100% COGS, all in February
   };
-  const chartDataReported = years.map(y => ({
-    year: y,
-    netRev: FINANCIALS_ANNUAL['Net Revenue'][y] / 1e6,
-    gm: FINANCIALS_ANNUAL['Gross Margin'][y] / 1e6,
-    ebitda: FINANCIALS_ANNUAL['Ordinary EBITDA'][y] / 1e6
-  }));
+  const chartDataReported = years.map(y => {
+    const nr = FINANCIALS_ANNUAL['Net Revenue'][y];
+    const gm = FINANCIALS_ANNUAL['Gross Margin'][y];
+    const eb = FINANCIALS_ANNUAL['Ordinary EBITDA'][y];
+    return {
+      year: y,
+      netRev: nr / 1e6,
+      gmPct: nr ? gm / nr * 100 : null,
+      ebitdaPct: nr ? eb / nr * 100 : null
+    };
+  });
   const chartDataAdjusted = years.map(y => {
     const sev = SEVERANCE_BY_YEAR[y] || {
       cogs: 0,
       opex: 0
     };
+    const nr = FINANCIALS_ANNUAL['Net Revenue'][y];
+    const gmAdj = FINANCIALS_ANNUAL['Gross Margin'][y] + sev.cogs;
+    const ebAdj = FINANCIALS_ANNUAL['Ordinary EBITDA'][y] + sev.cogs + sev.opex;
     return {
       year: y,
-      netRev: FINANCIALS_ANNUAL['Net Revenue'][y] / 1e6,
+      netRev: nr / 1e6,
       // revenue unchanged
-      gm: (FINANCIALS_ANNUAL['Gross Margin'][y] + sev.cogs) / 1e6,
+      gmPct: nr ? gmAdj / nr * 100 : null,
       // GM adjusts by COGS severance
-      ebitda: (FINANCIALS_ANNUAL['Ordinary EBITDA'][y] + sev.cogs + sev.opex) / 1e6 // EBITDA adjusts by total
+      ebitdaPct: nr ? ebAdj / nr * 100 : null // EBITDA adjusts by total
     };
   });
 
@@ -5957,8 +6272,8 @@ const FinancialsCapital = () => {
       marginTop: 24
     }
   }, /*#__PURE__*/React.createElement(ChartCard, {
-    title: `Annual revenue + ${ebitdaView === 'adjusted' ? 'Adjusted ' : 'Reported '}EBITDA · the recovery shape`,
-    sub: `Revenue (left axis, bars) and ${ebitdaView === 'adjusted' ? 'Adjusted ' : 'Reported '}EBITDA (right axis, line) — annuals through 2025 with Q1 2026 stub. ${ebitdaView === 'adjusted' ? 'Adjusted = Reported plus one-time severance add-backs (Financial_05). 2021–2022 had no severance, so Adj = Reported for those years.' : 'Reported = Ordinary EBITDA as booked.'}`,
+    title: `Annual revenue + ${ebitdaView === 'adjusted' ? 'Adjusted ' : 'Reported '}margins · the recovery shape`,
+    sub: `Revenue (left axis, bars, $M) and GM% / EBITDA% (right axis, lines, 0–50%) — annuals through 2025 with Q1 2026 stub. ${ebitdaView === 'adjusted' ? 'Adjusted = Reported plus one-time severance add-backs (Financial_05); 2021–2022 had no severance, so Adj = Reported for those years.' : 'Reported = margins as booked.'}`,
     wide: true
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -6034,7 +6349,7 @@ const FinancialsCapital = () => {
     },
     tickFormatter: v => `$${v.toFixed(0)}M`,
     label: {
-      value: 'Revenue / GM ($M)',
+      value: 'Revenue ($M)',
       angle: -90,
       position: 'insideLeft',
       fill: C.textDim,
@@ -6047,9 +6362,10 @@ const FinancialsCapital = () => {
     tick: {
       fontSize: 10
     },
-    tickFormatter: v => `$${v.toFixed(1)}M`,
+    tickFormatter: v => `${v.toFixed(0)}%`,
+    domain: [-15, 50],
     label: {
-      value: `${ebitdaView === 'adjusted' ? 'Adj. ' : ''}EBITDA ($M)`,
+      value: 'Margin %',
       angle: 90,
       position: 'insideRight',
       fill: C.textDim,
@@ -6057,8 +6373,12 @@ const FinancialsCapital = () => {
     }
   }), /*#__PURE__*/React.createElement(Tooltip, {
     content: /*#__PURE__*/React.createElement(CustomTooltip, {
-      unit: "M"
-    })
+      unit: "raw"
+    }),
+    cursor: {
+      fill: C.text,
+      fillOpacity: 0.04
+    }
   }), /*#__PURE__*/React.createElement(Legend, {
     wrapperStyle: {
       fontSize: 12,
@@ -6071,24 +6391,30 @@ const FinancialsCapital = () => {
     fill: C.accentBg,
     stroke: C.accent,
     strokeWidth: 1
-  }), /*#__PURE__*/React.createElement(Bar, {
-    yAxisId: "left",
-    dataKey: "gm",
-    name: `${ebitdaView === 'adjusted' ? 'Adj. ' : ''}Gross Margin ($M)`,
-    fill: C.blue + '22',
-    stroke: C.blue,
-    strokeWidth: 1
   }), /*#__PURE__*/React.createElement(Line, {
     yAxisId: "right",
     type: "monotone",
-    dataKey: "ebitda",
-    name: `${ebitdaView === 'adjusted' ? 'Adjusted' : 'Ordinary'} EBITDA ($M)`,
+    dataKey: "gmPct",
+    name: `${ebitdaView === 'adjusted' ? 'Adjusted ' : ''}GM %`,
+    stroke: C.blue,
+    strokeWidth: 2.5,
+    dot: {
+      fill: C.blue,
+      r: 4
+    },
+    connectNulls: false
+  }), /*#__PURE__*/React.createElement(Line, {
+    yAxisId: "right",
+    type: "monotone",
+    dataKey: "ebitdaPct",
+    name: `${ebitdaView === 'adjusted' ? 'Adjusted ' : ''}EBITDA %`,
     stroke: C.green,
     strokeWidth: 2.5,
     dot: {
       fill: C.green,
       r: 4
-    }
+    },
+    connectNulls: false
   }), /*#__PURE__*/React.createElement(ReferenceLine, {
     yAxisId: "right",
     y: 0,
@@ -6231,36 +6557,210 @@ const FinancialsCapital = () => {
     }
   }, "35.2%"), " \u2014 the first quarter since 2024 above 35%, and a structural-recovery signal independent of the EBITDA line."))), /*#__PURE__*/React.createElement("div", {
     style: {
-      marginTop: 24,
-      padding: '18px 22px',
-      background: C.card,
-      border: `1px solid ${C.border}`,
-      borderRadius: 8
+      marginTop: 24
+    }
+  }, /*#__PURE__*/React.createElement(ChartCard, {
+    title: "Cap table \xB7 Propeller Holdings, LLC as of 12/31/2025",
+    sub: "Entity-level unit-holder breakdown. Class A and A-1 are Newlight side; Class B is the partner-group rollup; Class C is the Management Incentive Pool. Internal partner allocations within PI Member Partners, LLC are not disclosed here.",
+    wide: true
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      overflowX: 'auto'
+    }
+  }, /*#__PURE__*/React.createElement("table", {
+    style: {
+      width: '100%',
+      fontSize: 13,
+      borderCollapse: 'collapse',
+      color: C.text,
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+    style: {
+      borderBottom: `2px solid ${C.border}`
+    }
+  }, /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: 'left',
+      padding: '10px 8px',
+      color: C.textDim,
+      fontWeight: 700,
+      letterSpacing: 0.6,
+      textTransform: 'uppercase',
+      fontSize: 10
+    }
+  }, "Unit Holder"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: 'center',
+      padding: '10px 8px',
+      color: C.textDim,
+      fontWeight: 700,
+      letterSpacing: 0.6,
+      textTransform: 'uppercase',
+      fontSize: 10
+    }
+  }, "Class"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: 'right',
+      padding: '10px 8px',
+      color: C.textDim,
+      fontWeight: 700,
+      letterSpacing: 0.6,
+      textTransform: 'uppercase',
+      fontSize: 10
+    }
+  }, "Units"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: 'right',
+      padding: '10px 8px',
+      color: C.textDim,
+      fontWeight: 700,
+      letterSpacing: 0.6,
+      textTransform: 'uppercase',
+      fontSize: 10
+    }
+  }, "%"))), /*#__PURE__*/React.createElement("tbody", null, [{
+    holder: 'Propeller NL Holdings, LLC',
+    subnote: 'Newlight Member',
+    cls: 'A',
+    units: 19960000,
+    pct: 30.09
+  }, {
+    holder: 'SCI Partners SC',
+    subnote: 'Newlight Member',
+    cls: 'A',
+    units: 40000,
+    pct: 0.06
+  }, {
+    holder: 'Geoff Baird',
+    subnote: null,
+    cls: 'A',
+    units: 200000,
+    pct: 0.30
+  }, {
+    holder: 'Management Incentive Units',
+    subnote: null,
+    cls: 'A-1',
+    units: 2500000,
+    pct: 3.77
+  }, {
+    holder: 'PI Member Partners, LLC',
+    subnote: 'Founder Holdings · partner-group rollup',
+    cls: 'B',
+    units: 37000000,
+    pct: 55.78
+  }, {
+    holder: 'Management Incentive Units',
+    subnote: null,
+    cls: 'C',
+    units: 6633333,
+    pct: 10.00
+  }].map((r, i) => /*#__PURE__*/React.createElement("tr", {
+    key: i,
+    style: {
+      borderBottom: `1px solid ${C.border}66`
+    }
+  }, /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '10px 8px'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 13,
-      fontWeight: 700,
-      color: C.textMid,
-      marginBottom: 8,
-      letterSpacing: 0.4
+      fontWeight: 600,
+      color: C.text
     }
-  }, "Capital structure"), /*#__PURE__*/React.createElement("p", {
+  }, r.holder), r.subnote && /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 13,
+      fontSize: 11,
       color: C.textDim,
-      lineHeight: 1.55,
-      margin: '0 0 8px'
-    }
-  }, "Cap structure detail is available to Pothos under the existing NDA. The relevant facts \u2014 Newlight Partners\u2019 position, ownership distribution, the share-class structure, and the path-dependence of any next round \u2014 are part of the \u201Ccapital-structure shape\u201D conversation on the Trajectory & Discussion tab."), /*#__PURE__*/React.createElement("p", {
-    style: {
-      fontSize: 12,
-      color: C.textDim,
-      lineHeight: 1.55,
-      margin: 0,
+      marginTop: 2,
       fontStyle: 'italic'
     }
-  }, "Detailed cap table provided in the data room (file Corporate_01.2 \u2014 Purchase and Contribution Agreement, July 2020) and on request from chris@propellerindustries.com.")), /*#__PURE__*/React.createElement("div", {
+  }, r.subnote)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '10px 8px',
+      textAlign: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'inline-block',
+      padding: '2px 8px',
+      fontSize: 11,
+      fontWeight: 700,
+      color: C.accent,
+      border: `1px solid ${C.accent}66`,
+      borderRadius: 3
+    }
+  }, r.cls)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '10px 8px',
+      textAlign: 'right',
+      fontFamily: 'monospace',
+      color: C.text
+    }
+  }, r.units.toLocaleString()), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '10px 8px',
+      textAlign: 'right',
+      fontFamily: 'monospace',
+      color: C.accent,
+      fontWeight: 600
+    }
+  }, r.pct.toFixed(2), "%"))), /*#__PURE__*/React.createElement("tr", {
+    style: {
+      borderTop: `2px solid ${C.accent}55`,
+      background: C.accentBg + '40'
+    }
+  }, /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '12px 8px',
+      fontWeight: 700,
+      color: C.accent
+    }
+  }, "Total"), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '12px 8px'
+    }
+  }), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '12px 8px',
+      textAlign: 'right',
+      fontFamily: 'monospace',
+      fontWeight: 700,
+      color: C.accent
+    }
+  }, "66,333,333"), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: '12px 8px',
+      textAlign: 'right',
+      fontFamily: 'monospace',
+      fontWeight: 700,
+      color: C.accent
+    }
+  }, "100.00%"))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 14,
+      paddingTop: 14,
+      borderTop: `1px solid ${C.border}`,
+      fontSize: 11,
+      color: C.textDim,
+      lineHeight: 1.6
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 4
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: C.textMid
+    }
+  }, "Notes.")), /*#__PURE__*/React.createElement("div", null, "\xB7 Propeller NL Holdings LLC and SCI Partners SC are defined as the \u201CNewlight Member.\u201D"), /*#__PURE__*/React.createElement("div", null, "\xB7 PI Member Partners, LLC is defined as \u201CFounder Holdings.\u201D"), /*#__PURE__*/React.createElement("div", null, "\xB7 Voting Units means the Class A Preference Units and the Class B Units owned by a Newlight Member or by Founder Holdings."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8,
+      color: C.warm,
+      fontStyle: 'italic'
+    }
+  }, "\xB7 src: Propeller Summary Cap Table 12/31/2025. Pending route to Kevin and Todd for any additions/footnotes before external ship.")))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 24,
       padding: '14px 18px',
@@ -6416,7 +6916,11 @@ const DeliveryCapacity = () => {
   }), /*#__PURE__*/React.createElement(Tooltip, {
     content: /*#__PURE__*/React.createElement(CustomTooltip, {
       unit: "raw"
-    })
+    }),
+    cursor: {
+      fill: C.text,
+      fillOpacity: 0.04
+    }
   }), /*#__PURE__*/React.createElement(Bar, {
     dataKey: "headcount",
     name: "US W-2 Headcount",
@@ -6624,7 +7128,11 @@ const DeliveryCapacity = () => {
   }), /*#__PURE__*/React.createElement(Tooltip, {
     content: /*#__PURE__*/React.createElement(CustomTooltip, {
       unit: "raw"
-    })
+    }),
+    cursor: {
+      fill: C.text,
+      fillOpacity: 0.04
+    }
   }), /*#__PURE__*/React.createElement(Bar, {
     yAxisId: "right",
     dataKey: "terminations",
@@ -7972,7 +8480,11 @@ const TeamCapacity = () => {
   }), /*#__PURE__*/React.createElement(Tooltip, {
     content: /*#__PURE__*/React.createElement(CustomTooltip, {
       unit: "raw"
-    })
+    }),
+    cursor: {
+      fill: C.text,
+      fillOpacity: 0.04
+    }
   }), /*#__PURE__*/React.createElement(Legend, {
     wrapperStyle: {
       fontSize: 12,
@@ -8048,7 +8560,11 @@ const TeamCapacity = () => {
   }), /*#__PURE__*/React.createElement(Tooltip, {
     content: /*#__PURE__*/React.createElement(CustomTooltip, {
       unit: "raw"
-    })
+    }),
+    cursor: {
+      fill: C.text,
+      fillOpacity: 0.04
+    }
   }), /*#__PURE__*/React.createElement(Legend, {
     wrapperStyle: {
       fontSize: 12,
@@ -8116,7 +8632,11 @@ const TeamCapacity = () => {
   }), /*#__PURE__*/React.createElement(Tooltip, {
     content: /*#__PURE__*/React.createElement(CustomTooltip, {
       unit: "raw"
-    })
+    }),
+    cursor: {
+      fill: C.text,
+      fillOpacity: 0.04
+    }
   }), /*#__PURE__*/React.createElement(Legend, {
     wrapperStyle: {
       fontSize: 11,
@@ -9342,6 +9862,84 @@ const VersionHistory = () => /*#__PURE__*/React.createElement("div", null, /*#__
     margin: 0
   }
 }, "Build & iteration log")), /*#__PURE__*/React.createElement("div", {
+  style: {
+    padding: '18px',
+    background: C.card,
+    border: `1px solid ${C.accent}88`,
+    borderRadius: 6,
+    marginBottom: 14
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 14
+  }
+}, /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 13,
+    fontWeight: 700,
+    color: C.accent
+  }
+}, "v1.14-A \xB7 May 27, 2026"), /*#__PURE__*/React.createElement("div", {
+  style: {
+    fontSize: 11,
+    color: C.textDim
+  }
+}, "Cap table \xB7 retention chart restructure \xB7 retained-intent toggle \xB7 2023 SVB caveat \xB7 Venture \u2192 Growth feeder \xB7 margin-% redesign \xB7 global hover softening")), /*#__PURE__*/React.createElement("ul", {
+  style: {
+    margin: 0,
+    paddingLeft: 18,
+    color: C.textMid,
+    fontSize: 13,
+    lineHeight: 1.7
+  }
+}, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Cap table now renders on Financials & Capital."), " Replaces the \u201Cavailable under NDA\u201D placeholder. Entity-level unit-holder breakdown as of 12/31/2025: 6 rows, 4 unit classes, footnotes naming Newlight Member (Propeller NL Holdings + SCI Partners) and Founder Holdings (PI Member Partners, LLC) plus the Voting Units definition. The 55.78% PI Member Partners stake is rendered as the partner-group rollup; the internal partner allocation is not disclosed. Total 66,333,333 units = 100%. Marked pending route to Kevin and Todd for any additions/footnotes before external ship. ", /*#__PURE__*/React.createElement("span", {
+  style: {
+    color: C.warm
+  }
+}, "src: Propeller Summary Cap Table 12/31/2025.")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "NRR retention chart restructured to read as a recovery trajectory."), " Previous version grouped by year, with three metrics per cluster. New version flips the grouping: ", /*#__PURE__*/React.createElement("strong", null, "cluster by metric"), " (Logo / GRR / NRR), three years (2023 / 2024 / 2025) inside each cluster, with a graded shade scheme so 2023 is the lightest and 2025 is the most saturated. The eye reads each cluster left-to-right as a mini-trajectory, and the NRR cluster (gold ramp) is the headline. NRR climb 66.7% \u2192 79.4% is now visible in a single frame."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Retained-intent filter on the cohort retention curves."), " New toggle above the yearly curves chart: ALL CLIENTS (default) vs RETAINED-INTENT ONLY. The retained-intent view excludes 76 clients across all cohorts that have a documented Churn Reason of \u201CProject Work\u201D or \u201CProject Work (not long-term)\u201D OR a Root Cause of \u201CShort Term Contract\u201D \u2014 i.e. clients whose engagement was always intended as short-duration. M12 retention moves under the filter: 2023 cohort 63.8% \u2192 69.6%, 2024 62.7% \u2192 69.0%, 2025 64.4% \u2192 65.2%. Methodology footnote discloses that 44% of churned clients have no documented reason in the source data, so the filter is conservative: a floor, not a ceiling. Toggle implementation is on the curves chart only (not on the per-month heatmap) since the curves are where the delta reads cleanly \u2014 heatmap rebuild would require recomputing 53 monthly cohorts at a different methodology than the existing v1.8 rebuild used. ", /*#__PURE__*/React.createElement("span", {
+  style: {
+    color: C.warm
+  }
+}, "src: Client Registry sheet, master v6.15.")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "2023 cohort SVB-era caveat block added."), " Below the yearly curves, a context block that names the 2023 vintage as the SVB-funding-collapse cohort: 67% of the 118 clients onboarded in 2023 were Venture-stage at intake (the highest share of any cohort), and the largest single churn-reason category is \u201CFinancial Hardship\u201D at 14% (17 of 118 clients \u2014 VCs that didn\u2019t follow on). \u201CHired Internally\u201D graduations another 7% (8 clients). 2024 cohort N=132 holds 67% at M12, 2025 cohort N=113 holds 64% at M12. The 2023 vintage\u2019s shape is a market-condition story, not a Propeller-quality story. Block displays in both filter views."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "\u201CVenture is also Growth\u2019s farm system\u201D callout on Segment Economics."), " New insight block between the Venture and Growth sections, anchored on the data point: ", /*#__PURE__*/React.createElement("strong", null, "18 of the 38 current Growth-segment clients (47%) were originally Venture clients who graduated"), " \u2014 all 18 had billings in FY2023 or FY2024 before being reclassified into Growth. Named clients include Boulder Care, Pelago Health, Pair Eyewear, Caddis, Belli Welli, Pavilion, Perelel Health, Killer Brownie, Rudi\u2019s Bakery, OneSkin. Implication for the segment shape: (a) Venture logo-count decline since 2022 isn\u2019t pure churn \u2014 part of it is flywheel; (b) Growth has two paths in, graduated Venture and direct landings, with nearly half of today\u2019s Growth book coming up through Venture. Methodology: Client Registry filtered to Client Stage = \u201CGrowth Stage\u201D AND First Month < 2024-09. ", /*#__PURE__*/React.createElement("span", {
+  style: {
+    color: C.warm
+  }
+}, "src: Client Registry, master v6.15.")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Recovery-shape chart redesigned: GM% and EBITDA% lines on the right axis."), " Previous version had GM bars dwarfed by Revenue bars at $40M axis scale, so a $100K GM adjustment was invisible (~0.25% of the axis range). New chart: Revenue bars on the left axis ($M) unchanged, plus two percentage lines on the right axis (Margin %, \u221215% to 50% domain to accommodate the 2023 EBITDA% floor at ~\u22127%). GM% line in blue, EBITDA% line in green. The Adjusted / Reported toggle now produces visible movement: Q1 2026 GM% goes 33.9% \u2192 35.2%, EBITDA% goes 0.6% \u2192 2.0%. Tick formatter is whole-percent on the right axis. Reference line at y=0 preserved. Bridge table below the chart unchanged \u2014 it\u2019s the proof of the math."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "Global hover overlay softened across the deck."), " Recharts default tooltip cursor highlight was too bright at the default opacity (~0.1 with the accent color) and washed out the bars/lines underneath. All 11 Tooltip components across the deck now use ", /*#__PURE__*/React.createElement("code", null, "cursor={{fill:C.text, fillOpacity:0.04}}"), " \u2014 a low-opacity tint on the neutral text color. Reads as a barely-there shadow under the cursor instead of a glow. Affects Financials, Cohort Retention curves, Cohort Heatmap, Retention Triple, Trajectory, Segment Economics, Delivery, Team & Capacity, Why Now charts \u2014 everywhere with a Tooltip."), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("strong", {
+  style: {
+    color: C.text
+  }
+}, "v1.14-A scope cut."), " 10-item v1.14 queue was split into A/B per SKILL \xA78.1 (3,800-line JSX + 10 items is split-ship territory). v1.14-A ships the heavy/data-bound items: cap table, retention restructure, retained-intent toggle, SVB caveat, feeder insight, recovery-shape redesign, global hover softening. v1.14-B will pick up: drop Data Room tab + reindex, new Version Tracker tab, 2027 \u2192 \u201CCollaborative exercise \xB7 TBD\u201D copy fix (two locations), Info Request file actions (Open buttons, checkboxes, batch ZIP front-end), logo grid corrections (The Farmer\u2019s Dog unicorn, Keeps Acquired). Smoke test re-run between A and B."))), /*#__PURE__*/React.createElement("div", {
   style: {
     padding: '18px',
     background: C.card,
@@ -10738,7 +11336,6 @@ function PropellerInvestorDashboard() {
     }
   }, "\xA9 Propeller Industries 2026")))));
 }
-
 
   var root = globalThis.ReactDOM.createRoot(document.getElementById("root"));
   root.render(globalThis.React.createElement(PropellerInvestorDashboard));
